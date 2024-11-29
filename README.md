@@ -7,6 +7,11 @@ This project aims to hook and re-implement various gamepad APIs such as XInput o
 
 The goal is to allow XInput-only games to support any gamepad controller supported by SDL (over 200+) out of the box with zero configuration.
 
+<p align="center">
+  <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
+  <em>XInput API calls</em>
+</p>
+
 Gamepad API
 ===========
 

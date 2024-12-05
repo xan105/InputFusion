@@ -179,6 +179,17 @@ set GAMEPAD_API_XINPUT=HOOK
 METAPHOR.exe
 ```
 
+#### `GAMEPAD_LED=BATTERYLVL`
+
+When enabled the LEDs of the controller are used to show the battery level of the controller:
+
+  - 100% / Green
+  - 75% / Yellow
+  - 50% / Orange
+  - 25% / Red
+
+Currently only available for PS4/PS5 controller in wireless.
+
 Caveats
 =======
 
@@ -192,4 +203,3 @@ Build
 Visual Studio 2022
   - Microsoft detour library provided through vcpkg
   - SDL3 Library recompiled as a static lib.
-  

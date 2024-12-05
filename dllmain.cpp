@@ -38,6 +38,7 @@ void SDL_eventLoop() {
     }
     std::cout << "SDL_INIT" << std::endl;
 
+    bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
     bool running = true;
     SDL_Event event;
     while (running) {
@@ -62,8 +63,12 @@ void SDL_eventLoop() {
                     }
                     break;
                 }
-                /*case SDL_EVENT_JOYSTICK_BATTERY_UPDATED: {
+                case SDL_EVENT_JOYSTICK_BATTERY_UPDATED: {
 
+                    if (!LEDAsBatteryLvl) break;
+
+                    std::cout << "SDL_EVENT_JOYSTICK_BATTERY_UPDATED" << std::endl;
+                    
                     SDL_GamepadType type = SDL_GetGamepadTypeForID(event.jbattery.which);
 
                     if (type == SDL_GAMEPAD_TYPE_PS4 || type == SDL_GAMEPAD_TYPE_PS5) {
@@ -97,7 +102,7 @@ void SDL_eventLoop() {
                         }
                     }
                     break;
-                }*/
+                }
                 case SDL_EVENT_QUIT: {
                     std::cout << "SDL_EVENT_QUIT" << std::endl;
                     running = false;

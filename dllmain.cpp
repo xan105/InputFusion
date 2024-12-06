@@ -9,6 +9,10 @@ found in the LICENSE file in the root directory of this source tree.
 #include "xinput.h"
 #include "util.h"
 
+SetWindowLongPtrW_t pSetWindowLongPtrW = nullptr;
+WNDPROC oldWndProc = nullptr;
+std::atomic<bool> running(true);
+
 void closeGamepads() {
 
     int count;
@@ -21,6 +25,9 @@ void closeGamepads() {
         SDL_Gamepad* gamepad = SDL_GetGamepadFromID(id);
         if (gamepad == nullptr) continue;
         SDL_SetGamepadPlayerIndex(gamepad, -1); //turn off player light
+        if (SDL_GetGamepadType(gamepad) == SDL_GAMEPAD_TYPE_PS4) {
+            SDL_SetGamepadLED(gamepad, 10, 20, 20); //Not the exact default color (no player) but close enough
+        }
         std::cout << "Closing gamepad: " << SDL_GetGamepadName(gamepad) << std::endl;
         SDL_CloseGamepad(gamepad);   
     }
@@ -30,7 +37,7 @@ void closeGamepads() {
 
 void SDL_eventLoop() {
 
-    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers input
+    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers input (SDL is not running in the main thread)
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         std::cout << "SDL_INIT_GAMEPAD > ERROR: " << SDL_GetError() << std::endl;
@@ -39,7 +46,6 @@ void SDL_eventLoop() {
     std::cout << "SDL_INIT" << std::endl;
 
     bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
-    bool running = true;
     SDL_Event event;
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -99,6 +105,7 @@ void SDL_eventLoop() {
                                 SDL_SetGamepadLED(gamepad, red, green, blue);
                                 std::cout << "SDL_SetGamepadLED" << std::endl;
                             }
+
                         }
                     }
                     break;
@@ -114,16 +121,24 @@ void SDL_eventLoop() {
     }
 
     closeGamepads();
+    std::cout << "BYE BYE" << std::endl;
     SDL_Quit();
 }
-
-
 
 DWORD WINAPI Main(LPVOID lpReserved) {
     #ifdef _DEBUG
         enableConsole();
     #endif
 
+     if (Getenv(L"GAMEPAD_SDL_EXIT") == L"HOOK") {
+        if (setDetoursForWndProcEvent()) {
+            std::cout << "Detour WndProcEvent" << std::endl;
+        }
+        else {
+            std::cerr << "Detour WndProcEvent FAILED" << std::endl;
+        }
+     }
+        
     if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
         if (setDetoursForXInput()) {
             std::cout << "Detour XInput" << std::endl;
@@ -136,7 +151,6 @@ DWORD WINAPI Main(LPVOID lpReserved) {
     SDL_eventLoop();
     return 0;
 }
-
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
     switch (ul_reason_for_call)
@@ -151,6 +165,41 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         }
     }
     return TRUE;
+}
+
+LRESULT CALLBACK NewWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+
+    if (msg == WM_CLOSE || msg == WM_DESTROY) {
+        running = false;
+    }
+
+    return CallWindowProcW(oldWndProc, hwnd, msg, wParam, lParam);
+}
+
+LONG_PTR WINAPI Detour_SetWindowLongPtrW(HWND hwnd, int nIndex, LONG_PTR dwNewLong) {
+    if (nIndex == GWLP_WNDPROC) {
+        oldWndProc = (WNDPROC)GetWindowLongPtrW(hwnd, nIndex);
+        return pSetWindowLongPtrW(hwnd, nIndex, (LONG_PTR)NewWndProc);
+    }
+
+    return pSetWindowLongPtrW(hwnd, nIndex, dwNewLong);
+}
+
+bool setDetoursForWndProcEvent() {
+    HMODULE hMod = LoadLibraryA("User32.dll");
+    if (hMod == nullptr) return false;
+
+    std::cout << "LoadLibraryA: User32.dll" << std::endl;
+
+    pSetWindowLongPtrW = (SetWindowLongPtrW_t)GetProcAddress(hMod, "SetWindowLongPtrW");
+    if (pSetWindowLongPtrW == nullptr) return false;
+        
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&(PVOID&)pSetWindowLongPtrW, Detour_SetWindowLongPtrW);
+    if (DetourTransactionCommit() != NO_ERROR) return false;
+
+    return true;
 }
 
 bool setDetoursForXInput() {

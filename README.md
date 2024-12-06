@@ -181,7 +181,7 @@ METAPHOR.exe
 
 #### `GAMEPAD_LED=BATTERYLVL`
 
-When enabled the LEDs of the controller are used to show the battery level of the controller:
+When enabled the LED light of the controller is used to show the battery level of the controller:
 
   - 100% / Green
   - 75% / Yellow
@@ -189,6 +189,15 @@ When enabled the LEDs of the controller are used to show the battery level of th
   - 25% / Red
 
 Currently only available for PS4/PS5 controller in wireless.
+
+#### `GAMEPAD_SDL_EXIT=HOOK`
+
+Because SDL is not running in the main thread and the game has no knowlegde of it. 
+The provided SDL `SDL_EVENT_QUIT` event is not enough to properly close SDL, to try to do so when the game exits, one solution is to subclass window procedure to intercept the events `WM_CLOSE` and/or `WM_DESTROY`.
+
+This is currently hidden behind an env var flag because a lot of mods and other 3rd party tool also like to subclass window procedure to modify or add functionnality (eg: hiding mouse cursor, disable input on focus lost, ...). This can have unexpected behavior or conflicts if the chain of window procedures is broken.
+
+Not properly closing SDL can result in leaks and the inability to reset LEDs status.
 
 Caveats
 =======

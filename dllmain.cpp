@@ -9,7 +9,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "xinput.h"
 #include "util.h"
 
-SetWindowLongPtrW_t pSetWindowLongPtrW = nullptr;
+SetWindowLong_t pSetWindowLong = nullptr;
 WNDPROC oldWndProc = nullptr;
 std::atomic<bool> running(true);
 
@@ -176,14 +176,26 @@ LRESULT CALLBACK NewWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return CallWindowProcW(oldWndProc, hwnd, msg, wParam, lParam);
 }
 
-LONG_PTR WINAPI Detour_SetWindowLongPtrW(HWND hwnd, int nIndex, LONG_PTR dwNewLong) {
-    if (nIndex == GWLP_WNDPROC) {
-        oldWndProc = (WNDPROC)GetWindowLongPtrW(hwnd, nIndex);
-        return pSetWindowLongPtrW(hwnd, nIndex, (LONG_PTR)NewWndProc);
-    }
+#if defined(_X86_)
+    LONG WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG dwNewLong) {
+        if (nIndex == GWLP_WNDPROC) {
+            oldWndProc = (WNDPROC)GetWindowLongW(hwnd, nIndex);
+            return pSetWindowLong(hwnd, nIndex, (LONG)NewWndProc);
+        }
 
-    return pSetWindowLongPtrW(hwnd, nIndex, dwNewLong);
-}
+        return pSetWindowLong(hwnd, nIndex, dwNewLong);
+    }
+#elif defined(_AMD64_)
+    LONG_PTR WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG_PTR dwNewLong) {
+        if (nIndex == GWLP_WNDPROC) {
+            oldWndProc = (WNDPROC)GetWindowLongPtrW(hwnd, nIndex);
+            return pSetWindowLong(hwnd, nIndex, (LONG_PTR)NewWndProc);
+        }
+
+        return pSetWindowLong(hwnd, nIndex, dwNewLong);
+    }
+#endif
+
 
 bool setDetoursForWndProcEvent() {
     HMODULE hMod = LoadLibraryA("User32.dll");
@@ -191,12 +203,17 @@ bool setDetoursForWndProcEvent() {
 
     std::cout << "LoadLibraryA: User32.dll" << std::endl;
 
-    pSetWindowLongPtrW = (SetWindowLongPtrW_t)GetProcAddress(hMod, "SetWindowLongPtrW");
-    if (pSetWindowLongPtrW == nullptr) return false;
+    #if defined(_X86_)
+        pSetWindowLong = (SetWindowLong_t)GetProcAddress(hMod, "SetWindowLongW");
+    #elif defined(_AMD64_)
+        pSetWindowLong = (SetWindowLong_t)GetProcAddress(hMod, "SetWindowLongPtrW");
+    #endif
+
+    if (pSetWindowLong == nullptr) return false;
         
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&(PVOID&)pSetWindowLongPtrW, Detour_SetWindowLongPtrW);
+    DetourAttach(&(PVOID&)pSetWindowLong, Detour_SetWindowLong);
     if (DetourTransactionCommit() != NO_ERROR) return false;
 
     return true;

@@ -109,8 +109,6 @@ void setDetoursForXInput() {
 
         XInputGetCapabilitiesEx_t pXInputGetCapabilitiesEx = (XInputGetCapabilitiesEx_t)GetProcAddress(hMod, MAKEINTRESOURCEA(108));
         if (pXInputGetCapabilitiesEx != nullptr) DetourAttach(&(PVOID&)pXInputGetCapabilitiesEx, XInputGetCapabilitiesEx);
-        
-        break;
     }
 }
 

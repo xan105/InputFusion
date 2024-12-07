@@ -144,13 +144,13 @@ void GetCapabilities(SDL_Gamepad* gamepad, XINPUT_CAPABILITIES* pCapabilities, b
 
 extern "C" {
     DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-        //std::cout << "XInputGetState()" << std::endl;
+        std::cout << "XInputGetState()" << std::endl;
         return GetState(dwUserIndex, pState, false);
     }
 
     DWORD WINAPI XInputSetState(DWORD dwUserIndex, const XINPUT_VIBRATION* pVibration) {
 
-        //std::cout << "XInputSetState()" << std::endl;
+        std::cout << "XInputSetState()" << std::endl;
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pVibration == nullptr)
             return ERROR_INVALID_PARAMETER;

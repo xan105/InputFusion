@@ -40,7 +40,7 @@ DWORD dwPacketNumber = 0;
 DWORD GetState(DWORD dwUserIndex, XINPUT_STATE* pState, bool extended = false) {
 
     if (dwUserIndex >= XUSER_MAX_COUNT || pState == nullptr)
-        return ERROR_BAD_ARGUMENTS;
+        return ERROR_INVALID_PARAMETER;
 
     SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
     if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -144,16 +144,16 @@ void GetCapabilities(SDL_Gamepad* gamepad, XINPUT_CAPABILITIES* pCapabilities, b
 
 extern "C" {
     DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-        std::cout << "XInputGetState()" << std::endl;
+        //std::cout << "XInputGetState()" << std::endl;
         return GetState(dwUserIndex, pState, false);
     }
 
     DWORD WINAPI XInputSetState(DWORD dwUserIndex, const XINPUT_VIBRATION* pVibration) {
 
-        std::cout << "XInputSetState()" << std::endl;
+        //std::cout << "XInputSetState()" << std::endl;
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pVibration == nullptr)
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
         
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -176,10 +176,10 @@ extern "C" {
         std::cout << "XInputGetBatteryInformation()" << std::endl;
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pBatteryInformation == nullptr)
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         if (!(devType == BATTERY_DEVTYPE_GAMEPAD || devType == BATTERY_DEVTYPE_HEADSET))
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -244,10 +244,10 @@ extern "C" {
         std::cout << "XInputGetCapabilities()" << std::endl;
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pCapabilities == nullptr)
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         if (!(dwFlags == 0 || dwFlags == XINPUT_FLAG_GAMEPAD))
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -297,10 +297,10 @@ extern "C" {
         std::cout << "XInputGetCapabilitiesEx()" << std::endl;
         
         if (dwUserIndex >= XUSER_MAX_COUNT || pCapabilities == nullptr)
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         if (!(dwFlags == 0 || dwFlags == XINPUT_FLAG_GAMEPAD))
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -330,7 +330,7 @@ extern "C" {
         std::cout << "XInputSetStateEx()" << std::endl;
         
         if (dwUserIndex >= XUSER_MAX_COUNT || pVibration == nullptr)
-            return ERROR_BAD_ARGUMENTS;
+            return ERROR_INVALID_PARAMETER;
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {

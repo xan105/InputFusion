@@ -181,6 +181,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="detour.h" />
+    <ClInclude Include="dinput8.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
@@ -191,6 +192,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="detour.cpp" />
+    <ClCompile Include="dinput8.cpp" />
+    <ClCompile Include="IDirectInput8A.cpp" />
+    <ClCompile Include="IDirectInput8W.cpp" />
+    <ClCompile Include="IDirectInputDevice8A.cpp" />
+    <ClCompile Include="IDirectInputDevice8W.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">

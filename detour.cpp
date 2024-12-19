@@ -7,6 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "pch.h"
 #include "detour.h"
 #include "xinput.h"
+#include "dinput8.h"
 #include "util.h"
 
 extern std::atomic<bool> running;
@@ -112,18 +113,30 @@ void setDetoursForXInput() {
     }
 }
 
+void setDetoursForDInput8() {
+    HMODULE hMod = LoadLibraryA("dinput8.dll");
+    if (hMod == nullptr) return;
+
+    std::cout << "LoadLibraryA: dinput8.dll" << std::endl;
+
+    DirectInput8Create_t pDirectInput8Create = (DirectInput8Create_t)GetProcAddress(hMod, "DirectInput8Create");
+    if (pDirectInput8Create != nullptr) DetourAttach(&(PVOID&)pDirectInput8Create, DirectInput8Create);
+}
+
 bool setDetours() {
 
     bool GAMEPAD_SDL_EXIT = Getenv(L"GAMEPAD_SDL_EXIT") == L"HOOK";
     bool GAMEPAD_API_XINPUT = Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK";
+    bool GAMEPAD_API_DINPUT8 = Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK";
 
-    if (!GAMEPAD_SDL_EXIT && !GAMEPAD_API_XINPUT) return false;
+    if (!GAMEPAD_SDL_EXIT && !GAMEPAD_API_XINPUT && !GAMEPAD_API_DINPUT8) return false;
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
     if (GAMEPAD_SDL_EXIT) setDetoursForWndProcEvent();
     if (GAMEPAD_API_XINPUT) setDetoursForXInput();
+    if (GAMEPAD_API_DINPUT8) setDetoursForDInput8();
 
     return DetourTransactionCommit() == NO_ERROR;
 }

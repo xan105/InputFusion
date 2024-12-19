@@ -166,6 +166,8 @@ binary.once("spawn", () => {
 Env Var
 =======
 
+🧪 Mostly experimental features are behind env var flags.
+
 #### `GAMEPAD_API_XINPUT=HOOK`
 
 Enable XInput functions hooking / detouring. 
@@ -198,6 +200,13 @@ The provided SDL `SDL_EVENT_QUIT` event is not enough to properly close SDL, to 
 This is currently hidden behind an env var flag because a lot of mods and other 3rd party tool also like to subclass window procedure to modify or add functionnality (eg: hiding mouse cursor, disable input on focus lost, ...). This can have unexpected behavior or conflicts if the chain of window procedures is broken.
 
 Not properly closing SDL can result in leaks and the inability to reset LEDs status.
+
+#### `GAMEPAD_API_DINPUT8=HOOK`
+
+Enable DInput 8 functions hooking / detouring.
+A lot of games rely on DInput device enumeration to decide if they should use XInput.
+
+_NB: The current implementation is very barebone and just reports a "fake" Xbox 360 controller to DInput._
 
 Caveats
 =======

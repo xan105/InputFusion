@@ -35,12 +35,13 @@ void closeGamepads() {
 
 void SDL_eventLoop() {
 
+    //SDL Gamepad APIs
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0"); //Prevent SDL using our implementation of DInput (when hooking)
     SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0"); //Prevent SDL using our implementation of XInput (when hooking)
     SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-    
+    //SDL Gamepad APIs Tweaks
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "1"); //raw input pull data from WGI providing better support for Xbox controllers.
     SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers raw input (SDL is not running in the main thread)
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); //Enable PS3 via its driver

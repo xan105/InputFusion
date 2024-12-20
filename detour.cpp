@@ -16,8 +16,9 @@ SetWindowLong_t pSetWindowLong = nullptr;
 WNDPROC oldWndProc = nullptr;
 
 LRESULT CALLBACK NewWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    if (msg == WM_CLOSE || msg == WM_DESTROY) {
+    if (msg == WM_QUIT || msg == WM_CLOSE || msg == WM_DESTROY) {
         running = false; //Exit SDL_eventLoop()
+        Sleep(100);
     }
     return CallWindowProcW(oldWndProc, hwnd, msg, wParam, lParam);
 }

@@ -1,3 +1,9 @@
+/*
+Copyright (c) Anthony Beaumont
+This source code is licensed under the MIT License
+found in the LICENSE file in the root directory of this source tree.
+*/
+
 #include "pch.h"
 #include "dinput8.h"
 
@@ -96,10 +102,8 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 		};
 
 		lpddi.dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID); //0x00010215
-
 		wcscpy_s(lpddi.tszInstanceName, _countof(lpddi.tszInstanceName), XBOX360_INSTANCE_NAMEW);
 		wcscpy_s(lpddi.tszProductName, _countof(lpddi.tszProductName), XBOX360_PRODUCT_NAMEW);
-
 		lpddi.guidFFDriver = GUID_NULL;
 		lpddi.wUsagePage = 0x01;
 		lpddi.wUsage = 0x05;

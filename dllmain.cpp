@@ -10,6 +10,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "util.h"
 
 std::atomic<bool> running(true);
+HANDLE hSDL_Quit = nullptr;
 
 void closeGamepads() {
 
@@ -34,6 +35,8 @@ void closeGamepads() {
 }
 
 void SDL_eventLoop() {
+
+    hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
     //SDL Gamepad APIs
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0"); //Prevent SDL using our implementation of DInput (when hooking)
@@ -134,6 +137,7 @@ void SDL_eventLoop() {
     closeGamepads();
     std::cout << "BYE BYE" << std::endl;
     SDL_Quit();
+    SetEvent(hSDL_Quit);
 }
 
 DWORD WINAPI Main(LPVOID lpReserved) {

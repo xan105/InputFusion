@@ -25,6 +25,12 @@ LONG WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG dwNewLong);
 #elif defined(_AMD64_)
 LONG_PTR WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG_PTR dwNewLong);
 #endif
+
+
+typedef void (WINAPI* ExitProcess_t)(UINT uExitCode);
+void WINAPI Detour_ExitProcess(UINT uExitCode);
+
+
 void setDetoursForWndProcEvent();
 void setDetoursForXInput();
 bool setDetours();

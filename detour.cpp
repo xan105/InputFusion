@@ -11,14 +11,19 @@ found in the LICENSE file in the root directory of this source tree.
 #include "util.h"
 
 extern std::atomic<bool> running;
+extern HANDLE hSDL_Quit;
 
 SetWindowLong_t pSetWindowLong = nullptr;
+ExitProcess_t pExitProcess = nullptr;
 WNDPROC oldWndProc = nullptr;
+HWND WinHwnd = nullptr;
 
 LRESULT CALLBACK NewWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    if (msg == WM_QUIT || msg == WM_CLOSE || msg == WM_DESTROY) {
-        running = false; //Exit SDL_eventLoop()
-        Sleep(100);
+    if (hwnd == WinHwnd) {
+        if (msg == WM_CLOSE || msg == WM_DESTROY) {
+            running = false; //Exit SDL_eventLoop()
+            WaitForSingleObject(hSDL_Quit, 1000);
+        }
     }
     return CallWindowProcW(oldWndProc, hwnd, msg, wParam, lParam);
 }
@@ -26,6 +31,7 @@ LRESULT CALLBACK NewWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 #if defined(_X86_)
 LONG WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG dwNewLong) {
     if (nIndex == GWLP_WNDPROC) {
+        WinHwnd = hwnd;
         oldWndProc = (WNDPROC)GetWindowLongW(hwnd, nIndex);
         return pSetWindowLong(hwnd, nIndex, (LONG)NewWndProc);
     }
@@ -35,6 +41,7 @@ LONG WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG dwNewLong) {
 #elif defined(_AMD64_)
 LONG_PTR WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG_PTR dwNewLong) {
     if (nIndex == GWLP_WNDPROC) {
+        WinHwnd = hwnd;
         oldWndProc = (WNDPROC)GetWindowLongPtrW(hwnd, nIndex);
         return pSetWindowLong(hwnd, nIndex, (LONG_PTR)NewWndProc);
     }
@@ -42,6 +49,14 @@ LONG_PTR WINAPI Detour_SetWindowLong(HWND hwnd, int nIndex, LONG_PTR dwNewLong) 
     return pSetWindowLong(hwnd, nIndex, dwNewLong);
 }
 #endif
+
+void WINAPI Detour_ExitProcess(UINT uExitCode) {
+    std::cout << "ExitProcess()" << std::endl;
+    running = false; //Exit SDL_eventLoop()
+    WaitForSingleObject(hSDL_Quit, 1000);
+    CloseHandle(hSDL_Quit);
+    return pExitProcess(uExitCode);
+}
 
 void setDetoursForWndProcEvent() {
     HMODULE hMod = LoadLibraryA("User32.dll");
@@ -56,6 +71,16 @@ void setDetoursForWndProcEvent() {
     #endif
 
     if (pSetWindowLong != nullptr) DetourAttach(&(PVOID&)pSetWindowLong, Detour_SetWindowLong);
+}
+
+void setDetoursExitProcess() {
+    HMODULE hMod = LoadLibraryA("KERNEL32.dll");
+    if (hMod == nullptr) return;
+
+    std::cout << "LoadLibraryA: KERNEL32.dll" << std::endl;
+
+    pExitProcess = (ExitProcess_t)GetProcAddress(hMod, "ExitProcess");
+    if (pExitProcess != nullptr) DetourAttach(&(PVOID&)pExitProcess, Detour_ExitProcess);
 }
 
 void setDetoursForXInput() {
@@ -135,7 +160,10 @@ bool setDetours() {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    if (GAMEPAD_SDL_EXIT) setDetoursForWndProcEvent();
+    if (GAMEPAD_SDL_EXIT) {
+        setDetoursForWndProcEvent();
+        setDetoursExitProcess();
+    }
     if (GAMEPAD_API_XINPUT) setDetoursForXInput();
     if (GAMEPAD_API_DINPUT8) setDetoursForDInput8();
 

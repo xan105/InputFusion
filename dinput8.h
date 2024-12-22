@@ -56,6 +56,8 @@ DEFINE_GUID(GUID_SysMouse, 0x6b9b1bf0, 0x846b, 0x11d0, 0x97, 0x0b, 0x00, 0xa0, 0
 
 #define DI8DEVTYPEGAMEPAD_STANDARD  2
 
+#define DIDC_ATTACHED           0x00000001
+#define DIDC_EMULATED           0x00000004
 
 #define XBOX360_VID	0x028E
 #define XBOX360_PID	0x045E
@@ -253,6 +255,15 @@ typedef struct DIDEVCAPS {
     DWORD   dwHardwareRevision;
     DWORD   dwFFDriverVersion;
 } DIDEVCAPS, * LPDIDEVCAPS;
+
+typedef struct DIDEVCAPS_DX3 {
+    DWORD   dwSize;
+    DWORD   dwFlags;
+    DWORD   dwDevType;
+    DWORD   dwAxes;
+    DWORD   dwButtons;
+    DWORD   dwPOVs;
+} DIDEVCAPS_DX3, * LPDIDEVCAPS_DX3;
 
 typedef struct DIDEVICEOBJECTINSTANCEA {
     DWORD   dwSize;

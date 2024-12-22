@@ -6,6 +6,22 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "pch.h"
 #include "dinput8.h"
+#include <unordered_map>
+
+/*const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+	{SDL_GAMEPAD_BUTTON_SOUTH, 0},
+	{SDL_GAMEPAD_BUTTON_EAST, 1},
+	{SDL_GAMEPAD_BUTTON_WEST, 2},
+	{SDL_GAMEPAD_BUTTON_NORTH, 3},
+	{SDL_GAMEPAD_BUTTON_BACK, 6},
+	{SDL_GAMEPAD_BUTTON_START, 7},
+	{SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
+	{SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
+	{SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
+	{SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
+	{SDL_GAMEPAD_BUTTON_TOUCHPAD, 6}
+};*/
+
 
 IDirectInputDevice8W::IDirectInputDevice8W() : m_refCount(1) {
 	std::cout << "IDirectInputDevice8W" << std::endl;
@@ -50,7 +66,37 @@ STDMETHODIMP_(ULONG) IDirectInputDevice8W::Release() {
 
 STDMETHODIMP IDirectInputDevice8W::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
 	std::cout << "IDirectInputDevice8W::GetCapabilities()" << std::endl;
-	return E_NOTIMPL;
+
+	if (lpDIDevCaps == nullptr) return E_POINTER;
+	if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
+
+	if (lpDIDevCaps->dwSize == sizeof(DIDEVCAPS)) {
+		ZeroMemory(lpDIDevCaps, sizeof(DIDEVCAPS));
+		lpDIDevCaps->dwSize = sizeof(DIDEVCAPS);
+	}
+	else if (lpDIDevCaps->dwSize == sizeof(DIDEVCAPS_DX3)) {
+		ZeroMemory(lpDIDevCaps, sizeof(DIDEVCAPS_DX3));
+		lpDIDevCaps->dwSize = sizeof(DIDEVCAPS_DX3);
+	}
+	else {
+		return DIERR_INVALIDPARAM;
+	}
+
+	lpDIDevCaps->dwFlags = DIDC_ATTACHED | DIDC_EMULATED;
+	lpDIDevCaps->dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID);
+	lpDIDevCaps->dwAxes = 5;
+	lpDIDevCaps->dwButtons = 10;
+	lpDIDevCaps->dwPOVs = 1;
+
+	if (lpDIDevCaps->dwSize == sizeof(DIDEVCAPS)) {
+		lpDIDevCaps->dwFFSamplePeriod = 0;
+		lpDIDevCaps->dwFFMinTimeResolution = 0;
+		lpDIDevCaps->dwFirmwareRevision = 0;
+		lpDIDevCaps->dwHardwareRevision = 0;
+		lpDIDevCaps->dwFFDriverVersion = 0;
+	}
+
+	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
@@ -90,6 +136,39 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
 	//IDirectInputDevice8::SetDataFormat
 	//c_dfDIJoystick -> DIJOYSTATE
 	//c_dfDIJoystick2 -> DIJOYSTATE2
+
+
+
+	/*for (const auto& sdl_axis : AXIS) {
+
+		int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
+
+		if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
+			state.lX = value;
+		}
+		else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTY) {
+			state.lY = value
+		}
+		else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTX) {
+			state.lRx = value;
+		}
+		else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTY) {
+			state.lRy = value;
+		}
+		//Xbox controller over DInput: 
+		//The left and right trigger buttons will act as a single button, not independently.
+		//Triggers are combined, one trigger to a positive direction and the other to a negative direction.
+		else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER) {
+			state.lZ = std::clamp(-value, -32768, 0);
+		}
+		else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
+			state.lZ = std::clamp(value, 0, 32767);
+		}
+	}*/
+
+
+
+
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags) {

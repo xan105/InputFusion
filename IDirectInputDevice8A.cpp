@@ -49,7 +49,37 @@ STDMETHODIMP_(ULONG) IDirectInputDevice8A::Release() {
 
 STDMETHODIMP IDirectInputDevice8A::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
 	std::cout << "IDirectInputDevice8A::GetCapabilities()" << std::endl;
-	return E_NOTIMPL;
+
+	if (lpDIDevCaps == nullptr) return E_POINTER;
+	if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
+
+	if (lpDIDevCaps->dwSize == sizeof(DIDEVCAPS)) {
+		ZeroMemory(lpDIDevCaps, sizeof(DIDEVCAPS));
+		lpDIDevCaps->dwSize = sizeof(DIDEVCAPS);
+	}
+	else if (lpDIDevCaps->dwSize == sizeof(DIDEVCAPS_DX3)) {
+		ZeroMemory(lpDIDevCaps, sizeof(DIDEVCAPS_DX3));
+		lpDIDevCaps->dwSize = sizeof(DIDEVCAPS_DX3);
+	}
+	else {
+		return DIERR_INVALIDPARAM;
+	}
+
+	lpDIDevCaps->dwFlags = DIDC_ATTACHED | DIDC_EMULATED;
+	lpDIDevCaps->dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID);
+	lpDIDevCaps->dwAxes = 5;
+	lpDIDevCaps->dwButtons = 10;
+	lpDIDevCaps->dwPOVs = 1;
+
+	if (lpDIDevCaps->dwSize == sizeof(DIDEVCAPS)) {
+		lpDIDevCaps->dwFFSamplePeriod = 0;
+		lpDIDevCaps->dwFFMinTimeResolution = 0;
+		lpDIDevCaps->dwFirmwareRevision = 0;
+		lpDIDevCaps->dwHardwareRevision = 0;
+		lpDIDevCaps->dwFFDriverVersion = 0;
+	}
+
+	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8A::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags) {

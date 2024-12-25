@@ -7,8 +7,9 @@ found in the LICENSE file in the root directory of this source tree.
 #include "pch.h"
 #include "dinput8.h"
 #include <unordered_map>
+#include <algorithm>
 
-/*const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
 	{SDL_GAMEPAD_BUTTON_SOUTH, 0},
 	{SDL_GAMEPAD_BUTTON_EAST, 1},
 	{SDL_GAMEPAD_BUTTON_WEST, 2},
@@ -20,8 +21,16 @@ found in the LICENSE file in the root directory of this source tree.
 	{SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
 	{SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
 	{SDL_GAMEPAD_BUTTON_TOUCHPAD, 6}
-};*/
+};
 
+const std::vector<SDL_GamepadAxis> AXIS = {
+	SDL_GAMEPAD_AXIS_LEFTX,
+	SDL_GAMEPAD_AXIS_LEFTY,
+	SDL_GAMEPAD_AXIS_RIGHTX,
+	SDL_GAMEPAD_AXIS_RIGHTY,
+	SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
+	SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
+};
 
 IDirectInputDevice8W::IDirectInputDevice8W() : m_refCount(1) {
 	std::cout << "IDirectInputDevice8W" << std::endl;
@@ -131,44 +140,133 @@ STDMETHODIMP IDirectInputDevice8W::Unacquire() {
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) {
 	std::cout << "IDirectInputDevice8W::GetDeviceState()" << std::endl;
-	return E_NOTIMPL;
 
 	//IDirectInputDevice8::SetDataFormat
 	//c_dfDIJoystick -> DIJOYSTATE
 	//c_dfDIJoystick2 -> DIJOYSTATE2
 
+	if (lpvData == nullptr) return DIERR_INVALIDPARAM;
+	if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2)) return DIERR_INVALIDPARAM;
+	if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
 
+	SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
+	if (!(Flags & SDL_INIT_GAMEPAD)) {
+		return E_PENDING;
+	}
 
-	/*for (const auto& sdl_axis : AXIS) {
+	SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(this->playerIndex);
+	if (gamepad == nullptr) {
+		return DIERR_NOTACQUIRED;
+	}
 
+	ZeroMemory(lpvData, cbData);
+
+	for (const auto& [sdl_button, index] : BUTTONS) {
+		if (SDL_GetGamepadButton(gamepad, sdl_button)) {
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->rgbButtons[index] = 0x80;
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->rgbButtons[index] = 0x80;
+			}
+		}
+	}
+
+	DWORD pov = 0xFFFF; //Centered (no direction pressed)
+	bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+	bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+	bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+	bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+
+	if (up && down || left && right) {
+		pov = 0xFFFF; // Opposing directions are cancelled out
+	}
+	else if (up && left) {
+		pov = 0x0007;
+	}
+	else if (up && right) {
+		pov = 0x0001;
+	}
+	else if (down && left) {
+		pov = 0x0005;
+	}
+	else if (down && right) {
+		pov = 0x0003;
+	}
+	else if (up) {
+		pov = 0x0000;
+	}
+	else if (down) {
+		pov = 0x0004;
+	}
+	else if (left) {
+		pov = 0x0006;
+	}
+	else if (right) {
+		pov = 0x0002;
+	}
+
+	if (cbData == sizeof(DIJOYSTATE)) {
+		((DIJOYSTATE*)lpvData)->rgdwPOV[0] = pov;
+	}
+	else if (cbData == sizeof(DIJOYSTATE2)) {
+		((DIJOYSTATE2*)lpvData)->rgdwPOV[0] = pov;
+	}
+
+	for (const auto& sdl_axis : AXIS) {
 		int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
-
 		if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
-			state.lX = value;
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->lX = value;
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->lX = value;
+			}
 		}
 		else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTY) {
-			state.lY = value
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->lY = value;
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->lY = value;
+			}
 		}
 		else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTX) {
-			state.lRx = value;
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->lRx = value;
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->lRx = value;
+			}
 		}
 		else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTY) {
-			state.lRy = value;
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->lRy = value;
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->lRy = value;
+			}
 		}
-		//Xbox controller over DInput: 
-		//The left and right trigger buttons will act as a single button, not independently.
-		//Triggers are combined, one trigger to a positive direction and the other to a negative direction.
+		// Combine left trigger and right trigger as one axis for DInput Xbox controllers
 		else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER) {
-			state.lZ = std::clamp(-value, -32768, 0);
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->lZ = std::clamp(-value, -32768, 0);
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->lZ = std::clamp(-value, -32768, 0);
+			}
 		}
 		else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
-			state.lZ = std::clamp(value, 0, 32767);
+			if (cbData == sizeof(DIJOYSTATE)) {
+				((DIJOYSTATE*)lpvData)->lZ = std::clamp(value, 0, 32767);
+			}
+			else if (cbData == sizeof(DIJOYSTATE2)) {
+				((DIJOYSTATE2*)lpvData)->lZ = std::clamp(value, 0, 32767);
+			}
 		}
-	}*/
-
-
-
-
+	}
+	
+	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags) {
@@ -266,7 +364,7 @@ STDMETHODIMP IDirectInputDevice8W::Escape(LPDIEFFESCAPE pesc) {
 
 STDMETHODIMP IDirectInputDevice8W::Poll() {
 	std::cout << "IDirectInputDevice8W::Poll()" << std::endl;
-	//SDL_UpdateGamepads();
+	SDL_UpdateGamepads();
 	return DI_OK;
 }
 

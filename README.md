@@ -70,7 +70,7 @@ Gamepad API
       - IDirectInputDevice8::SetEventNotification ❌
       - IDirectInputDevice8::SetProperty ❌
       - IDirectInputDevice8::Unacquire ⚠
-      - IDirectInputDevice8::WriteEffectToFile
+      - IDirectInputDevice8::WriteEffectToFile ❌
     + IDirectInput8::EnumDevices ⚠
     + IDirectInput8::EnumDevicesBySemantics ❌
     + IDirectInput8::FindDevice ❌
@@ -181,7 +181,7 @@ Env Var
 
 #### `GAMEPAD_API_XINPUT=HOOK`
 
-Enable XInput functions hooking / detouring. 
+Enable XInput functions hooking / detouring.<br />
 This forces the use of the XInput functions from the DLL when calling XInput functions.
 
 #### `GAMEPAD_LED=BATTERYLVL`
@@ -209,7 +209,7 @@ Not properly closing SDL can result in leaks and the inability to reset LEDs sta
 Enable DInput8 functions hooking / detouring.
 
 > [!WARNING]  
-> The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations with DInput as a real Xbox 360 controller such as no force deedback and no invididual trigger axis.
+> The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force deedback and no invididual trigger axis.
 > Games have different DInput layout expectation depending on their era and/or gamepads they support.
 
 Caveats
@@ -217,7 +217,7 @@ Caveats
 
 - SDL might still be initializing when the game does it's first Gamepad API call (on startup).
 
-- Games that support more than one input API usually do a lot of APIs sniffing behind the scenes (DInput device enum, PNP entity enum (COM), HID enum, ...).
+- Games that support more than one input API usually do a lot of APIs sniffing behind the scenes.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed to choose which input API to use.
 
 Build

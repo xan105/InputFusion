@@ -12,8 +12,8 @@ The goal is to allow old and new games to support any gamepad controller support
   <em>XInput API calls</em>
 </p>
 
-Gamepad API
-===========
+Gamepad APIs support
+====================
 
 <details><summary>XInput</summary>
 
@@ -75,7 +75,7 @@ Gamepad API
     + IDirectInput8::EnumDevicesBySemantics ❌
     + IDirectInput8::FindDevice ❌
     + IDirectInput8::GetDeviceStatus ❌
-    + IDirectInput8::Initialize ❌
+    + IDirectInput8::Initialize ⚠
     + IDirectInput8::RunControlPanel ❌
 
 </details>
@@ -88,7 +88,9 @@ _To Do_
 _To Do_
 </details>
 
-✔: Implemented | ⚠: WIP | ❌: To do | 🚫: Won't implement (Deprecated)
+|✔|⚠|❌|🚫|
+|-|-|-|-|
+|Implemented|Work in progress|To do|Won't (Deprecated)|
 
 ### Out of scope
 
@@ -217,8 +219,9 @@ Caveats
 
 - SDL might still be initializing when the game does it's first Gamepad API call (on startup).
 
-- Games that support more than one input API usually do a lot of APIs sniffing behind the scenes.
-  Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed to choose which input API to use.
+- Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
+  Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.
+  The focus of this project is **for now** on API translation and not on _poorly engineered_ games compatibility. 
 
 Build
 =====

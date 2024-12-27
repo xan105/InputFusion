@@ -85,7 +85,18 @@ _To Do_
 </details>
 
 <details><summary>WinMM</summary>
-_To Do_
+
+  - joyConfigChanged ❌
+  - joyGetDevCapsA ❌
+  - joyGetDevCapsW ❌
+  - joyGetNumDevs ❌
+  - joyGetPos ❌
+  - joyGetPosEx ❌
+  - joyGetThreshold ❌
+  - joyReleaseCapture ❌
+  - joySetCapture ❌
+  - joySetThreshold ❌
+  
 </details>
 
 |✔|⚠|❌|🚫|

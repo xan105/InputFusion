@@ -92,24 +92,28 @@
     <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>winmm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
+    <TargetName>winmm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>winmm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
+    <TargetName>winmm</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

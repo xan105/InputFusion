@@ -141,9 +141,9 @@ void SDL_eventLoop() {
 }
 
 DWORD WINAPI Main(LPVOID lpReserved) {
-    #ifdef _DEBUG
+    //#ifdef _DEBUG
         enableConsole();
-    #endif
+    //#endif
 
     if (setDetours()) std::cout << "Detours set !" << std::endl;
 

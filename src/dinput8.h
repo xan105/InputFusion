@@ -621,6 +621,14 @@ public:
 
 typedef HRESULT(WINAPI* DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
 
-//extern "C" {
-	HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
-//}
+#ifdef _DINPUT8_EXPORTS
+extern "C" {
+#endif
+  HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
+  HRESULT WINAPI DllCanUnloadNow();
+  HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv);
+  HRESULT WINAPI DllRegisterServer();
+  HRESULT WINAPI DllUnregisterServer();
+#ifdef _DINPUT8_EXPORTS
+}
+#endif

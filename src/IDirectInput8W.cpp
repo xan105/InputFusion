@@ -87,6 +87,8 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 		DIDEVICEINSTANCEW lpddi = { 0 };
 		lpddi.dwSize = sizeof(DIDEVICEINSTANCEW);
 
+		//add a flag to create a ds4 instead ?
+
 		//To ID the gamepad later on when creating a device, I'm encoding the corresponding playerIndex into the fake guid instance
 		lpddi.guidInstance = {
 			MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 (VID + PID)

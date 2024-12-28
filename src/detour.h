@@ -6,11 +6,11 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include <Windows.h>
 #include <iostream>
-#include "vendor/Detour/detours.h"
+#include "../vendor/Detour/detours.h"
 #if defined(_X86_)
-#pragma comment(lib, "vendor/Detour/detours.x86.lib")
+#pragma comment(lib, "../vendor/Detour/detours.x86.lib")
 #elif defined(_AMD64_)
-#pragma comment(lib, "vendor/Detour/detours.x64.lib")
+#pragma comment(lib, "../vendor/Detour/detours.x64.lib")
 #endif
 
 #if defined(_X86_)

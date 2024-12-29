@@ -229,7 +229,7 @@ Not properly closing SDL can result in leaks and the inability to reset LEDs sta
 Enable DInput8 functions hooking / detouring.
 
 > [!WARNING]  
-> The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force deedback and no invididual trigger axis.
+> The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force feedback and no individual trigger axis..
 > Games have different DInput layout expectation depending on their era and/or gamepads they support.
 
 Caveats

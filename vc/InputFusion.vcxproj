@@ -105,25 +105,25 @@
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

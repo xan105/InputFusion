@@ -18,13 +18,46 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\detour.h" />
+    <ClInclude Include="..\src\dinput8.h" />
+    <ClInclude Include="..\src\dllmain.h" />
+    <ClInclude Include="..\src\framework.h" />
+    <ClInclude Include="..\src\pch.h" />
+    <ClInclude Include="..\src\resource.h" />
+    <ClInclude Include="..\src\util.h" />
+    <ClInclude Include="..\src\version.h" />
+    <ClInclude Include="..\src\xinput.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\InputFusion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\dinput8.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\detour.cpp" />
+    <ClCompile Include="..\src\dinput8.cpp" />
+    <ClCompile Include="..\src\dllmain.cpp" />
+    <ClCompile Include="..\src\IDirectInput8A.cpp" />
+    <ClCompile Include="..\src\IDirectInput8W.cpp" />
+    <ClCompile Include="..\src\IDirectInputDevice8A.cpp" />
+    <ClCompile Include="..\src\IDirectInputDevice8W.cpp" />
+    <ClCompile Include="..\src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\src\util.cpp" />
+    <ClCompile Include="..\src\xinput.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a64935fe-edd8-4082-a0f9-02b4102a08e0}</ProjectGuid>
-    <RootNamespace>InputFusion</RootNamespace>
+    <ProjectGuid>{dd39483f-2bb3-4564-8a5d-e9d8ee46e674}</ProjectGuid>
+    <RootNamespace>DInput8</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>InputFusion</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,26 +105,38 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
+    <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
+    <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
+    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
+    <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\GitHub\xan105\public\InputFusion\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
+    <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\build\$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
+    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;SDLINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);SDL_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -103,9 +148,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>XInput.def</ModuleDefinitionFile>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>..\src\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,7 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;SDLINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -128,16 +171,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>XInput.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\src\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;SDLINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);SDL_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -149,9 +190,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>XInput.def</ModuleDefinitionFile>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>..\src\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,7 +199,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;SDLINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -174,39 +213,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>XInput.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\src\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="detour.h" />
-    <ClInclude Include="dllmain.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="util.h" />
-    <ClInclude Include="version.h" />
-    <ClInclude Include="xinput.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="detour.cpp" />
-    <ClCompile Include="util.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="xinput.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="XInput.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="InputFusion.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

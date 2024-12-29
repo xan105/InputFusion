@@ -1,4 +1,4 @@
-LIBRARY InputFusion.dll
+LIBRARY "xinput.dll"
 EXPORTS
 DllMain                         @1
 XInputGetState                  @2

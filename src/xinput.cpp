@@ -142,9 +142,12 @@ void GetCapabilities(SDL_Gamepad* gamepad, XINPUT_CAPABILITIES* pCapabilities, b
     }
 }
 
+
+#ifdef _XINPUT_EXPORTS
 extern "C" {
+#endif
     DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-        std::cout << "XInputGetState()" << std::endl;
+       std::cout << "XInputGetState()" << std::endl;
         return GetState(dwUserIndex, pState, false);
     }
 
@@ -364,5 +367,6 @@ extern "C" {
         std::cout << "XInputGetDSoundAudioDeviceGuids()" << std::endl;
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
-
+#ifdef _XINPUT_EXPORTS
 }
+#endif

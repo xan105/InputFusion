@@ -5,15 +5,15 @@ This is an attempt at creating an _"open source Steam Input"_. Specifically the 
 
 This project aims to hook and re-implement various gamepad APIs such as XInput over [SDL](https://www.libsdl.org/).
 
-The goal is to allow XInput-only games to support any gamepad controller supported by SDL (over 200+) out of the box with zero configuration.
+The goal is to allow old and new games to support any gamepad controller supported by SDL (over 200+) out of the box with zero configuration.
 
 <p align="center">
   <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
   <em>XInput API calls</em>
 </p>
 
-Gamepad API
-===========
+Gamepad APIs support
+====================
 
 <details><summary>XInput</summary>
 
@@ -24,63 +24,84 @@ Gamepad API
   - XInputGetBatteryInformation ✔️
   - XInputGetCapabilities ✔️
   - XInputGetCapabilitiesEx ✔️ 
-  - XInputGetKeystroke ⚠️
-  - XInputWaitForGuideButton ⚠️
-  - XInputCancelGuideButtonWait ⚠️
-  - XInputPowerOffController ⚠️
-  - XInputGetBaseBusInformation ⚠️
-  - XInputEnable ❌
-  - XInputGetAudioDeviceIds ❌
-  - XInputGetDSoundAudioDeviceGuids ❌
+  - XInputGetKeystroke ❌️
+  - XInputWaitForGuideButton ❌️
+  - XInputCancelGuideButtonWait ❌
+  - XInputPowerOffController ❌
+  - XInputGetBaseBusInformation ❌
+  - XInputEnable 🚫
+  - XInputGetAudioDeviceIds 🚫
+  - XInputGetDSoundAudioDeviceGuids 🚫
 
 ¹ NB: XInputSetStateEx() from GDK _(XInputOnGameInput)_ is implemented and has been arbitrarily set to ordinal 1000. It does not exist in XInput.
 
 </details>
 
-<details><summary>DInput (WIP)</summary>
+<details><summary>DInput8</summary>
 
-  - DirectInput8Create
-    + IDirectInput8::ConfigureDevices
-    + IDirectInput8::CreateDevice
-      - IDirectInputDevice8::Acquire
-      - IDirectInputDevice8::BuildActionMap
-      - IDirectInputDevice8::CreateEffect
-      - IDirectInputDevice8::EnumCreatedEffectObjects
-      - IDirectInputDevice8::EnumEffects
-      - IDirectInputDevice8::EnumEffectsInFile
-      - IDirectInputDevice8::EnumObjects
-      - IDirectInputDevice8::Escape
-      - IDirectInputDevice8::GetCapabilities
-      - IDirectInputDevice8::GetDeviceData
-      - IDirectInputDevice8::GetDeviceInfo
-      - IDirectInputDevice8::GetDeviceState
-      - IDirectInputDevice8::GetEffectInfo
-      - IDirectInputDevice8::GetForceFeedbackState
-      - IDirectInputDevice8::GetImageInfo
-      - IDirectInputDevice8::GetObjectInfo
-      - IDirectInputDevice8::GetProperty
-      - IDirectInputDevice8::Initialize
-      - IDirectInputDevice8::Poll
-      - IDirectInputDevice8::RunControlPanel
-      - IDirectInputDevice8::SendDeviceData
-      - IDirectInputDevice8::SendForceFeedbackCommand
-      - IDirectInputDevice8::SetActionMap
-      - IDirectInputDevice8::SetCooperativeLevel
-      - IDirectInputDevice8::SetDataFormat
-      - IDirectInputDevice8::SetEventNotification
-      - IDirectInputDevice8::SetProperty
-      - IDirectInputDevice8::Unacquire
-      - IDirectInputDevice8::WriteEffectToFile
-    + IDirectInput8::EnumDevices
-    + IDirectInput8::EnumDevicesBySemantics
-    + IDirectInput8::FindDevice
-    + IDirectInput8::GetDeviceStatus
-    + IDirectInput8::Initialize
-    + IDirectInput8::RunControlPanel
+  - DirectInput8Create ✔️
+    + IDirectInput8::ConfigureDevices ❌
+    + IDirectInput8::CreateDevice ⚠
+      - IDirectInputDevice8::Acquire ⚠
+      - IDirectInputDevice8::BuildActionMap ❌
+      - IDirectInputDevice8::CreateEffect ❌
+      - IDirectInputDevice8::EnumCreatedEffectObjects ❌
+      - IDirectInputDevice8::EnumEffects ❌
+      - IDirectInputDevice8::EnumEffectsInFile ❌
+      - IDirectInputDevice8::EnumObjects ⚠
+      - IDirectInputDevice8::Escape ❌
+      - IDirectInputDevice8::GetCapabilities ✔
+      - IDirectInputDevice8::GetDeviceData ❌
+      - IDirectInputDevice8::GetDeviceInfo ❌
+      - IDirectInputDevice8::GetDeviceState ⚠
+      - IDirectInputDevice8::GetEffectInfo ❌
+      - IDirectInputDevice8::GetForceFeedbackState ❌
+      - IDirectInputDevice8::GetImageInfo ❌
+      - IDirectInputDevice8::GetObjectInfo ❌
+      - IDirectInputDevice8::GetProperty ❌
+      - IDirectInputDevice8::Initialize ⚠
+      - IDirectInputDevice8::Poll ✔
+      - IDirectInputDevice8::RunControlPanel ❌
+      - IDirectInputDevice8::SendDeviceData ❌
+      - IDirectInputDevice8::SendForceFeedbackCommand ❌
+      - IDirectInputDevice8::SetActionMap ❌
+      - IDirectInputDevice8::SetCooperativeLevel ⚠
+      - IDirectInputDevice8::SetDataFormat ⚠
+      - IDirectInputDevice8::SetEventNotification ❌
+      - IDirectInputDevice8::SetProperty ❌
+      - IDirectInputDevice8::Unacquire ⚠
+      - IDirectInputDevice8::WriteEffectToFile ❌
+    + IDirectInput8::EnumDevices ⚠
+    + IDirectInput8::EnumDevicesBySemantics ❌
+    + IDirectInput8::FindDevice ❌
+    + IDirectInput8::GetDeviceStatus ❌
+    + IDirectInput8::Initialize ⚠
+    + IDirectInput8::RunControlPanel ❌
 
 </details>
 
-✔: Implemented | ⚠: To-do (Stub) | ❌: Won't implement (Deprecated)
+<details><summary>DInput (1-7)</summary>
+_To Do_
+</details>
+
+<details><summary>WinMM</summary>
+
+  - joyConfigChanged ❌
+  - joyGetDevCapsA ❌
+  - joyGetDevCapsW ❌
+  - joyGetNumDevs ❌
+  - joyGetPos ❌
+  - joyGetPosEx ❌
+  - joyGetThreshold ❌
+  - joyReleaseCapture ❌
+  - joySetCapture ❌
+  - joySetThreshold ❌
+  
+</details>
+
+|✔|⚠|❌|🚫|
+|-|-|-|-|
+|Implemented|Work in progress|To do|Won't (Deprecated)|
 
 ### Out of scope
 
@@ -88,11 +109,21 @@ Gamepad API
   <br/>
   Steam Input API only games. You need an action set to translate input. Hooking these API is going down the Steam Enulator rabbit hole.
   
+  Not sure yet how best to handle this. Meanwhile when using a Steam Emulator that translates Steam Input to XInput you can leverage InputFusion to then translate XInput to SDL.
+  
+  <p align="center">
+  <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/SteamInput_to_XInput.png">
+  <em>Steam Input -> XInput -> SDL</em>
+  </p>
+  
 </details>
   
 <details><summary>HID / Raw</summary>
   <br/>
   These APIs aren't really like the standardised Gamepad APIs like XInput. They are much akin to low level access.
+  
+  SDL mostly uses these low level APIs.
+  
   If a game uses these APIs to add support for a specific Gamepad;
   The game devs probably have a certain experience in mind and we shouldn't interfere with it.
   
@@ -166,18 +197,12 @@ binary.once("spawn", () => {
 Env Var
 =======
 
+🧪 Mostly experimental features are behind env var flags.
+
 #### `GAMEPAD_API_XINPUT=HOOK`
 
-Enable XInput functions hooking / detouring. 
+Enable XInput functions hooking / detouring.<br />
 This forces the use of the XInput functions from the DLL when calling XInput functions.
-
-Example:
-
-```console
-cd G:\METAPHOR\
-set GAMEPAD_API_XINPUT=HOOK
-METAPHOR.exe
-```
 
 #### `GAMEPAD_LED=BATTERYLVL`
 
@@ -199,16 +224,38 @@ This is currently hidden behind an env var flag because a lot of mods and other 
 
 Not properly closing SDL can result in leaks and the inability to reset LEDs status.
 
+#### `GAMEPAD_API_DINPUT8=HOOK`
+
+Enable DInput8 functions hooking / detouring.
+
+> [!WARNING]  
+> The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force deedback and no invididual trigger axis.
+> Games have different DInput layout expectation depending on their era and/or gamepads they support.
+
 Caveats
 =======
 
-- SDL might still be initializing when the game does it's first Gamepad API call (On startup).
+- SDL might still be initializing when the game does it's first Gamepad API call (on startup).
 
-- Be wary of games supporting both DInput and XInput API they usually suffer from double input, or have strange game design like prefering DInput over Xinput.
+- Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
+  Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.
+  The focus of this project is **for now** on API translation and not on _poorly engineered_ games compatibility. 
 
 Build
 =====
 
-Visual Studio 2022
-  - Microsoft detour library provided through vcpkg
-  - SDL3 Library recompiled as a static lib.
+🆚 **Visual Studio 2022**
+
+📦 Vendor dependencies:
+  - [Microsoft Detours library](https://github.com/microsoft/Detours)
+  - [SDL3 Library](https://github.com/libsdl-org/SDL) recompiled as a static lib.
+
+Solution: `./vc/InputFusion.sln`
+
+The 4 projects inside the solution control the build output:
+  - InputFusion -> `InputFusion.dll` (DLL injection)
+  - XInput -> `xinput.dll` (DLL sideloading / injection)
+  - DInput8 -> `dinput8.dll` (DLL sideloading / injection)
+  - WinMM -> `winmm.dll` (DLL sideloading / injection)
+  
+Output: `./build/${project}/output/${platform}/${config}`

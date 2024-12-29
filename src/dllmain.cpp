@@ -37,7 +37,7 @@ void closeGamepads() {
 void SDL_eventLoop() {
 
     hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-
+    
     //SDL Gamepad APIs
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0"); //Prevent SDL using our implementation of DInput (when hooking)
     SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0"); //Prevent SDL using our implementation of XInput (when hooking)
@@ -55,6 +55,7 @@ void SDL_eventLoop() {
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         std::cout << "SDL_INIT_GAMEPAD > ERROR: " << SDL_GetError() << std::endl;
+        SetEvent(hSDL_Quit);
         return;
     }
     std::cout << "SDL_INIT" << std::endl;
@@ -141,12 +142,11 @@ void SDL_eventLoop() {
 }
 
 DWORD WINAPI Main(LPVOID lpReserved) {
-    //#ifdef _DEBUG
+    #ifdef _DEBUG
         enableConsole();
-    //#endif
+    #endif
 
-    if (setDetours()) std::cout << "Detours set !" << std::endl;
-
+    setDetours();
     SDL_eventLoop();
     return 0;
 }

@@ -109,6 +109,13 @@ _To Do_
   <br/>
   Steam Input API only games. You need an action set to translate input. Hooking these API is going down the Steam Enulator rabbit hole.
   
+  Not sure yet how best to handle this. Meanwhile when using a Steam Emulator that translates Steam Input to XInput you can leverage InputFusion to then translate XInput to SDL.
+  
+  <p align="center">
+  <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/SteamInput_to_XInput.png">
+  <em>Steam Input -> XInput -> SDL</em>
+  </p>
+  
 </details>
   
 <details><summary>HID / Raw</summary>

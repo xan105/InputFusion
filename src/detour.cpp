@@ -139,9 +139,7 @@ bool setDetoursForDInput8() {
 
 void setDetours() {
     
-    if (Getenv(L"GAMEPAD_SDL_EXIT") == L"HOOK") {
-        if (setDetoursExitProcess()) std::cout << "Detour set for exit handler" << std::endl;
-    }
+    if (setDetoursExitProcess()) std::cout << "Detour set for exit handler" << std::endl;
 
     if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
         if (setDetoursForXInput()) std::cout << "Detour set for XInput" << std::endl;

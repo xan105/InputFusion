@@ -1,3 +1,9 @@
+/*
+Copyright (c) Anthony Beaumont
+This source code is licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version 3
+found in the LICENSE file in the root directory of this source tree.
+*/
+
 #include "winmm.h"
 
 std::atomic<UINT> threshold[MAXJOY] = {0};

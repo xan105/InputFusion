@@ -1,6 +1,6 @@
 /*
 Copyright (c) Anthony Beaumont
-This source code is licensed under the MIT License
+This source code is licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version 3
 found in the LICENSE file in the root directory of this source tree.
 */
 
@@ -138,6 +138,7 @@ bool setDetoursForDInput8() {
 }
 
 void setDetours() {
+    
     if (Getenv(L"GAMEPAD_SDL_EXIT") == L"HOOK") {
         if (setDetoursExitProcess()) std::cout << "Detour set for exit handler" << std::endl;
     }

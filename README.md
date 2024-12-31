@@ -199,11 +199,6 @@ Env Var
 
 🧪 Mostly experimental features are behind env var flags.
 
-#### `GAMEPAD_API_XINPUT=HOOK`
-
-Enable XInput functions hooking / detouring.<br />
-This forces the use of the XInput functions from the DLL when calling XInput functions.
-
 #### `GAMEPAD_LED=BATTERYLVL`
 
 When enabled the LED light of the controller is used to show the battery level of the controller:
@@ -215,14 +210,10 @@ When enabled the LED light of the controller is used to show the battery level o
 
 Currently only available for PS4/PS5 controller in wireless.
 
-#### `GAMEPAD_SDL_EXIT=HOOK`
+#### `GAMEPAD_API_XINPUT=HOOK`
 
-Enable kernel32!ExitProcess hooking / detouring.
-
-Because SDL is not running in the main thread and the game has no knowlegde of it. 
-The provided SDL `SDL_EVENT_QUIT` event is not enough to properly close SDL.
-
-Not properly closing SDL can result in leaks and the inability to reset LEDs status.
+Enable XInput functions hooking / detouring.<br />
+This forces the use of the XInput functions from the DLL when calling XInput functions.
 
 #### `GAMEPAD_API_DINPUT8=HOOK`
 

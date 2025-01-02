@@ -71,6 +71,9 @@ void SDL_eventLoop() {
                     SDL_Gamepad* gamepad = SDL_OpenGamepad(id);
                     if (gamepad != nullptr) {
                         std::cout << "Open gamepad: " << SDL_GetGamepadName(gamepad) << std::endl;
+                        char* mapping = SDL_GetGamepadMapping(gamepad);
+                        std::cout << "Gamepad Mapping: \"" << mapping << "\"" << std::endl;
+                        SDL_free(mapping);
                     }
                     break;
                 }

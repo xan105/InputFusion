@@ -7,9 +7,11 @@ This project aims to hook and re-implement various gamepad APIs such as XInput o
 
 The goal is to allow old and new games to support any gamepad controller supported by SDL (over 200+) out of the box with zero configuration.
 
+If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this is for you.
+
 <p align="center">
   <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
-  <em>XInput API calls</em>
+  <em>XInput API calls ("Debug mode")</em>
 </p>
 
 Gamepad APIs support
@@ -33,7 +35,9 @@ Gamepad APIs support
   - XInputGetAudioDeviceIds 🚫
   - XInputGetDSoundAudioDeviceGuids 🚫
 
-¹ NB: XInputSetStateEx() from GDK _(XInputOnGameInput)_ is implemented and has been arbitrarily set to ordinal 1000. It does not exist in XInput.
+💡XInputGetCapabilitiesEx() will report the real VID/PID of the controller.
+
+¹ NB: XInputSetStateEx() from GDK _(XInputOnGameInput)_ is implemented and has been arbitrarily set to ordinal 1000. It does not exist in XInput. 
 
 </details>
 
@@ -113,7 +117,7 @@ _To Do_
   
   <p align="center">
   <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/SteamInput_to_XInput.png">
-  <em>Steam Input -> XInput -> SDL</em>
+  <em>Steam Input -> XInput -> SDL ("Debug mode")</em>
   </p>
   
 </details>
@@ -171,7 +175,7 @@ Here is a simple example in Node.js using [xan105/node-remote-thread](https://gi
 import { env } from "node:process";
 import { spawn } from "node:child_process";
 import { dirname } from "node:path";
-import { createRemoteThread } from "@xan105/create=-remote-thread";
+import { createRemoteThread } from "@xan105/create-remote-thread";
 
 const EXECUTABLE = "G:\\METAPHOR\\METAPHOR.exe";
 const ADDON = "G:\\METAPHOR\\InputFusion.dll";
@@ -222,6 +226,21 @@ Enable DInput8 functions hooking / detouring.
 > [!WARNING]  
 > The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force feedback and no individual trigger axis..
 > Games have different DInput layout expectation depending on their era and/or gamepads they support.
+
+Input Re-mapping
+================
+
+SDL has the ability to change the mapping of an existing gamepad or add support for gamepads that SDL is unaware of.
+To manually do so the end user can, for example, use the env var `SDL_GAMECONTROLLERCONFIG` or `SDL_GAMECONTROLLERCONFIG_FILE`.
+
+The mapping string has the format: `GUID,name,mapping`. Buttons can be used as a gamepad axes and vice versa.
+
+Example of a valid mapping for a gamepad:
+```
+"341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b8,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftshoulder:b4,rightshoulder:b5,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b6,righttrigger:b7"
+```
+
+📄 For more details, please kindly see the [SDL documentation](https://wiki.libsdl.org/SDL3/SDL_AddGamepadMapping).
 
 Caveats
 =======

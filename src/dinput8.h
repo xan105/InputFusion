@@ -62,8 +62,8 @@ DEFINE_GUID(GUID_SysMouse, 0x6b9b1bf0, 0x846b, 0x11d0, 0x97, 0x0b, 0x00, 0xa0, 0
 #define DIDC_ATTACHED           0x00000001
 #define DIDC_EMULATED           0x00000004
 
-#define XBOX360_VID	0x028E
-#define XBOX360_PID	0x045E
+#define XBOX360_VID	0x045E
+#define XBOX360_PID	0x028E
 #define XBOX360_INSTANCE_NAMEW (L"XBOX 360 For Windows (Controller)")
 #define XBOX360_PRODUCT_NAMEW (L"XBOX 360 For Windows (Controller)")
 #define XBOX360_INSTANCE_NAMEA ("XBOX 360 For Windows (Controller)")

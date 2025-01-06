@@ -318,9 +318,9 @@ extern "C" {
         XINPUT_CAPABILITIES_EX capabilitiesEx = {};
 
         GetCapabilities(gamepad, &capabilitiesEx.Capabilities, true);
-        capabilitiesEx.VendorId = SDL_GetGamepadVendor(gamepad);
-        capabilitiesEx.ProductId = SDL_GetGamepadProduct(gamepad);
-        capabilitiesEx.ProductVersion = SDL_GetGamepadProductVersion(gamepad);
+        capabilitiesEx.VendorId = SDL_GetGamepadVendor(gamepad) | 0x045E;
+        capabilitiesEx.ProductId = SDL_GetGamepadProduct(gamepad) | 0x028E;
+        capabilitiesEx.ProductVersion = SDL_GetGamepadProductVersion(gamepad) | 0x114;
 
         memcpy(pCapabilities, &capabilitiesEx, sizeof(XINPUT_CAPABILITIES_EX));
 

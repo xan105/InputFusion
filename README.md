@@ -227,6 +227,18 @@ Enable DInput8 functions hooking / detouring.
 > The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force feedback and no individual trigger axis..
 > Games have different DInput layout expectation depending on their era and/or gamepads they support.
 
+#### `GAMEPAD_API_WINMM=HOOK`
+
+Enable WinMM Joystick functions hooking / detouring.
+
+> [!NOTICE]
+> After considering the games from that era that could be played with a gamepad.
+> I somewhat deviated from the usual mapping for this implementation.
+>
+> The D-Pad and the left joystick both map the X and Y axis usually used for movement.
+> The right joystick maps to the POV since back then it was used to move the camera point of view around which is traditionally the role of the right joystick on a gamepad.
+> The right and left trigger are mapped to the Z axis meaning no individual trigger axis, similar to a Xbox360 in DInput.
+
 Input Re-mapping
 ================
 

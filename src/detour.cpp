@@ -8,6 +8,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "detour.h"
 #include "xinput.h"
 #include "dinput8.h"
+#include "winmm.h"
 #include "util.h"
 
 extern std::atomic<bool> running;
@@ -137,6 +138,55 @@ bool setDetoursForDInput8() {
     return takeDetour(&(PVOID&)pDirectInput8Create, DirectInput8Create);
 }
 
+bool setDetoursForWinmm() {
+    HMODULE hMod = LoadLibraryA("winmm.dll");
+    if (hMod == nullptr) return false;
+
+    std::cout << "LoadLibraryA: winmm.dll" << std::endl;
+
+    joyConfigChanged_t pjoyConfigChanged = (joyConfigChanged_t)GetProcAddress(hMod, "joyConfigChanged");
+    if (pjoyConfigChanged == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyConfigChanged, joyConfigChanged)) return false;
+    
+    joyGetDevCapsA_t pjoyGetDevCapsA = (joyGetDevCapsA_t)GetProcAddress(hMod, "joyGetDevCapsA");
+    if (pjoyGetDevCapsA == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyGetDevCapsA, joyGetDevCapsA)) return false;
+    
+    joyGetDevCapsW_t pjoyGetDevCapsW = (joyGetDevCapsW_t)GetProcAddress(hMod, "joyGetDevCapsW");
+    if (pjoyGetDevCapsW == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyGetDevCapsW, joyGetDevCapsW)) return false;
+    
+    joyGetNumDevs_t pjoyGetNumDevs = (joyGetNumDevs_t)GetProcAddress(hMod, "joyGetNumDevs");
+    if (pjoyGetNumDevs == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyGetNumDevs, joyGetNumDevs)) return false;
+    
+    joyGetPos_t pjoyGetPos = (joyGetPos_t)GetProcAddress(hMod, "joyGetPos");
+    if (pjoyGetPos == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyGetPos, joyGetPos)) return false;
+    
+    joyGetPosEx_t pjoyGetPosEx = (joyGetPosEx_t)GetProcAddress(hMod, "joyGetPosEx");
+    if (pjoyGetPosEx == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyGetPosEx, joyGetPosEx)) return false;
+    
+    joyGetThreshold_t pjoyGetThreshold = (joyGetThreshold_t)GetProcAddress(hMod, "joyGetThreshold");
+    if (pjoyGetThreshold == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyGetThreshold, joyGetThreshold)) return false;
+    
+    joyReleaseCapture_t pjoyReleaseCapture = (joyReleaseCapture_t)GetProcAddress(hMod, "joyReleaseCapture");
+    if (pjoyReleaseCapture == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoyReleaseCapture, joyReleaseCapture)) return false;
+    
+    joySetCapture_t pjoySetCapture = (joySetCapture_t)GetProcAddress(hMod, "joySetCapture");
+    if (pjoySetCapture == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoySetCapture, joySetCapture)) return false;
+    
+    joySetThreshold_t pjoySetThreshold = (joySetThreshold_t)GetProcAddress(hMod, "joySetThreshold");
+    if (pjoySetThreshold == nullptr) return false;
+    if (!takeDetour(&(PVOID&)pjoySetThreshold, joySetThreshold)) return false;
+    
+    return true;
+}
+
 void setDetours() {
     
     if (setDetoursExitProcess()) std::cout << "Detour set for exit handler" << std::endl;
@@ -147,5 +197,9 @@ void setDetours() {
 
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
         if (setDetoursForDInput8()) std::cout << "Detour set for DInput8" << std::endl;
+    }
+    
+    if (Getenv(L"GAMEPAD_API_WINMM") == L"HOOK") {
+        if (setDetoursForWinmm()) std::cout << "Detour set for WinMM" << std::endl;
     }
 }

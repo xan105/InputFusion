@@ -49,9 +49,11 @@ void SDL_eventLoop() {
     SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers raw input (SDL is not running in the main thread)
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); //Enable PS3 via its driver
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
-    //SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1"); //Breaks DInput for others app until controller reboot | enable later
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
     //SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1"); //Breaks DInput for others app until controller reboot | enable later
+    //SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1"); //Breaks DInput for others app until controller reboot | enable later
+    //SDL_HINT_JOYSTICK_ENHANCED_REPORTS => will replace SDL_HINT_JOYSTICK_HIDAPI_PS*_RUMBLE (SDL3 next version)
+
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         std::cout << "SDL_INIT_GAMEPAD > ERROR: " << SDL_GetError() << std::endl;

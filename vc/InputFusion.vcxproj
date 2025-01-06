@@ -27,6 +27,7 @@
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />
+    <ClInclude Include="..\src\winmm.h" />
     <ClInclude Include="..\src\xinput.h" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +48,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\util.cpp" />
+    <ClCompile Include="..\src\winmm.cpp" />
     <ClCompile Include="..\src\xinput.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -23,12 +23,61 @@ const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
 
 JOYSTICK Joysticks[MAXJOY] = {};
 
+UINT absDiff(UINT a, UINT b) {
+    return a > b ? a - b : b - a;
+}
+
+void CALLBACK joystick_capture(HWND hWnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime) {
+    //NB: No events are send for the pov and the axes other than X, Y, Z but they are available through joyGetPosEx()
+    std::cout << "joystick_capture()" << std::endl;
+
+    for (int i = 0; i < MAXJOY; i++)
+    {
+        if (Joysticks[i].capture != hWnd) continue;
+
+        JOYINFO info = {};
+        if (joyGetPos(i, &info) != JOYERR_NOERROR) continue;
+        LONG pos = MAKELONG(info.wXpos, info.wYpos);
+
+        if (!Joysticks[i].changed ||
+            absDiff(Joysticks[i].info.wXpos, info.wXpos) > Joysticks[i].threshold ||
+            absDiff(Joysticks[i].info.wYpos, info.wYpos) > Joysticks[i].threshold)
+        {
+            SendMessageA(Joysticks[i].capture, MM_JOY1MOVE + i, info.wButtons, pos);
+            Joysticks[i].info.wXpos = info.wXpos;
+            Joysticks[i].info.wYpos = info.wYpos;
+        }
+
+        if (!Joysticks[i].changed ||
+            absDiff(Joysticks[i].info.wZpos, info.wZpos) > Joysticks[i].threshold)
+        {
+            SendMessageA(Joysticks[i].capture, MM_JOY1ZMOVE + i, info.wButtons, pos);
+            Joysticks[i].info.wZpos = info.wZpos;
+        }
+
+        UINT buttonChange = Joysticks[i].info.wButtons ^ info.wButtons;
+        if (buttonChange != 0) {
+            if (info.wButtons & buttonChange) {
+                SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONDOWN + i, (buttonChange << 8) | (info.wButtons & buttonChange), pos);
+            }
+            if (Joysticks[i].info.wButtons & buttonChange) {
+                SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONUP + i, (buttonChange << 8) | (Joysticks[i].info.wButtons & buttonChange), pos);
+            }
+            Joysticks[i].info.wButtons = info.wButtons;
+        }
+    }
+}
+
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     if (GetParent(hwnd) == NULL) {
         SendMessageA(hwnd, WM_USER, 0, (LPARAM)JOY_CONFIGCHANGED_MSGSTRING);
     }
     return TRUE;
 }
+
+#ifdef WINMM_EXPORTS
+extern "C" {
+#endif
 
     MMRESULT WINAPI joyConfigChanged(DWORD dwFlags) {
         std::cout << "joyConfigChanged()" << std::endl;
@@ -41,13 +90,13 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     MMRESULT WINAPI joyGetDevCapsA(UINT_PTR uJoyID, LPJOYCAPSA pjc, UINT cbjc) {
         std::cout << "joyGetDevCapsA()" << std::endl;
 
-        if (uJoyID > MAXJOY || uJoyID < -1) return MMSYSERR_INVALPARAM;
+        if (uJoyID > MAXJOY) return MMSYSERR_INVALPARAM;
         if (pjc == nullptr) return MMSYSERR_INVALPARAM;
         if (cbjc != sizeof(JOYCAPSA)) return JOYERR_PARMS;
 
         ZeroMemory(pjc, cbjc);
         strcpy_s(pjc->szRegKey, _countof(pjc->szRegKey), "DINPUT.DLL");
-        if (uJoyID == -1) return JOYERR_NOERROR;
+        if (uJoyID == ~(UINT_PTR)0) return JOYERR_NOERROR; //is -1 ?
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -89,13 +138,13 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     MMRESULT WINAPI joyGetDevCapsW(UINT_PTR uJoyID, LPJOYCAPSW pjc, UINT cbjc) {
         std::cout << "joyGetDevCapsW()" << std::endl;
 
-        if (uJoyID > MAXJOY || uJoyID < -1) return MMSYSERR_INVALPARAM;
+        if (uJoyID > MAXJOY) return MMSYSERR_INVALPARAM;
         if (pjc == nullptr) return MMSYSERR_INVALPARAM;
         if (cbjc != sizeof(JOYCAPSW)) return JOYERR_PARMS;
 
         ZeroMemory(pjc, cbjc);
         wcscpy_s(pjc->szRegKey, _countof(pjc->szRegKey), L"DINPUT.DLL");
-        if (uJoyID == -1) return JOYERR_NOERROR;
+        if (uJoyID == ~(UINT_PTR)0) return JOYERR_NOERROR; //is -1 ?
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
         if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -364,47 +413,6 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
         return JOYERR_NOERROR;
     }
 
-UINT absDiff(UINT a, UINT b){
-    return a > b ? a - b : b - a;
+#ifdef WINMM_EXPORTS
 }
-
-void CALLBACK joystick_capture(HWND hWnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime){
-//NB: No events are send for the pov and the axes other than X, Y, Z but they are available through joyGetPosEx()
-    std::cout << "joystick_capture()" << std::endl;
-
-    for (int i = 0; i < MAXJOY; i++)
-    {
-        if (Joysticks[i].capture != hWnd) continue;
-
-        JOYINFO info = {};
-        if (joyGetPos(i, &info) != JOYERR_NOERROR) continue;
-        LONG pos = MAKELONG(info.wXpos, info.wYpos);
-
-        if (!Joysticks[i].changed ||
-            absDiff(Joysticks[i].info.wXpos, info.wXpos) > Joysticks[i].threshold ||
-            absDiff(Joysticks[i].info.wYpos, info.wYpos) > Joysticks[i].threshold)
-        {
-            SendMessageA(Joysticks[i].capture, MM_JOY1MOVE + i, info.wButtons, pos);
-            Joysticks[i].info.wXpos = info.wXpos;
-            Joysticks[i].info.wYpos = info.wYpos;
-        }
-
-        if (!Joysticks[i].changed ||
-            absDiff(Joysticks[i].info.wZpos, info.wZpos) > Joysticks[i].threshold)
-        {
-            SendMessageA(Joysticks[i].capture, MM_JOY1ZMOVE + i, info.wButtons, pos);
-            Joysticks[i].info.wZpos = info.wZpos;
-        }
-
-        UINT buttonChange = Joysticks[i].info.wButtons ^ info.wButtons;
-        if (buttonChange != 0) {
-            if (info.wButtons & buttonChange){
-                SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONDOWN + i, (buttonChange << 8) | (info.wButtons & buttonChange), pos);
-            }
-            if (Joysticks[i].info.wButtons & buttonChange) {
-                SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONUP + i, (buttonChange << 8) | (Joysticks[i].info.wButtons & buttonChange), pos);
-            }
-            Joysticks[i].info.wButtons = info.wButtons;
-        }
-    }
-}
+#endif

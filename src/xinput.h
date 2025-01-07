@@ -221,7 +221,7 @@ typedef DWORD(WINAPI* XInputGetCapabilitiesEx_t)(DWORD a1, DWORD dwUserIndex, DW
 DWORD GetState(DWORD dwUserIndex, XINPUT_STATE* pState, bool extended);
 void GetCapabilities(SDL_Gamepad* gamepad, XINPUT_CAPABILITIES* pCapabilities, bool extended);
 
-#ifdef _XINPUT_EXPORTS
+#ifdef XINPUT_EXPORTS
 extern "C" {
 #endif
     void WINAPI XInputEnable(BOOL enable);
@@ -239,6 +239,6 @@ extern "C" {
     DWORD WINAPI XInputSetStateEx(DWORD dwUserIndex, const XINPUT_VIBRATION_EX* pVibration);
     DWORD WINAPI XInputGetAudioDeviceIds(DWORD dwUserIndex, LPWSTR pRenderDeviceId, UINT* pRenderCount, LPWSTR pCaptureDeviceId, UINT* pCaptureCount);
     DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid);
-#ifdef _XINPUT_EXPORTS
+#ifdef XINPUT_EXPORTS
 }
 #endif

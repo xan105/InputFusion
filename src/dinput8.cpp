@@ -7,7 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "pch.h"
 #include "dinput8.h"
 
-#ifdef _DINPUT8_EXPORTS
+#ifdef DINPUT8_EXPORTS
 extern "C" {
 #endif
   HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter){
@@ -62,6 +62,6 @@ extern "C" {
   HRESULT WINAPI DllUnregisterServer(){
     return S_OK;
   }
-#ifdef _DINPUT8_EXPORTS
+#ifdef DINPUT8_EXPORTS
 }
 #endif

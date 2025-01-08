@@ -8,7 +8,6 @@ found in the LICENSE file in the root directory of this source tree.
 #include <SDL3/SDL.h>
 #include <unordered_map>
 #include <algorithm>
-#include <iostream>
 
 #define XINPUT_GAMEPAD_THUMB_MAX            32767
 #define XINPUT_GAMEPAD_THUMB_MIN            -32768
@@ -217,9 +216,6 @@ typedef DWORD(WINAPI* XInputCancelGuideButtonWait_t)(DWORD dwUserIndex);
 typedef DWORD(WINAPI* XInputPowerOffController_t)(DWORD dwUserIndex);
 typedef DWORD(WINAPI* XInputGetBaseBusInformation_t)(DWORD dwUserIndex, XINPUT_BASE_BUS_INFORMATION* pInfo);
 typedef DWORD(WINAPI* XInputGetCapabilitiesEx_t)(DWORD a1, DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES_EX* pCapabilities);
-
-DWORD GetState(DWORD dwUserIndex, XINPUT_STATE* pState, bool extended);
-void GetCapabilities(SDL_Gamepad* gamepad, XINPUT_CAPABILITIES* pCapabilities, bool extended);
 
 #ifdef XINPUT_EXPORTS
 extern "C" {

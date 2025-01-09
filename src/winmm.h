@@ -9,7 +9,6 @@ found in the LICENSE file in the root directory of this source tree.
 #include <unordered_map>
 #include <cmath>
 #include <bitset>
-#include <iostream>
 
 #define MMSYSERR_NOERROR       0
 #define MMSYSERR_ERROR         1

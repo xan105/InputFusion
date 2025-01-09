@@ -16,7 +16,8 @@ extern HANDLE hSDL_Quit;
 ExitProcess_t pExitProcess = nullptr;
 
 void WINAPI Detour_ExitProcess(UINT uExitCode) {
-    std::cout << "ExitProcess()" << std::endl;
+    SDL_Log("ExitProcess(%u)", uExitCode);
+
     running = false; //Exit SDL_eventLoop()
     WaitForSingleObject(hSDL_Quit, 1000);
     CloseHandle(hSDL_Quit);
@@ -33,8 +34,7 @@ bool takeDetour(PVOID* ppPointer, PVOID pDetour) {
 bool setDetoursExitProcess() {
     HMODULE hMod = LoadLibraryA("KERNEL32.dll");
     if (hMod == nullptr) return false;
-
-    std::cout << "LoadLibraryA: KERNEL32.dll" << std::endl;
+    SDL_Log("LoadLibraryA: KERNEL32.dll");
 
     pExitProcess = (ExitProcess_t)GetProcAddress(hMod, "ExitProcess");
     if (pExitProcess == nullptr) return false;
@@ -51,7 +51,7 @@ bool setDetoursForXInput() {
     for (const std::string& version : versions) {
         HMODULE hMod = LoadLibraryA(version.c_str());
         if (hMod == nullptr) return false;
-        std::cout << "LoadLibraryA: " << version << std::endl;
+        SDL_Log("LoadLibraryA: %s", version.c_str());
 
         XInputEnable_t pXInputEnable = (XInputEnable_t)GetProcAddress(hMod, "XInputEnable");
         if (pXInputEnable != nullptr) {
@@ -130,8 +130,7 @@ bool setDetoursForXInput() {
 bool setDetoursForDInput8() {
     HMODULE hMod = LoadLibraryA("dinput8.dll");
     if (hMod == nullptr) return false;
-
-    std::cout << "LoadLibraryA: dinput8.dll" << std::endl;
+    SDL_Log("LoadLibraryA: dinput8.dll");
 
     DirectInput8Create_t pDirectInput8Create = (DirectInput8Create_t)GetProcAddress(hMod, "DirectInput8Create");
     if (pDirectInput8Create == nullptr) return false;
@@ -141,8 +140,7 @@ bool setDetoursForDInput8() {
 bool setDetoursForWinmm() {
     HMODULE hMod = LoadLibraryA("winmm.dll");
     if (hMod == nullptr) return false;
-
-    std::cout << "LoadLibraryA: winmm.dll" << std::endl;
+    SDL_Log("LoadLibraryA: winmm.dll");
 
     joyConfigChanged_t pjoyConfigChanged = (joyConfigChanged_t)GetProcAddress(hMod, "joyConfigChanged");
     if (pjoyConfigChanged == nullptr) return false;
@@ -189,17 +187,17 @@ bool setDetoursForWinmm() {
 
 void setDetours() {
     
-    if (setDetoursExitProcess()) std::cout << "Detour set for exit handler" << std::endl;
+    if (setDetoursExitProcess()) SDL_Log("Detour set for exit handler");
 
     if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
-        if (setDetoursForXInput()) std::cout << "Detour set for XInput" << std::endl;
+        if (setDetoursForXInput()) SDL_Log("Detour set for XInput");
     }
 
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
-        if (setDetoursForDInput8()) std::cout << "Detour set for DInput8" << std::endl;
+        if (setDetoursForDInput8()) SDL_Log("Detour set for DInput8");
     }
     
     if (Getenv(L"GAMEPAD_API_WINMM") == L"HOOK") {
-        if (setDetoursForWinmm()) std::cout << "Detour set for WinMM" << std::endl;
+        if (setDetoursForWinmm()) SDL_Log("Detour set for WinMM");
     }
 }

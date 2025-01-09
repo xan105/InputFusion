@@ -8,12 +8,11 @@ found in the LICENSE file in the root directory of this source tree.
 #include "dinput8.h"
 
 IDirectInput8W::IDirectInput8W() : m_refCount(1) {
-	std::cout << "IDirectInput8W" << std::endl;
+	SDL_Log("IDirectInput8W");
 }
 
 STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
-
-	std::cout << "IDirectInput8W::QueryInterface()" << std::endl;
+	SDL_Log("IDirectInput8W::QueryInterface()");
 
 	if (ppvObject == nullptr)
 		return E_POINTER;
@@ -29,15 +28,13 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
 }
 
 STDMETHODIMP_(ULONG) IDirectInput8W::AddRef() {
-
-	std::cout << "IDirectInput8W::AddRef()" << std::endl;
+	SDL_Log("IDirectInput8W::AddRef()");
 
 	return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInput8W::Release() {
-
-	std::cout << "IDirectInput8W::Release()" << std::endl;
+	SDL_Log("IDirectInput8W::Release()");
 
 	ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
 	if (refCount == 0) {
@@ -47,8 +44,7 @@ STDMETHODIMP_(ULONG) IDirectInput8W::Release() {
 }
 
 STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* lplpDirectInputDevice, LPUNKNOWN pUnkOuter) {
-
-	std::cout << "IDirectInput8W::CreateDevice()" << std::endl;
+	SDL_Log("IDirectInput8W::CreateDevice()");
 
 	IDirectInputDevice8W* pDInputDevice = new(std::nothrow) IDirectInputDevice8W;
 	if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
@@ -61,8 +57,7 @@ STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* 
 }
 
 STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
-
-	std::cout << "IDirectInput8W::EnumDevices()" << std::endl;
+	SDL_Log("IDirectInput8W::EnumDevices()");
 
 	if (dwDevType != DI8DEVCLASS_ALL && dwDevType != DI8DEVCLASS_GAMECTRL)
 		return E_NOTIMPL;
@@ -122,43 +117,37 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 }
 
 STDMETHODIMP IDirectInput8W::GetDeviceStatus(REFGUID rguidInstance) {
-
-	std::cout << "IDirectInput8W::GetDeviceStatus()" << std::endl;
+	SDL_Log("IDirectInput8W::GetDeviceStatus()");
 	return DI_OK;
 }
 
 
 STDMETHODIMP IDirectInput8W::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {
-
-	std::cout << "IDirectInput8W::RunControlPanel()" << std::endl;
+	SDL_Log("IDirectInput8W::RunControlPanel()");
 
 	if (dwFlags != 0) return DIERR_INVALIDPARAM;
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::Initialize(HINSTANCE hinst, DWORD dwVersion) {
-
-	std::cout << "IDirectInput8W::Initialize()" << std::endl;
+	SDL_Log("IDirectInput8W::Initialize()");
+	
 	if (dwVersion < DIRECTINPUT_VERSION) return DIERR_OLDDIRECTINPUTVERSION;
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::FindDevice(REFGUID rguidClass, LPCTSTR ptszName, LPGUID pguidInstance) {
-
-	std::cout << "IDirectInput8W::FindDevice()" << std::endl;
+	SDL_Log("IDirectInput8W::FindDevice()");
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::EnumDevicesBySemantics(LPCTSTR ptszUserName, LPDIACTIONFORMATW lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBW lpCallback, LPVOID pvRef, DWORD dwFlags) {
-
-	std::cout << "IDirectInput8W::EnumDevicesBySemantics()" << std::endl;
+	SDL_Log("IDirectInput8W::EnumDevicesBySemantics()");
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::ConfigureDevices(LPDICONFIGUREDEVICESCALLBACK lpdiCallback, LPDICONFIGUREDEVICESPARAMSW lpdiCDParams, DWORD dwFlags, LPVOID pvRefData) {
-
-	std::cout << "IDirectInput8W::ConfigureDevices()" << std::endl;
-
+	SDL_Log("IDirectInput8W::ConfigureDevices()");
 	//IDirectInput8::ConfigureDevices is deprecated. This method always fails on Windows Vista and later versions of Windows.
 	return E_NOTIMPL;
 }

@@ -27,13 +27,13 @@ UINT absDiff(UINT a, UINT b) {
     return a > b ? a - b : b - a;
 }
 
-void CALLBACK joystick_capture(HWND hWnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime) {
+void CALLBACK joystick_capture(HWND hwnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime) {
     //NB: No events are send for the pov and the axes other than X, Y, Z but they are available through joyGetPosEx()
-    std::cout << "joystick_capture()" << std::endl;
+    SDL_Log("joystick_capture(%p, %u, %u, %u)", hwnd, wMsg, (unsigned)wTimer, dwTime);
 
     for (int i = 0; i < MAXJOY; i++)
     {
-        if (Joysticks[i].capture != hWnd) continue;
+        if (Joysticks[i].capture != hwnd) continue;
 
         JOYINFO info = {};
         if (joyGetPos(i, &info) != JOYERR_NOERROR) continue;
@@ -80,7 +80,7 @@ extern "C" {
 #endif
 
     MMRESULT WINAPI joyConfigChanged(DWORD dwFlags) {
-        std::cout << "joyConfigChanged()" << std::endl;
+        SDL_Log("joyConfigChanged(%u)", dwFlags);
 
         if (dwFlags != 0) return JOYERR_PARMS;
         EnumWindows(EnumWindowsProc, 0);
@@ -88,7 +88,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyGetDevCapsA(UINT_PTR uJoyID, LPJOYCAPSA pjc, UINT cbjc) {
-        std::cout << "joyGetDevCapsA()" << std::endl;
+        SDL_Log("joyGetDevCapsA(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
 
         if (uJoyID > MAXJOY) return MMSYSERR_INVALPARAM;
         if (pjc == nullptr) return MMSYSERR_INVALPARAM;
@@ -136,7 +136,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyGetDevCapsW(UINT_PTR uJoyID, LPJOYCAPSW pjc, UINT cbjc) {
-        std::cout << "joyGetDevCapsW()" << std::endl;
+        SDL_Log("joyGetDevCapsW(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
 
         if (uJoyID > MAXJOY) return MMSYSERR_INVALPARAM;
         if (pjc == nullptr) return MMSYSERR_INVALPARAM;
@@ -184,12 +184,12 @@ extern "C" {
     }
 
     UINT WINAPI joyGetNumDevs(void) {
-        std::cout << "joyGetNumDevs()" << std::endl;
+        SDL_Log("joyGetNumDevs()");
         return MAXJOY - 1;
     }
 
     MMRESULT WINAPI joyGetPos(UINT uJoyID, LPJOYINFO pji) {
-        std::cout << "joyGetPos()" << std::endl;
+        SDL_Log("joyGetPos(%u, %p)", uJoyID, pji);
 
         if (uJoyID >= MAXJOY) return JOYERR_PARMS;
         if (pji == nullptr) return MMSYSERR_INVALPARAM;
@@ -211,7 +211,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyGetPosEx(UINT uJoyID, LPJOYINFOEX pjiEx) {
-        std::cout << "joyGetPosEx()" << std::endl;
+        SDL_Log("joyGetPosEx(%u, %p)", uJoyID, pjiEx);
 
         if (uJoyID >= MAXJOY) return JOYERR_PARMS;
         if (pjiEx == nullptr) return MMSYSERR_INVALPARAM;
@@ -349,7 +349,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyGetThreshold(UINT uJoyID, LPUINT puThreshold) {
-        std::cout << "joyGetThreshold()" << std::endl;
+        SDL_Log("joyGetThreshold(%u, %p)", uJoyID, puThreshold);
 
         if (puThreshold == nullptr) return MMSYSERR_INVALPARAM;
         if (uJoyID > MAXJOY) return MMSYSERR_INVALPARAM;
@@ -360,7 +360,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joySetThreshold(UINT uJoyID, UINT uThreshold) {
-        std::cout << "joySetThreshold()" << std::endl;
+        SDL_Log("joySetThreshold(%u, %u)", uJoyID, uThreshold);
 
         if (uJoyID > MAXJOY) return JOYERR_PARMS;
 
@@ -370,7 +370,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyReleaseCapture(UINT uJoyID) {
-        std::cout << "joyReleaseCapture()" << std::endl;
+        SDL_Log("joyReleaseCapture(%u)", uJoyID);
 
         if (uJoyID > MAXJOY) return JOYERR_PARMS;
 
@@ -386,7 +386,7 @@ extern "C" {
     }
 
     MMRESULT WINAPI joySetCapture(HWND hwnd, UINT uJoyID, UINT uPeriod, BOOL fChanged) {
-        std::cout << "joySetCapture()" << std::endl;
+        SDL_Log("joySetCapture(%p, %u, %u, %d)", hwnd, uJoyID, uPeriod, fChanged);
 
         if (hwnd == nullptr) return JOYERR_PARMS;
         if (uJoyID > MAXJOY) return JOYERR_PARMS;

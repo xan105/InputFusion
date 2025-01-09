@@ -33,13 +33,12 @@ const std::vector<SDL_GamepadAxis> AXIS = {
 };
 
 IDirectInputDevice8W::IDirectInputDevice8W() : m_refCount(1) {
-	std::cout << "IDirectInputDevice8W" << std::endl;
+	SDL_Log("IDirectInputDevice8W");
 	this->playerIndex = -1;
 }
 
 STDMETHODIMP IDirectInputDevice8W::QueryInterface(REFIID riid, void** ppvObject) {
-
-	std::cout << "IDirectInputDevice8W::QueryInterface()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::QueryInterface()");
 
 	if (ppvObject == nullptr)
 		return E_POINTER;
@@ -55,15 +54,13 @@ STDMETHODIMP IDirectInputDevice8W::QueryInterface(REFIID riid, void** ppvObject)
 }
 
 STDMETHODIMP_(ULONG) IDirectInputDevice8W::AddRef() {
-
-	std::cout << "IDirectInputDevice8W::AddRef()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::AddRef()");
 
 	return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputDevice8W::Release() {
-
-	std::cout << "IDirectInputDevice8W::Release()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::Release()");
 
 	ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
 	if (refCount == 0) {
@@ -74,7 +71,7 @@ STDMETHODIMP_(ULONG) IDirectInputDevice8W::Release() {
 
 
 STDMETHODIMP IDirectInputDevice8W::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
-	std::cout << "IDirectInputDevice8W::GetCapabilities()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetCapabilities()");
 
 	if (lpDIDevCaps == nullptr) return E_POINTER;
 	if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
@@ -109,7 +106,7 @@ STDMETHODIMP IDirectInputDevice8W::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::EnumObjects()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::EnumObjects()");
 
 	DIDEVICEOBJECTINSTANCEW lpddoi = { 0 };
 	lpddoi.dwSize = sizeof(DIDEVICEOBJECTINSTANCEW);
@@ -119,27 +116,27 @@ STDMETHODIMP IDirectInputDevice8W::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lp
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetProperty(REFGUID rguidProp, LPDIPROPHEADER pdiph) {
-	std::cout << "IDirectInputDevice8W::GetProperty()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetProperty()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
-	std::cout << "IDirectInputDevice8W::SetProperty()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SetProperty()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Acquire() {
-	std::cout << "IDirectInputDevice8W::Acquire()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::Acquire()");
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Unacquire() {
-	std::cout << "IDirectInputDevice8W::Unacquire()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::Unacquire()");
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) {
-	std::cout << "IDirectInputDevice8W::GetDeviceState()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetDeviceState()");
 
 	//IDirectInputDevice8::SetDataFormat
 	//c_dfDIJoystick -> DIJOYSTATE
@@ -270,12 +267,12 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::GetDeviceData()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetDeviceData()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
-	std::cout << "IDirectInputDevice8W::SetDataFormat()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SetDataFormat()");
 	//if (IsEqualGUID(*lpdf->rgodf->pguid, c_dfDIJoystick)
 	
 	if (lpdf == nullptr) return DIERR_INVALIDPARAM;
@@ -284,36 +281,36 @@ STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetEventNotification(HANDLE hEvent) {
-	std::cout << "IDirectInputDevice8W::SetEventNotification()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SetEventNotification()");
 	//SDL_UpdateGamepads();
 	//SetEvent(&hEvent);
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetCooperativeLevel(HWND hwnd, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::SetCooperativeLevel()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SetCooperativeLevel()");
 	
 	if (hwnd == nullptr) return DIERR_INVALIDPARAM;
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEW pdidoi, DWORD dwObj, DWORD dwHow) {
-	std::cout << "IDirectInputDevice8W::GetObjectInfo()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetObjectInfo()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceInfo(LPDIDEVICEINSTANCEW pdidi) {
-	std::cout << "IDirectInputDevice8W::GetDeviceInfo()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetDeviceInfo()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::RunControlPanel()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::RunControlPanel()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, REFGUID rguid) {
-	std::cout << "IDirectInputDevice8W::Initialize()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::Initialize()");
 
 	if (this->playerIndex >= 0) return S_FALSE; //device already initialized
 
@@ -323,77 +320,77 @@ STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, 
 	this->playerIndex = rguid.Data4[1];
 	if (this->playerIndex < 0) return DIERR_DEVICENOTREG;
 
-	std::cout << "IDirectInputDevice8W::Initialize() > Set player to " << this->playerIndex << std::endl;
+	SDL_Log("IDirectInputDevice8W::Initialize() > Set player to %i", this->playerIndex);
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff, LPDIRECTINPUTEFFECT* ppdeff, LPUNKNOWN punkOuter) {
-	std::cout << "IDirectInputDevice8W::CreateEffect()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::CreateEffect()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumEffects(LPDIENUMEFFECTSCALLBACKW lpCallback, LPVOID pvRef, DWORD dwEffType) {
-	std::cout << "IDirectInputDevice8W::EnumEffects()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::EnumEffects()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetEffectInfo(LPDIEFFECTINFOW pdei, REFGUID rguid) {
-	std::cout << "IDirectInputDevice8W::GetEffectInfo()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetEffectInfo()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetForceFeedbackState(LPDWORD pdwOut) {
-	std::cout << "IDirectInputDevice8W::GetForceFeedbackState()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetForceFeedbackState()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SendForceFeedbackCommand(DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::SendForceFeedbackCommand()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SendForceFeedbackCommand()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumCreatedEffectObjects(LPDIENUMCREATEDEFFECTOBJECTSCALLBACK lpCallback, LPVOID pvRef, DWORD fl) {
-	std::cout << "IDirectInputDevice8W::EnumCreatedEffectObjects()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::EnumCreatedEffectObjects()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Escape(LPDIEFFESCAPE pesc) {
-	std::cout << "IDirectInputDevice8W::Escape()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::Escape()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Poll() {
-	std::cout << "IDirectInputDevice8W::Poll()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::Poll()");
 	SDL_UpdateGamepads();
 	return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SendDeviceData(DWORD cbObjectData, LPCDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD fl) {
-	std::cout << "IDirectInputDevice8W::SendDeviceData()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SendDeviceData()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumEffectsInFile(LPCSTR lpszFileName, LPDIENUMEFFECTSINFILECALLBACK pec, LPVOID pvRef, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::EnumEffectsInFile()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::EnumEffectsInFile()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::WriteEffectToFile(LPCSTR lpszFileName, DWORD dwEntries, LPCDIFILEEFFECT rgDiFileEft, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::WriteEffectToFile()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::WriteEffectToFile()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::BuildActionMap(LPDIACTIONFORMATW lpdiaf, LPCTSTR lpszUserName, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::BuildActionMap()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::BuildActionMap()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetActionMap(LPCDIACTIONFORMATW lpdiActionFormat, LPCTSTR lptszUserName, DWORD dwFlags) {
-	std::cout << "IDirectInputDevice8W::SetActionMap()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::SetActionMap()");
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetImageInfo(LPDIDEVICEIMAGEINFOHEADERW lpdiDevImageInfoHeader) {
-	std::cout << "IDirectInputDevice8W::GetImageInfo()" << std::endl;
+	SDL_Log("IDirectInputDevice8W::GetImageInfo()");
 	return E_NOTIMPL;
 }

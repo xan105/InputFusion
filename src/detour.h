@@ -5,7 +5,6 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include <Windows.h>
-#include <iostream>
 #include "../vendor/Detour/detours.h"
 #if defined(_X86_)
 #pragma comment(lib, "../vendor/Detour/detours.x86.lib")

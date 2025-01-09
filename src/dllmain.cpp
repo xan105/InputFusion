@@ -27,11 +27,11 @@ void closeGamepads() {
         if (SDL_GetGamepadType(gamepad) == SDL_GAMEPAD_TYPE_PS4) {
             SDL_SetGamepadLED(gamepad, 10, 20, 20); //Not the exact default color (no player) but close enough
         }
-        std::cout << "Closing gamepad: " << SDL_GetGamepadName(gamepad) << std::endl;
+        SDL_Log("Closing gamepad: %s", SDL_GetGamepadName(gamepad));
         SDL_CloseGamepad(gamepad);   
     }
     SDL_free(gamepads);
-    std::cout << "Closed gamepads"<< std::endl;
+    SDL_Log("Closed gamepads");
 }
 
 void SDL_eventLoop() {
@@ -56,11 +56,11 @@ void SDL_eventLoop() {
 
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
-        std::cout << "SDL_INIT_GAMEPAD > ERROR: " << SDL_GetError() << std::endl;
+        SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
         SetEvent(hSDL_Quit);
         return;
     }
-    std::cout << "SDL_INIT" << std::endl;
+    SDL_Log("SDL_INIT");
 
     bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
     SDL_Event event;
@@ -68,33 +68,31 @@ void SDL_eventLoop() {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_EVENT_GAMEPAD_ADDED: {
-                    std::cout << "SDL_EVENT_GAMEPAD_ADDED" << std::endl;
+                    SDL_Log("SDL_EVENT_GAMEPAD_ADDED");
                     SDL_JoystickID id = event.gdevice.which;
                     SDL_Gamepad* gamepad = SDL_OpenGamepad(id);
                     if (gamepad != nullptr) {
-                        std::cout << "Open gamepad: " << SDL_GetGamepadName(gamepad) << std::endl;
+                        SDL_Log("Open gamepad: %s", SDL_GetGamepadName(gamepad));
                         char* mapping = SDL_GetGamepadMapping(gamepad);
-                        std::cout << "Gamepad Mapping: \"" << mapping << "\"" << std::endl;
+                        SDL_Log("Gamepad Mapping: \"%s\"", mapping);
                         SDL_free(mapping);
                     }
                     break;
                 }
                 case SDL_EVENT_GAMEPAD_REMOVED: {
-                    std::cout << "SDL_EVENT_GAMEPAD_REMOVED" << std::endl;
+                    SDL_Log("SDL_EVENT_GAMEPAD_REMOVED");
                     SDL_JoystickID id = event.gdevice.which;
                     SDL_Gamepad* gamepad = SDL_GetGamepadFromID(id);
                     if (gamepad != nullptr) {
-                        std::cout << "Closing gamepad: " << SDL_GetGamepadName(gamepad) << std::endl;
+                        SDL_Log("Closing gamepad: %s", SDL_GetGamepadName(gamepad));
                         SDL_CloseGamepad(gamepad);
                     }
                     break;
                 }
                 case SDL_EVENT_JOYSTICK_BATTERY_UPDATED: {
-
                     if (!LEDAsBatteryLvl) break;
+                    SDL_Log("SDL_EVENT_JOYSTICK_BATTERY_UPDATED");
 
-                    std::cout << "SDL_EVENT_JOYSTICK_BATTERY_UPDATED" << std::endl;
-                    
                     SDL_GamepadType type = SDL_GetGamepadTypeForID(event.jbattery.which);
 
                     if (type == SDL_GAMEPAD_TYPE_PS4 || type == SDL_GAMEPAD_TYPE_PS5) {
@@ -105,25 +103,25 @@ void SDL_eventLoop() {
 
                             if (event.jbattery.percent <= 25) {
                                 red = 255; green = 0; blue = 0;
-                                std::cout << "LED to red" << std::endl;
+                                SDL_Log("LED to red");
                             }
                             else if (event.jbattery.percent <= 50) {
                                 red = 255; green = 165; blue = 0;
-                                std::cout << "LED to orange" << std::endl;
+                                SDL_Log("LED to orange");
                             }
                             else if (event.jbattery.percent <= 75) {
                                 red = 255; green = 255; blue = 0;
-                                std::cout << "LED to yellow" << std::endl;
+                                SDL_Log("LED to yellow");
                             }
                             else if (event.jbattery.percent <= 100) {
                                 red = 0; green = 255; blue = 0;
-                                std::cout << "LED to green" << std::endl;
+                                SDL_Log("LED to green");
                             }
 
                             SDL_Gamepad* gamepad = SDL_GetGamepadFromID(event.jbattery.which);
                             if (gamepad != nullptr) {
                                 SDL_SetGamepadLED(gamepad, red, green, blue);
-                                std::cout << "SDL_SetGamepadLED" << std::endl;
+                                SDL_Log("SDL_SetGamepadLED");
                             }
 
                         }
@@ -131,7 +129,7 @@ void SDL_eventLoop() {
                     break;
                 }
                 case SDL_EVENT_QUIT: {
-                    std::cout << "SDL_EVENT_QUIT" << std::endl;
+                    SDL_Log("SDL_EVENT_QUIT");
                     running = false;
                     break;
                 }
@@ -141,7 +139,7 @@ void SDL_eventLoop() {
     }
 
     closeGamepads();
-    std::cout << "BYE BYE" << std::endl;
+    SDL_Log("BYE BYE");
     SDL_Quit();
     SetEvent(hSDL_Quit);
 }

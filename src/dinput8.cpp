@@ -11,9 +11,8 @@ found in the LICENSE file in the root directory of this source tree.
 extern "C" {
 #endif
   HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter){
+    SDL_Log("DirectInput8Create()");
 
-    std::cout << "DirectInput8Create()" << std::endl;
-    
     if(hinst == nullptr || ppvOut == nullptr)
       return DIERR_INVALIDPARAM;
     
@@ -31,9 +30,6 @@ extern "C" {
       return DI_OK;
     }
     else if (riidltf == IID_IDirectInput8W) {
-
-      std::cout << "DirectInput8Create() > IID_IDirectInput8W" << std::endl;
-
       IDirectInput8W* pDInput = new(std::nothrow) IDirectInput8W;
       if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
       *ppvOut = static_cast<IDirectInput8W*>(pDInput);

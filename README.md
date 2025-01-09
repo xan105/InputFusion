@@ -3,11 +3,11 @@ About
 
 This is an attempt at creating an _"open source Steam Input"_. Specifically the Gamepad APIs translating part.
 
-This project aims to hook and re-implement various gamepad APIs such as XInput over [SDL](https://www.libsdl.org/).
+This project aims to hook and re-implement various gamepad APIs such as XInput over [SDL3](https://www.libsdl.org/).
 
-The goal is to allow old and new games to support any gamepad controller supported by SDL (over 200+) out of the box with zero configuration.
+The goal is to allow old and new games to support any gamepad controller supported by SDL3 (over 200+) out of the box with zero configuration.
 
-If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this is for you.
+If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this project might be of interest to you.
 
 <p align="center">
   <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
@@ -23,9 +23,9 @@ Gamepad APIs support
   - XInputGetStateEx ✔️
   - XInputSetState ✔️
   - XInputSetStateEx¹ ✔️
-  - XInputGetBatteryInformation ✔️
   - XInputGetCapabilities ✔️
-  - XInputGetCapabilitiesEx ✔️ 
+  - XInputGetCapabilitiesEx ✔️
+  - XInputGetBatteryInformation ✔️ 
   - XInputGetKeystroke ❌️
   - XInputWaitForGuideButton ❌️
   - XInputCancelGuideButtonWait ❌
@@ -93,9 +93,9 @@ _To Do_
   - joyConfigChanged ⚠
   - joyGetDevCapsA ⚠
   - joyGetDevCapsW ⚠
-  - joyGetNumDevs ⚠
-  - joyGetPos ⚠
-  - joyGetPosEx ⚠
+  - joyGetNumDevs ✔
+  - joyGetPos ✔
+  - joyGetPosEx ✔
   - joyGetThreshold ⚠
   - joyReleaseCapture ⚠
   - joySetCapture ⚠

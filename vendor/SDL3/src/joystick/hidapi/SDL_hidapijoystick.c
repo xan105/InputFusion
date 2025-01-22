@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -1293,7 +1293,10 @@ char *HIDAPI_GetDeviceProductName(Uint16 vendor_id, Uint16 product_id)
     SDL_LockJoysticks();
     for (device = SDL_HIDAPI_devices; device; device = device->next) {
         if (vendor_id == device->vendor_id && product_id == device->product_id) {
-            name = SDL_strdup(device->product_string);
+            if (device->product_string) {
+                name = SDL_strdup(device->product_string);
+            }
+            break;
         }
     }
     SDL_UnlockJoysticks();
@@ -1309,7 +1312,10 @@ char *HIDAPI_GetDeviceManufacturerName(Uint16 vendor_id, Uint16 product_id)
     SDL_LockJoysticks();
     for (device = SDL_HIDAPI_devices; device; device = device->next) {
         if (vendor_id == device->vendor_id && product_id == device->product_id) {
-            name = SDL_strdup(device->manufacturer_string);
+            if (device->manufacturer_string) {
+                name = SDL_strdup(device->manufacturer_string);
+            }
+            break;
         }
     }
     SDL_UnlockJoysticks();

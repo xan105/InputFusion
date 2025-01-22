@@ -36,7 +36,7 @@ static const struct {
     const char *key;
     const char *value;
 } extended_metadata[] = {
-    { SDL_PROP_APP_METADATA_URL_STRING, "https://examples.libsdl.org/SDL3/game/02-woodeneye-008/" },
+    { SDL_PROP_APP_METADATA_URL_STRING, "https://examples.libsdl.org/SDL3/demo/02-woodeneye-008/" },
     { SDL_PROP_APP_METADATA_CREATOR_STRING, "SDL team" },
     { SDL_PROP_APP_METADATA_COPYRIGHT_STRING, "Placed in the public domain" },
     { SDL_PROP_APP_METADATA_TYPE_STRING, "game" }
@@ -347,7 +347,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         return SDL_APP_FAILURE;
     }
-    if (!SDL_CreateWindowAndRenderer("examples/game/woodeneye-008", 640, 480, 0, &as->window, &as->renderer)) {
+    if (!SDL_CreateWindowAndRenderer("examples/demo/woodeneye-008", 640, 480, 0, &as->window, &as->renderer)) {
         return SDL_APP_FAILURE;
     }
 

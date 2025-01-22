@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -173,6 +173,15 @@ SDL_X11_SYM(Status, XFixesQueryVersion,(Display* a, int* b, int* c), (a,b,c), re
 SDL_X11_SYM(Status, XFixesSelectSelectionInput, (Display* a, Window b, Atom c, unsigned long d), (a,b,c,d), return)
 #endif
 
+#ifdef SDL_VIDEO_DRIVER_X11_XSYNC
+SDL_X11_MODULE(XSYNC)
+SDL_X11_SYM(Status, XSyncQueryExtension, (Display* a, int* b, int* c), (a, b, c), return)
+SDL_X11_SYM(Status, XSyncInitialize, (Display* a, int* b, int* c), (a, b, c), return)
+SDL_X11_SYM(XSyncCounter, XSyncCreateCounter, (Display* a, XSyncValue b), (a, b), return)
+SDL_X11_SYM(Status, XSyncDestroyCounter, (Display* a, XSyncCounter b), (a, b), return)
+SDL_X11_SYM(Status, XSyncSetCounter, (Display* a, XSyncCounter b, XSyncValue c), (a, b, c), return)
+#endif
+
 #ifdef SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS
 SDL_X11_SYM(Bool,XGetEventData,(Display* a,XGenericEventCookie* b),(a,b),return)
 SDL_X11_SYM(void,XFreeEventData,(Display* a,XGenericEventCookie* b),(a,b),)
@@ -214,6 +223,8 @@ SDL_X11_SYM(int,Xutf8LookupString,(XIC a,XKeyPressedEvent* b,char* c,int d,KeySy
 // SDL_X11_SYM(XIC,XCreateIC,(XIM, ...),return)  !!! ARGH!
 SDL_X11_SYM(void,XDestroyIC,(XIC a),(a),)
 /* SDL_X11_SYM(char*,XGetICValues,(XIC, ...),return)  !!! ARGH! */
+/* SDL_X11_SYM(char*,XSetICValues,(XIC, ...),return)  !!! ARGH! */
+/* SDL_X11_SYM(XVaNestedList,XVaCreateNestedList,(int, ...),return)  !!! ARGH! */
 SDL_X11_SYM(void,XSetICFocus,(XIC a),(a),)
 SDL_X11_SYM(void,XUnsetICFocus,(XIC a),(a),)
 SDL_X11_SYM(XIM,XOpenIM,(Display* a,struct _XrmHashBucketRec* b,char* c,char* d),(a,b,c,d),return)

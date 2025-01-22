@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -83,6 +83,12 @@ struct SDL_WindowData
     PointerBarrier barrier[4];
     SDL_Rect barrier_rect;
 #endif // SDL_VIDEO_DRIVER_X11_XFIXES
+#ifdef SDL_VIDEO_DRIVER_X11_XSYNC
+    XSyncCounter resize_counter;
+    XSyncValue resize_id;
+    bool resize_in_progress;
+#endif /* SDL_VIDEO_DRIVER_X11_XSYNC */
+
     SDL_Rect expected;
     SDL_DisplayMode requested_fullscreen_mode;
 
@@ -97,12 +103,21 @@ struct SDL_WindowData
         X11_PENDING_OP_RESIZE = 0x20
     } pending_operation;
 
+    bool pending_size;
+    bool pending_position;
     bool window_was_maximized;
     bool disable_size_position_events;
     bool previous_borders_nonzero;
     bool toggle_borders;
     bool fullscreen_borders_forced_on;
     SDL_HitTestResult hit_test_result;
+
+    XPoint xim_spot;
+    char *preedit_text;
+    XIMFeedback *preedit_feedback;
+    int preedit_length;
+    int preedit_cursor;
+    bool ime_needs_clear_composition;
 };
 
 extern void X11_SetNetWMState(SDL_VideoDevice *_this, Window xwindow, SDL_WindowFlags flags);

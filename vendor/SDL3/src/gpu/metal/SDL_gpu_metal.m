@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -34,31 +34,35 @@
 #define WINDOW_PROPERTY_DATA           "SDL_GPUMetalWindowPropertyData"
 #define SDL_GPU_SHADERSTAGE_COMPUTE    2
 
-#define TRACK_RESOURCE(resource, type, array, count, capacity) \
-    Uint32 i;                                                  \
-                                                               \
-    for (i = 0; i < commandBuffer->count; i += 1) {            \
-        if (commandBuffer->array[i] == resource) {             \
-            return;                                            \
-        }                                                      \
-    }                                                          \
-                                                               \
-    if (commandBuffer->count == commandBuffer->capacity) {     \
-        commandBuffer->capacity += 1;                          \
-        commandBuffer->array = SDL_realloc(                    \
-            commandBuffer->array,                              \
-            commandBuffer->capacity * sizeof(type));           \
-    }                                                          \
-    commandBuffer->array[commandBuffer->count] = resource;     \
-    commandBuffer->count += 1;                                 \
-    SDL_AtomicIncRef(&resource->referenceCount);
+#define TRACK_RESOURCE(resource, type, array, count, capacity)   \
+    do {                                                         \
+        Uint32 i;                                                \
+                                                                 \
+        for (i = 0; i < commandBuffer->count; i += 1) {          \
+            if (commandBuffer->array[i] == (resource)) {         \
+                return;                                          \
+            }                                                    \
+        }                                                        \
+                                                                 \
+        if (commandBuffer->count == commandBuffer->capacity) {   \
+            commandBuffer->capacity += 1;                        \
+            commandBuffer->array = SDL_realloc(                  \
+                commandBuffer->array,                            \
+                commandBuffer->capacity * sizeof(type));         \
+        }                                                        \
+        commandBuffer->array[commandBuffer->count] = (resource); \
+        commandBuffer->count += 1;                               \
+        SDL_AtomicIncRef(&(resource)->referenceCount);           \
+    } while (0)
 
-#define SET_ERROR_AND_RETURN(fmt, msg, ret)           \
-    if (renderer->debugMode) {                        \
-        SDL_LogError(SDL_LOG_CATEGORY_GPU, fmt, msg); \
-    }                                                 \
-    SDL_SetError(fmt, msg);                           \
-    return ret;                                       \
+#define SET_ERROR_AND_RETURN(fmt, msg, ret)               \
+    do {                                                  \
+        if (renderer->debugMode) {                        \
+            SDL_LogError(SDL_LOG_CATEGORY_GPU, fmt, msg); \
+        }                                                 \
+        SDL_SetError(fmt, msg);                           \
+        return ret;                                       \
+    } while (0)
 
 #define SET_STRING_ERROR_AND_RETURN(msg, ret) SET_ERROR_AND_RETURN("%s", msg, ret)
 
@@ -365,7 +369,7 @@ static SDL_GPUTextureFormat SwapchainCompositionToFormat[] = {
     SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM,      // SDR
     SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM_SRGB, // SDR_LINEAR
     SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT,  // HDR_EXTENDED_LINEAR
-    SDL_GPU_TEXTUREFORMAT_R10G10B10A2_UNORM,   // HDR10_ST2048
+    SDL_GPU_TEXTUREFORMAT_R10G10B10A2_UNORM,   // HDR10_ST2084
 };
 
 static CFStringRef SwapchainCompositionToColorSpace[4]; // initialized on device creation
@@ -382,11 +386,7 @@ static MTLTextureType SDLToMetal_TextureType(SDL_GPUTextureType textureType, boo
     case SDL_GPU_TEXTURETYPE_CUBE:
         return MTLTextureTypeCube;
     case SDL_GPU_TEXTURETYPE_CUBE_ARRAY:
-        if (@available(iOS 11.0, tvOS 11.0, *)) {
-            return MTLTextureTypeCubeArray;
-        } else {
-            return MTLTextureType2D; // FIXME: I guess...?
-        }
+        return MTLTextureTypeCubeArray;
     default:
         return MTLTextureType2D;
     }
@@ -467,6 +467,7 @@ typedef struct MetalShader
     id<MTLLibrary> library;
     id<MTLFunction> function;
 
+    SDL_GPUShaderStage stage;
     Uint32 numSamplers;
     Uint32 numUniformBuffers;
     Uint32 numStorageBuffers;
@@ -641,6 +642,7 @@ struct MetalRenderer
     id<MTLCommandQueue> queue;
 
     bool debugMode;
+    Uint32 allowedFramesInFlight;
 
     MetalWindowData **claimedWindows;
     Uint32 claimedWindowCount;
@@ -1037,7 +1039,15 @@ static SDL_GPUComputePipeline *METAL_CreateComputePipeline(
             return NULL;
         }
 
-        handle = [renderer->device newComputePipelineStateWithFunction:libraryFunction.function error:&error];
+        MTLComputePipelineDescriptor *descriptor = [MTLComputePipelineDescriptor new];
+        descriptor.computeFunction = libraryFunction.function;
+
+        if (renderer->debugMode && SDL_HasProperty(createinfo->props, SDL_PROP_GPU_COMPUTEPIPELINE_CREATE_NAME_STRING)) {
+            const char *name = SDL_GetStringProperty(createinfo->props, SDL_PROP_GPU_COMPUTEPIPELINE_CREATE_NAME_STRING, NULL);
+            descriptor.label = @(name);
+        }
+
+        handle = [renderer->device newComputePipelineStateWithDescriptor:descriptor options:MTLPipelineOptionNone reflection: nil error:&error];
         if (error != NULL) {
             SET_ERROR_AND_RETURN("Creating compute pipeline failed: %s", [[error description] UTF8String], NULL);
         }
@@ -1078,6 +1088,14 @@ static SDL_GPUGraphicsPipeline *METAL_CreateGraphicsPipeline(
         NSError *error = NULL;
         MetalGraphicsPipeline *result = NULL;
 
+        if (renderer->debugMode) {
+            if (vertexShader->stage != SDL_GPU_SHADERSTAGE_VERTEX) {
+                SDL_assert_release(!"CreateGraphicsPipeline was passed a fragment shader for the vertex stage");
+            }
+            if (fragmentShader->stage != SDL_GPU_SHADERSTAGE_FRAGMENT) {
+                SDL_assert_release(!"CreateGraphicsPipeline was passed a vertex shader for the fragment stage");
+            }
+        }
         pipelineDescriptor = [MTLRenderPipelineDescriptor new];
 
         // Blend
@@ -1107,10 +1125,11 @@ static SDL_GPUGraphicsPipeline *METAL_CreateGraphicsPipeline(
 
         if (createinfo->target_info.has_depth_stencil_target) {
             pipelineDescriptor.depthAttachmentPixelFormat = SDLToMetal_TextureFormat(createinfo->target_info.depth_stencil_format);
+            if (IsStencilFormat(createinfo->target_info.depth_stencil_format)) {
+                pipelineDescriptor.stencilAttachmentPixelFormat = SDLToMetal_TextureFormat(createinfo->target_info.depth_stencil_format);
+            }
 
             if (createinfo->depth_stencil_state.enable_stencil_test) {
-                pipelineDescriptor.stencilAttachmentPixelFormat = SDLToMetal_TextureFormat(createinfo->target_info.depth_stencil_format);
-
                 frontStencilDescriptor = [MTLStencilDescriptor new];
                 frontStencilDescriptor.stencilCompareFunction = SDLToMetal_CompareOp[createinfo->depth_stencil_state.front_stencil_state.compare_op];
                 frontStencilDescriptor.stencilFailureOperation = SDLToMetal_StencilOp[createinfo->depth_stencil_state.front_stencil_state.fail_op];
@@ -1130,7 +1149,8 @@ static SDL_GPUGraphicsPipeline *METAL_CreateGraphicsPipeline(
 
             depthStencilDescriptor = [MTLDepthStencilDescriptor new];
             depthStencilDescriptor.depthCompareFunction = createinfo->depth_stencil_state.enable_depth_test ? SDLToMetal_CompareOp[createinfo->depth_stencil_state.compare_op] : MTLCompareFunctionAlways;
-            depthStencilDescriptor.depthWriteEnabled = createinfo->depth_stencil_state.enable_depth_write;
+            // Disable write when test is disabled, to match other APIs' behavior
+            depthStencilDescriptor.depthWriteEnabled = createinfo->depth_stencil_state.enable_depth_write && createinfo->depth_stencil_state.enable_depth_test;
             depthStencilDescriptor.frontFaceStencil = frontStencilDescriptor;
             depthStencilDescriptor.backFaceStencil = backStencilDescriptor;
 
@@ -1165,6 +1185,11 @@ static SDL_GPUGraphicsPipeline *METAL_CreateGraphicsPipeline(
             }
 
             pipelineDescriptor.vertexDescriptor = vertexDescriptor;
+        }
+
+        if (renderer->debugMode && SDL_HasProperty(createinfo->props, SDL_PROP_GPU_GRAPHICSPIPELINE_CREATE_NAME_STRING)) {
+            const char *name = SDL_GetStringProperty(createinfo->props, SDL_PROP_GPU_GRAPHICSPIPELINE_CREATE_NAME_STRING, NULL);
+            pipelineDescriptor.label = @(name);
         }
 
         // Create the graphics pipeline
@@ -1206,17 +1231,13 @@ static void METAL_SetBufferName(
     @autoreleasepool {
         MetalRenderer *renderer = (MetalRenderer *)driverData;
         MetalBufferContainer *container = (MetalBufferContainer *)buffer;
-        size_t textLength = SDL_strlen(text) + 1;
 
-        if (renderer->debugMode) {
-            container->debugName = SDL_realloc(
-                container->debugName,
-                textLength);
+        if (renderer->debugMode && text != NULL) {
+            if (container->debugName != NULL) {
+                SDL_free(container->debugName);
+            }
 
-            SDL_utf8strlcpy(
-                container->debugName,
-                text,
-                textLength);
+            container->debugName = SDL_strdup(text);
 
             for (Uint32 i = 0; i < container->bufferCount; i += 1) {
                 container->buffers[i]->handle.label = @(text);
@@ -1233,17 +1254,13 @@ static void METAL_SetTextureName(
     @autoreleasepool {
         MetalRenderer *renderer = (MetalRenderer *)driverData;
         MetalTextureContainer *container = (MetalTextureContainer *)texture;
-        size_t textLength = SDL_strlen(text) + 1;
 
-        if (renderer->debugMode) {
-            container->debugName = SDL_realloc(
-                container->debugName,
-                textLength);
+        if (renderer->debugMode && text != NULL) {
+            if (container->debugName != NULL) {
+                SDL_free(container->debugName);
+            }
 
-            SDL_utf8strlcpy(
-                container->debugName,
-                text,
-                textLength);
+            container->debugName = SDL_strdup(text);
 
             for (Uint32 i = 0; i < container->textureCount; i += 1) {
                 container->textures[i]->handle.label = @(text);
@@ -1268,10 +1285,8 @@ static void METAL_InsertDebugLabel(
             [metalCommandBuffer->computeEncoder insertDebugSignpost:label];
         } else {
             // Metal doesn't have insertDebugSignpost for command buffers...
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                [metalCommandBuffer->handle pushDebugGroup:label];
-                [metalCommandBuffer->handle popDebugGroup];
-            }
+            [metalCommandBuffer->handle pushDebugGroup:label];
+            [metalCommandBuffer->handle popDebugGroup];
         }
     }
 }
@@ -1291,9 +1306,7 @@ static void METAL_PushDebugGroup(
         } else if (metalCommandBuffer->computeEncoder) {
             [metalCommandBuffer->computeEncoder pushDebugGroup:label];
         } else {
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                [metalCommandBuffer->handle pushDebugGroup:label];
-            }
+            [metalCommandBuffer->handle pushDebugGroup:label];
         }
     }
 }
@@ -1311,9 +1324,7 @@ static void METAL_PopDebugGroup(
         } else if (metalCommandBuffer->computeEncoder) {
             [metalCommandBuffer->computeEncoder popDebugGroup];
         } else {
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                [metalCommandBuffer->handle popDebugGroup];
-            }
+            [metalCommandBuffer->handle popDebugGroup];
         }
     }
 }
@@ -1340,6 +1351,11 @@ static SDL_GPUSampler *METAL_CreateSampler(
         samplerDesc.lodMaxClamp = createinfo->max_lod;
         samplerDesc.maxAnisotropy = (NSUInteger)((createinfo->enable_anisotropy) ? createinfo->max_anisotropy : 1);
         samplerDesc.compareFunction = (createinfo->enable_compare) ? SDLToMetal_CompareOp[createinfo->compare_op] : MTLCompareFunctionAlways;
+
+        if (renderer->debugMode && SDL_HasProperty(createinfo->props, SDL_PROP_GPU_SAMPLER_CREATE_NAME_STRING)) {
+            const char *name = SDL_GetStringProperty(createinfo->props, SDL_PROP_GPU_SAMPLER_CREATE_NAME_STRING, NULL);
+            samplerDesc.label = @(name);
+        }
 
         sampler = [renderer->device newSamplerStateWithDescriptor:samplerDesc];
         if (sampler == NULL) {
@@ -1374,6 +1390,7 @@ static SDL_GPUShader *METAL_CreateShader(
         result = SDL_calloc(1, sizeof(MetalShader));
         result->library = libraryFunction.library;
         result->function = libraryFunction.function;
+        result->stage = createinfo->stage;
         result->numSamplers = createinfo->num_samplers;
         result->numStorageBuffers = createinfo->num_storage_buffers;
         result->numStorageTextures = createinfo->num_storage_textures;
@@ -1440,6 +1457,11 @@ static MetalTexture *METAL_INTERNAL_CreateTexture(
     metalTexture = (MetalTexture *)SDL_calloc(1, sizeof(MetalTexture));
     metalTexture->handle = texture;
     SDL_SetAtomicInt(&metalTexture->referenceCount, 0);
+
+    if (renderer->debugMode && SDL_HasProperty(createinfo->props, SDL_PROP_GPU_TEXTURE_CREATE_NAME_STRING)) {
+        metalTexture->handle.label = @(SDL_GetStringProperty(createinfo->props, SDL_PROP_GPU_TEXTURE_CREATE_NAME_STRING, NULL));
+    }
+
     return metalTexture;
 }
 
@@ -1474,7 +1496,12 @@ static SDL_GPUTexture *METAL_CreateTexture(
 
         container = SDL_calloc(1, sizeof(MetalTextureContainer));
         container->canBeCycled = 1;
+
+        // Copy properties so we don't lose information when the client destroys them
         container->header.info = *createinfo;
+        container->header.info.props = SDL_CreateProperties();
+        SDL_CopyProperties(createinfo->props, container->header.info.props);
+
         container->activeTexture = texture;
         container->textureCapacity = 1;
         container->textureCount = 1;
@@ -1482,6 +1509,10 @@ static SDL_GPUTexture *METAL_CreateTexture(
             container->textureCapacity, sizeof(MetalTexture *));
         container->textures[0] = texture;
         container->debugName = NULL;
+
+        if (SDL_HasProperty(createinfo->props, SDL_PROP_GPU_TEXTURE_CREATE_NAME_STRING)) {
+            container->debugName = SDL_strdup(SDL_GetStringProperty(createinfo->props, SDL_PROP_GPU_TEXTURE_CREATE_NAME_STRING, NULL));
+        }
 
         return (SDL_GPUTexture *)container;
     }
@@ -1517,10 +1548,6 @@ static MetalTexture *METAL_INTERNAL_PrepareTextureForWrite(
         container->textureCount += 1;
 
         container->activeTexture = container->textures[container->textureCount - 1];
-
-        if (renderer->debugMode && container->debugName != NULL) {
-            container->activeTexture->handle.label = @(container->debugName);
-        }
     }
 
     return container->activeTexture;
@@ -1530,7 +1557,8 @@ static MetalTexture *METAL_INTERNAL_PrepareTextureForWrite(
 static MetalBuffer *METAL_INTERNAL_CreateBuffer(
     MetalRenderer *renderer,
     Uint32 size,
-    MTLResourceOptions resourceOptions)
+    MTLResourceOptions resourceOptions,
+    const char *debugName)
 {
     id<MTLBuffer> bufferHandle;
     MetalBuffer *metalBuffer;
@@ -1548,6 +1576,10 @@ static MetalBuffer *METAL_INTERNAL_CreateBuffer(
     metalBuffer->handle = bufferHandle;
     SDL_SetAtomicInt(&metalBuffer->referenceCount, 0);
 
+    if (debugName != NULL) {
+        metalBuffer->handle.label = @(debugName);
+    }
+
     return metalBuffer;
 }
 
@@ -1556,7 +1588,8 @@ static MetalBufferContainer *METAL_INTERNAL_CreateBufferContainer(
     MetalRenderer *renderer,
     Uint32 size,
     bool isPrivate,
-    bool isWriteOnly)
+    bool isWriteOnly,
+    const char *debugName)
 {
     MetalBufferContainer *container = SDL_calloc(1, sizeof(MetalBufferContainer));
     MTLResourceOptions resourceOptions;
@@ -1569,6 +1602,9 @@ static MetalBufferContainer *METAL_INTERNAL_CreateBufferContainer(
     container->isPrivate = isPrivate;
     container->isWriteOnly = isWriteOnly;
     container->debugName = NULL;
+    if (container->debugName != NULL) {
+        container->debugName = SDL_strdup(debugName);
+    }
 
     if (isPrivate) {
         resourceOptions = MTLResourceStorageModePrivate;
@@ -1583,7 +1619,9 @@ static MetalBufferContainer *METAL_INTERNAL_CreateBufferContainer(
     container->buffers[0] = METAL_INTERNAL_CreateBuffer(
         renderer,
         size,
-        resourceOptions);
+        resourceOptions,
+        debugName);
+
     container->activeBuffer = container->buffers[0];
 
     return container;
@@ -1592,28 +1630,32 @@ static MetalBufferContainer *METAL_INTERNAL_CreateBufferContainer(
 static SDL_GPUBuffer *METAL_CreateBuffer(
     SDL_GPURenderer *driverData,
     SDL_GPUBufferUsageFlags usage,
-    Uint32 size)
+    Uint32 size,
+    const char *debugName)
 {
     @autoreleasepool {
         return (SDL_GPUBuffer *)METAL_INTERNAL_CreateBufferContainer(
             (MetalRenderer *)driverData,
             size,
             true,
-            false);
+            false,
+            debugName);
     }
 }
 
 static SDL_GPUTransferBuffer *METAL_CreateTransferBuffer(
     SDL_GPURenderer *driverData,
     SDL_GPUTransferBufferUsage usage,
-    Uint32 size)
+    Uint32 size,
+    const char *debugName)
 {
     @autoreleasepool {
         return (SDL_GPUTransferBuffer *)METAL_INTERNAL_CreateBufferContainer(
             (MetalRenderer *)driverData,
             size,
             false,
-            usage == SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD);
+            usage == SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+            debugName);
     }
 }
 
@@ -1677,14 +1719,11 @@ static MetalBuffer *METAL_INTERNAL_PrepareBufferForWrite(
         container->buffers[container->bufferCount] = METAL_INTERNAL_CreateBuffer(
             renderer,
             container->size,
-            resourceOptions);
+            resourceOptions,
+            container->debugName);
         container->bufferCount += 1;
 
         container->activeBuffer = container->buffers[container->bufferCount - 1];
-
-        if (renderer->debugMode && container->debugName != NULL) {
-            container->activeBuffer->handle.label = @(container->debugName);
-        }
     }
 
     return container->activeBuffer;
@@ -2369,9 +2408,7 @@ static void METAL_BindGraphicsPipeline(
         [metalCommandBuffer->renderEncoder setTriangleFillMode:SDLToMetal_PolygonMode[metalGraphicsPipeline->rasterizerState.fill_mode]];
         [metalCommandBuffer->renderEncoder setCullMode:SDLToMetal_CullMode[metalGraphicsPipeline->rasterizerState.cull_mode]];
         [metalCommandBuffer->renderEncoder setFrontFacingWinding:SDLToMetal_FrontFace[metalGraphicsPipeline->rasterizerState.front_face]];
-        if (@available(iOS 11.0, tvOS 11.0, *)) {
-            [metalCommandBuffer->renderEncoder setDepthClipMode:SDLToMetal_DepthClipMode(metalGraphicsPipeline->rasterizerState.enable_depth_clip)];
-        }
+        [metalCommandBuffer->renderEncoder setDepthClipMode:SDLToMetal_DepthClipMode(metalGraphicsPipeline->rasterizerState.enable_depth_clip)];
         [metalCommandBuffer->renderEncoder
             setDepthBias:((rast->enable_depth_bias) ? rast->depth_bias_constant_factor : 0)
               slopeScale:((rast->enable_depth_bias) ? rast->depth_bias_slope_factor : 0)
@@ -3485,7 +3522,7 @@ static bool METAL_SupportsSwapchainComposition(
     SDL_GPUSwapchainComposition swapchainComposition)
 {
 #ifndef SDL_PLATFORM_MACOS
-    if (swapchainComposition == SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2048) {
+    if (swapchainComposition == SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2084) {
         return false;
     }
 #endif
@@ -3493,7 +3530,7 @@ static bool METAL_SupportsSwapchainComposition(
     if (@available(macOS 11.0, *)) {
         return true;
     } else {
-        return swapchainComposition != SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2048;
+        return swapchainComposition != SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2084;
     }
 }
 
@@ -3623,8 +3660,7 @@ static bool METAL_ClaimWindow(
                 SET_STRING_ERROR_AND_RETURN("Could not create swapchain, failed to claim window", false);
             }
         } else {
-            SDL_LogWarn(SDL_LOG_CATEGORY_GPU, "Window already claimed!");
-            return false;
+            SET_ERROR_AND_RETURN("%s", "Window already claimed!", false);
         }
     }
 }
@@ -3667,7 +3703,34 @@ static void METAL_ReleaseWindow(
     }
 }
 
-static bool METAL_AcquireSwapchainTexture(
+static bool METAL_WaitForSwapchain(
+    SDL_GPURenderer *driverData,
+    SDL_Window *window)
+{
+    @autoreleasepool {
+        MetalRenderer *renderer = (MetalRenderer *)driverData;
+        MetalWindowData *windowData = METAL_INTERNAL_FetchWindowData(window);
+
+        if (windowData == NULL) {
+            SET_STRING_ERROR_AND_RETURN("Cannot wait for a swapchain from an unclaimed window!", false);
+        }
+
+        if (windowData->inFlightFences[windowData->frameCounter] != NULL) {
+            if (!METAL_WaitForFences(
+                driverData,
+                true,
+                &windowData->inFlightFences[windowData->frameCounter],
+                1)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+static bool METAL_INTERNAL_AcquireSwapchainTexture(
+    bool block,
     SDL_GPUCommandBuffer *commandBuffer,
     SDL_Window *window,
     SDL_GPUTexture **texture,
@@ -3705,8 +3768,8 @@ static bool METAL_AcquireSwapchainTexture(
         }
 
         if (windowData->inFlightFences[windowData->frameCounter] != NULL) {
-            if (windowData->presentMode == SDL_GPU_PRESENTMODE_VSYNC) {
-                // In VSYNC mode, block until the least recent presented frame is done
+            if (block) {
+                // If we are blocking, just wait for the fence!
                 if (!METAL_WaitForFences(
                     (SDL_GPURenderer *)renderer,
                     true,
@@ -3715,13 +3778,11 @@ static bool METAL_AcquireSwapchainTexture(
                     return false;
                 }
             } else {
+                // If we are not blocking and the least recent fence is not signaled,
+                // return true to indicate that there is no error but rendering should be skipped.
                 if (!METAL_QueryFence(
                         (SDL_GPURenderer *)metalCommandBuffer->renderer,
                         windowData->inFlightFences[windowData->frameCounter])) {
-                    /*
-                    * In IMMEDIATE mode, if the least recent fence is not signaled,
-                    * return true to indicate that there is no error but rendering should be skipped
-                    */
                     return true;
                 }
             }
@@ -3751,6 +3812,38 @@ static bool METAL_AcquireSwapchainTexture(
         *texture = (SDL_GPUTexture *)&windowData->textureContainer;
         return true;
     }
+}
+
+static bool METAL_AcquireSwapchainTexture(
+    SDL_GPUCommandBuffer *command_buffer,
+    SDL_Window *window,
+    SDL_GPUTexture **swapchain_texture,
+    Uint32 *swapchain_texture_width,
+    Uint32 *swapchain_texture_height
+) {
+    return METAL_INTERNAL_AcquireSwapchainTexture(
+        false,
+        command_buffer,
+        window,
+        swapchain_texture,
+        swapchain_texture_width,
+        swapchain_texture_height);
+}
+
+static bool METAL_WaitAndAcquireSwapchainTexture(
+    SDL_GPUCommandBuffer *command_buffer,
+    SDL_Window *window,
+    SDL_GPUTexture **swapchain_texture,
+    Uint32 *swapchain_texture_width,
+    Uint32 *swapchain_texture_height
+) {
+    return METAL_INTERNAL_AcquireSwapchainTexture(
+        true,
+        command_buffer,
+        window,
+        swapchain_texture,
+        swapchain_texture_width,
+        swapchain_texture_height);
 }
 
 static SDL_GPUTextureFormat METAL_GetSwapchainTextureFormat(
@@ -3817,6 +3910,22 @@ static bool METAL_SetSwapchainParameters(
     }
 }
 
+static bool METAL_SetAllowedFramesInFlight(
+    SDL_GPURenderer *driverData,
+    Uint32 allowedFramesInFlight)
+{
+    @autoreleasepool {
+        MetalRenderer *renderer = (MetalRenderer *)driverData;
+
+        if (!METAL_Wait(driverData)) {
+            return false;
+        }
+
+        renderer->allowedFramesInFlight = allowedFramesInFlight;
+        return true;
+    }
+}
+
 // Submission
 
 static bool METAL_Submit(
@@ -3843,7 +3952,7 @@ static bool METAL_Submit(
 
             (void)SDL_AtomicIncRef(&metalCommandBuffer->fence->referenceCount);
 
-            windowData->frameCounter = (windowData->frameCounter + 1) % MAX_FRAMES_IN_FLIGHT;
+            windowData->frameCounter = (windowData->frameCounter + 1) % renderer->allowedFramesInFlight;
         }
 
         // Notify the fence when the command buffer has completed
@@ -4103,7 +4212,7 @@ static bool METAL_SupportsTextureFormat(
 
 static bool METAL_PrepareDriver(SDL_VideoDevice *this)
 {
-    if (@available(macOS 10.13, iOS 13.0, tvOS 13.0, *)) {
+    if (@available(macOS 10.14, iOS 13.0, tvOS 13.0, *)) {
         return (this->Metal_CreateView != NULL);
     }
     return false;
@@ -4265,6 +4374,16 @@ static SDL_GPUDevice *METAL_CreateDevice(bool debugMode, bool preferLowPower, SD
     @autoreleasepool {
         MetalRenderer *renderer;
         id<MTLDevice> device = NULL;
+        bool hasHardwareSupport = false;
+
+        if (debugMode) {
+            /* Due to a Metal driver quirk, once a MTLDevice has been created
+             * with this environment variable set, the Metal validation layers
+             * will remain enabled for the rest of the application's lifespan,
+             * even if the device is destroyed and recreated.
+             */
+            SDL_setenv_unsafe("MTL_DEBUG_LAYER", "1", 0);
+        }
 
         // Create the Metal device and command queue
 #ifdef SDL_PLATFORM_MACOS
@@ -4286,6 +4405,24 @@ static SDL_GPUDevice *METAL_CreateDevice(bool debugMode, bool preferLowPower, SD
             }
         }
 
+#ifdef SDL_PLATFORM_MACOS
+        hasHardwareSupport = true;
+        if (@available(macOS 10.15, *)) {
+            hasHardwareSupport = [device supportsFamily:MTLGPUFamilyMac2];
+        } else if (@available(macOS 10.14, *)) {
+            hasHardwareSupport = [device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily2_v1];
+        }
+#else
+        if (@available(iOS 13.0, tvOS 13.0, *)) {
+            hasHardwareSupport = [device supportsFamily:MTLGPUFamilyApple3];
+        }
+#endif
+
+        if (!hasHardwareSupport) {
+            SDL_SetError("Device does not meet the hardware requirements for SDL_GPU Metal");
+            return NULL;
+        }
+
         // Allocate and zero out the renderer
         renderer = (MetalRenderer *)SDL_calloc(1, sizeof(MetalRenderer));
 
@@ -4301,6 +4438,7 @@ static SDL_GPUDevice *METAL_CreateDevice(bool debugMode, bool preferLowPower, SD
 
         // Remember debug mode
         renderer->debugMode = debugMode;
+        renderer->allowedFramesInFlight = 2;
 
         // Set up colorspace array
         SwapchainCompositionToColorSpace[0] = kCGColorSpaceSRGB;

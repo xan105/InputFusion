@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -277,6 +277,8 @@ int main(int argc, char *argv[])
         SDL_RenderClear(renderer);
     }
 
+SDL_StopTextInput(state->windows[0]);
+SDL_StopTextInput(state->windows[0]);
     /* Main render loop */
     done = 0;
 #ifdef SDL_PLATFORM_EMSCRIPTEN

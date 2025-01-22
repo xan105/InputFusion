@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -45,8 +45,6 @@
 #include "SDL_build_config_ios.h"
 #elif defined(SDL_PLATFORM_ANDROID)
 #include "SDL_build_config_android.h"
-#elif defined(SDL_PLATFORM_NGAGE)
-#include "SDL_build_config_ngage.h"
 #else
 /* This is a minimal configuration just to get SDL running on new platforms. */
 #include "SDL_build_config_minimal.h"

@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -76,7 +76,7 @@ typedef struct BlitPipelineCacheEntry
 #define SDL_GPU_STENCILOP_MAX_ENUM_VALUE            (SDL_GPU_STENCILOP_DECREMENT_AND_WRAP + 1)
 #define SDL_GPU_BLENDOP_MAX_ENUM_VALUE              (SDL_GPU_BLENDOP_MAX + 1)
 #define SDL_GPU_BLENDFACTOR_MAX_ENUM_VALUE          (SDL_GPU_BLENDFACTOR_SRC_ALPHA_SATURATE + 1)
-#define SDL_GPU_SWAPCHAINCOMPOSITION_MAX_ENUM_VALUE (SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2048 + 1)
+#define SDL_GPU_SWAPCHAINCOMPOSITION_MAX_ENUM_VALUE (SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2084 + 1)
 #define SDL_GPU_PRESENTMODE_MAX_ENUM_VALUE          (SDL_GPU_PRESENTMODE_MAILBOX + 1)
 
 static inline Sint32 Texture_GetBlockWidth(
@@ -391,12 +391,14 @@ static inline Uint32 BytesPerRow(
 // Internal Macros
 
 #define EXPAND_ARRAY_IF_NEEDED(arr, elementType, newCount, capacity, newCapacity) \
-    if (newCount >= capacity) {                                                   \
-        capacity = newCapacity;                                                   \
-        arr = (elementType *)SDL_realloc(                                         \
-            arr,                                                                  \
-            sizeof(elementType) * capacity);                                      \
-    }
+    do {                                                                          \
+        if ((newCount) >= (capacity)) {                                           \
+            (capacity) = (newCapacity);                                           \
+            (arr) = (elementType *)SDL_realloc(                                   \
+                (arr),                                                            \
+                sizeof(elementType) * (capacity));                                \
+        }                                                                         \
+    } while (0)
 
 // Internal Declarations
 
@@ -472,12 +474,14 @@ struct SDL_GPUDevice
     SDL_GPUBuffer *(*CreateBuffer)(
         SDL_GPURenderer *driverData,
         SDL_GPUBufferUsageFlags usageFlags,
-        Uint32 size);
+        Uint32 size,
+        const char *debugName);
 
     SDL_GPUTransferBuffer *(*CreateTransferBuffer)(
         SDL_GPURenderer *driverData,
         SDL_GPUTransferBufferUsage usage,
-        Uint32 size);
+        Uint32 size,
+        const char *debugName);
 
     // Debug Naming
 
@@ -791,6 +795,10 @@ struct SDL_GPUDevice
         SDL_GPUSwapchainComposition swapchainComposition,
         SDL_GPUPresentMode presentMode);
 
+    bool (*SetAllowedFramesInFlight)(
+        SDL_GPURenderer *driverData,
+        Uint32 allowedFramesInFlight);
+
     SDL_GPUTextureFormat (*GetSwapchainTextureFormat)(
         SDL_GPURenderer *driverData,
         SDL_Window *window);
@@ -799,6 +807,17 @@ struct SDL_GPUDevice
         SDL_GPURenderer *driverData);
 
     bool (*AcquireSwapchainTexture)(
+        SDL_GPUCommandBuffer *commandBuffer,
+        SDL_Window *window,
+        SDL_GPUTexture **swapchainTexture,
+        Uint32 *swapchainTextureWidth,
+        Uint32 *swapchainTextureHeight);
+
+    bool (*WaitForSwapchain)(
+        SDL_GPURenderer *driverData,
+        SDL_Window *window);
+
+    bool (*WaitAndAcquireSwapchainTexture)(
         SDL_GPUCommandBuffer *commandBuffer,
         SDL_Window *window,
         SDL_GPUTexture **swapchainTexture,
@@ -927,9 +946,12 @@ struct SDL_GPUDevice
     ASSIGN_DRIVER_FUNC(ClaimWindow, name)                   \
     ASSIGN_DRIVER_FUNC(ReleaseWindow, name)                 \
     ASSIGN_DRIVER_FUNC(SetSwapchainParameters, name)        \
+    ASSIGN_DRIVER_FUNC(SetAllowedFramesInFlight, name)      \
     ASSIGN_DRIVER_FUNC(GetSwapchainTextureFormat, name)     \
     ASSIGN_DRIVER_FUNC(AcquireCommandBuffer, name)          \
     ASSIGN_DRIVER_FUNC(AcquireSwapchainTexture, name)       \
+    ASSIGN_DRIVER_FUNC(WaitForSwapchain, name)              \
+    ASSIGN_DRIVER_FUNC(WaitAndAcquireSwapchainTexture, name)\
     ASSIGN_DRIVER_FUNC(Submit, name)                        \
     ASSIGN_DRIVER_FUNC(SubmitAndAcquireFence, name)         \
     ASSIGN_DRIVER_FUNC(Cancel, name)                        \

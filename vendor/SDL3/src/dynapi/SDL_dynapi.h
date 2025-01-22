@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -61,8 +61,6 @@
 #define SDL_DYNAMIC_API 0 // Turn off for static analysis, so reports are more clear.
 #elif defined(SDL_PLATFORM_VITA)
 #define SDL_DYNAMIC_API 0 // vitasdk doesn't support dynamic linking
-#elif defined(SDL_PLATFORM_NGAGE)
-#define SDL_DYNAMIC_API 0 // The N-Gage doesn't support dynamic linking either
 #elif defined(SDL_PLATFORM_3DS)
 #define SDL_DYNAMIC_API 0 // devkitARM doesn't support dynamic linking
 #elif defined(DYNAPI_NEEDS_DLOPEN) && !defined(HAVE_DLOPEN)

@@ -285,7 +285,7 @@ static const struct
     const char *value;
 } extended_metadata[] =
 {
-    { SDL_PROP_APP_METADATA_URL_STRING, "https://examples.libsdl.org/SDL3/game/01-snake/" },
+    { SDL_PROP_APP_METADATA_URL_STRING, "https://examples.libsdl.org/SDL3/demo/01-snake/" },
     { SDL_PROP_APP_METADATA_CREATOR_STRING, "SDL team" },
     { SDL_PROP_APP_METADATA_COPYRIGHT_STRING, "Placed in the public domain" },
     { SDL_PROP_APP_METADATA_TYPE_STRING, "game" }
@@ -316,7 +316,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     *appstate = as;
 
-    if (!SDL_CreateWindowAndRenderer("examples/game/snake", SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT, 0, &as->window, &as->renderer)) {
+    if (!SDL_CreateWindowAndRenderer("examples/demo/snake", SDL_WINDOW_WIDTH, SDL_WINDOW_HEIGHT, 0, &as->window, &as->renderer)) {
         return SDL_APP_FAILURE;
     }
 

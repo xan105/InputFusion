@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -284,7 +284,7 @@ static const char *shader_source[NUM_SHADERS][2] = {
 "    gl_FragColor = texture2D(tex0, v_texCoord) * v_color;\n"
 "}"
     },
-#if SDL_HAVE_YUV
+#ifdef SDL_HAVE_YUV
     // SHADER_YUV
     {
         // vertex shader

@@ -7,12 +7,12 @@ This project aims to hook and re-implement various gamepad APIs such as XInput o
 
 The goal is to allow old and new games to support any gamepad controller supported by SDL3 (over 200+) out of the box with zero configuration.
 
+If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this project might be of interest to you.
+
 <p align="center">
   <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
   <em>XInput API calls ("Debug mode")</em>
 </p>
-
-If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this project might be of interest to you.
 
 Gamepad APIs support
 ====================
@@ -237,7 +237,7 @@ This forces the use of the DInput8 functions from the DLL when calling DInput8 f
 
 #### `GAMEPAD_API_WINMM=HOOK`
 
-Enable WinMM Joystick functions hooking / detouring.
+Enable WinMM functions hooking / detouring.
 This forces the use of the WinMM functions from the DLL when calling WinMM Joystick related functions.
 
 `DLL: InputFusion, WinMM`

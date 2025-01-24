@@ -7,12 +7,12 @@ This project aims to hook and re-implement various gamepad APIs such as XInput o
 
 The goal is to allow old and new games to support any gamepad controller supported by SDL3 (over 200+) out of the box with zero configuration.
 
-If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this project might be of interest to you.
-
 <p align="center">
   <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
   <em>XInput API calls ("Debug mode")</em>
 </p>
+
+If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this project might be of interest to you.
 
 Gamepad APIs support
 ====================
@@ -148,7 +148,7 @@ _To Do_
 Usage
 =====
 
-The DLL can be used either as 
+InputFusion can be used either as 
 - **A)** a drop-in replacement _(DLL side-loading)_ or
 - **B)** by being injected into a target process.
 
@@ -156,18 +156,20 @@ Unless you know what you are doing stick with the first approach.
 
 ## A) DLL side-loading
 
-Replace `xinput*.dll` in the game dir if present, otherwise place it next to the game's executable.
+Use `xinput*.dll` or `dinput8.dll` or `winmm.dll` depending on which API the game is using.
 
-This might require a little guess work to find which version of XInput a game is using: xinput1_4.dll, xinput1_3.dll, xinput9_1_0.dll.
+Replace the corresponding DLL in the game directory if present, otherwise place it next to the game's executable.
 
-The DLL exports every documented XInput functions as well as "hidden" XInput___Ex functions.
+In the case of XInput, this might require a little guess work to find which version of XInput the game is using: xinput1_4.dll, xinput1_3.dll, xinput9_1_0.dll.
 
-_NB: If necessary, you can opt-in to also hook / detour XInput functions to force the game to use the ones from the DLL. See env var section below._
+_NB: If necessary, you can opt-in to also hook/detour API calls to force the game to use the ones from the DLL. See `Env Var` section below._
 
 ## B) DLL Injection
 
-Set the env var to enable function hooking / detouring before you execute and inject into your target process. _See env var section below._
-Otherwise once injected it won't do much more than just init. SDL.
+Before executing and injecting into your target process, you must specify which API you intend to hook/detour.
+This is achieved by setting the corresponding environment variable for the desired API. For details please refer to the `Env Var` section below.
+
+Important: If you do not configure the environment variable before injection, the process will only initialize SDL without performing any meaningful actions.
 
 Here is a simple example in Node.js using [xan105/node-remote-thread](https://github.com/xan105/node-remote-thread):
 
@@ -197,7 +199,6 @@ binary.once("spawn", () => {
 });
 ```
 
-
 Env Var
 =======
 
@@ -214,14 +215,21 @@ When enabled the LED light of the controller is used to show the battery level o
 
 Currently only available for PS4/PS5 controller in wireless.
 
+`DLL: Any`
+
 #### `GAMEPAD_API_XINPUT=HOOK`
 
 Enable XInput functions hooking / detouring.<br />
 This forces the use of the XInput functions from the DLL when calling XInput functions.
 
+`DLL: InputFusion, XInput`
+
 #### `GAMEPAD_API_DINPUT8=HOOK`
 
 Enable DInput8 functions hooking / detouring.
+This forces the use of the DInput8 functions from the DLL when calling DInput8 functions.
+
+`DLL: InputFusion, Dinput8, XInput`
 
 > [!WARNING]  
 > The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force feedback and no individual trigger axis.
@@ -230,6 +238,9 @@ Enable DInput8 functions hooking / detouring.
 #### `GAMEPAD_API_WINMM=HOOK`
 
 Enable WinMM Joystick functions hooking / detouring.
+This forces the use of the WinMM functions from the DLL when calling WinMM Joystick related functions.
+
+`DLL: InputFusion, WinMM`
 
 > [!NOTE]
 > After considering the games from that era that could be played with a gamepad.

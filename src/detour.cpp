@@ -6,9 +6,18 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "pch.h"
 #include "detour.h"
+#if defined(INPUTFUSION_EXPORTS)
 #include "xinput.h"
 #include "dinput8.h"
 #include "winmm.h"
+#elif defined(XINPUT_EXPORTS)
+#include "xinput.h"
+#include "dinput8.h"
+#elif defined(DINPUT8_EXPORTS)
+#include "dinput8.h"
+#elif defined(WINMM_EXPORTS)
+#include "winmm.h"
+#endif
 #include "util.h"
 
 extern std::atomic<bool> running;
@@ -41,6 +50,7 @@ bool setDetoursExitProcess() {
     return takeDetour(&(PVOID&)pExitProcess, Detour_ExitProcess);
 }
 
+#if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForXInput() {
     std::vector<std::string> versions = {
         "XInput1_4.dll",
@@ -126,7 +136,9 @@ bool setDetoursForXInput() {
 
     return true;
 }
+#endif
 
+#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForDInput8() {
     HMODULE hMod = LoadLibraryA("dinput8.dll");
     if (hMod == nullptr) return false;
@@ -136,7 +148,9 @@ bool setDetoursForDInput8() {
     if (pDirectInput8Create == nullptr) return false;
     return takeDetour(&(PVOID&)pDirectInput8Create, DirectInput8Create);
 }
+#endif
 
+#if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
 bool setDetoursForWinmm() {
     HMODULE hMod = LoadLibraryA("winmm.dll");
     if (hMod == nullptr) return false;
@@ -184,20 +198,27 @@ bool setDetoursForWinmm() {
     
     return true;
 }
+#endif
 
 void setDetours() {
     
     if (setDetoursExitProcess()) SDL_Log("Detour set for exit handler");
-
+    
+    #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
         if (setDetoursForXInput()) SDL_Log("Detour set for XInput");
     }
+    #endif
 
+    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
         if (setDetoursForDInput8()) SDL_Log("Detour set for DInput8");
     }
+    #endif
     
+    #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
     if (Getenv(L"GAMEPAD_API_WINMM") == L"HOOK") {
         if (setDetoursForWinmm()) SDL_Log("Detour set for WinMM");
     }
+    #endif
 }

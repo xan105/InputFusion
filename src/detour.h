@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include <Windows.h>
+#include <atomic>
 #include "../vendor/Detour/detours.h"
 #if defined(_X86_)
 #pragma comment(lib, "../vendor/Detour/detours.x86.lib")
@@ -17,6 +18,13 @@ typedef void (WINAPI* ExitProcess_t)(UINT uExitCode);
 void WINAPI Detour_ExitProcess(UINT uExitCode);
 bool takeDetour(PVOID* ppPointer, PVOID pDetour);
 bool setDetoursExitProcess();
+#if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForXInput();
+#endif
+#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForDInput8();
+#endif
+#if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
+bool setDetoursForWinmm();
+#endif
 void setDetours();

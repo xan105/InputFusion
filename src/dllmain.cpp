@@ -61,6 +61,9 @@ void SDL_eventLoop() {
         return;
     }
     SDL_Log("SDL_INIT");
+    
+    const int version = SDL_GetVersion();
+    SDL_Log("SDL version %d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version));
 
     bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
     SDL_Event event;

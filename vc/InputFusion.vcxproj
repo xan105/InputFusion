@@ -20,36 +20,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\detour.h" />
-    <ClInclude Include="..\src\dinput8.h" />
+    <ClInclude Include="..\src\DInput8\dinput8.h" />
     <ClInclude Include="..\src\dllmain.h" />
-    <ClInclude Include="..\src\framework.h" />
-    <ClInclude Include="..\src\pch.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />
-    <ClInclude Include="..\src\winmm.h" />
-    <ClInclude Include="..\src\xinput.h" />
+    <ClInclude Include="..\src\WinMM\winmm.h" />
+    <ClInclude Include="..\src\XInput\xinput.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\detour.cpp" />
-    <ClCompile Include="..\src\dinput8.cpp" />
+    <ClCompile Include="..\src\DInput8\dinput8.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
-    <ClCompile Include="..\src\IDirectInput8A.cpp" />
-    <ClCompile Include="..\src\IDirectInput8W.cpp" />
-    <ClCompile Include="..\src\IDirectInputDevice8A.cpp" />
-    <ClCompile Include="..\src\IDirectInputDevice8W.cpp" />
-    <ClCompile Include="..\src\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\src\util.cpp" />
-    <ClCompile Include="..\src\winmm.cpp" />
-    <ClCompile Include="..\src\xinput.cpp" />
+    <ClCompile Include="..\src\WinMM\winmm.cpp" />
+    <ClCompile Include="..\src\XInput\xinput.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -133,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;INPUTFUSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -153,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;INPUTFUSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -173,7 +165,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;INPUTFUSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -193,10 +185,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;INPUTFUSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

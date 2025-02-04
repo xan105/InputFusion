@@ -4,21 +4,7 @@ This source code is licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version
 found in the LICENSE file in the root directory of this source tree.
 */
 
-#include "pch.h"
 #include "detour.h"
-#if defined(INPUTFUSION_EXPORTS)
-#include "xinput.h"
-#include "dinput8.h"
-#include "winmm.h"
-#elif defined(XINPUT_EXPORTS)
-#include "xinput.h"
-#include "dinput8.h"
-#elif defined(DINPUT8_EXPORTS)
-#include "dinput8.h"
-#elif defined(WINMM_EXPORTS)
-#include "winmm.h"
-#endif
-#include "util.h"
 
 extern std::atomic<bool> running;
 extern HANDLE hSDL_Quit;

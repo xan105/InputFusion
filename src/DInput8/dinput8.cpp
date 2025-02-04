@@ -4,7 +4,6 @@ This source code is licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version
 found in the LICENSE file in the root directory of this source tree.
 */
 
-#include "pch.h"
 #include "dinput8.h"
 
 #ifdef DINPUT8_EXPORTS

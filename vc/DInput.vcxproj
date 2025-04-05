@@ -18,36 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\detour.h" />
-    <ClInclude Include="..\src\DInput8\dinput8.h" />
-    <ClInclude Include="..\src\dllmain.h" />
-    <ClInclude Include="..\src\resource.h" />
-    <ClInclude Include="..\src\util.h" />
-    <ClInclude Include="..\src\version.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\src\InputFusion.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\detour.cpp" />
-    <ClCompile Include="..\src\DInput8\dinput8.cpp" />
-    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp" />
-    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp" />
-    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp" />
-    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
-    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp" />
-    <ClCompile Include="..\src\dllmain.cpp" />
-    <ClCompile Include="..\src\util.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\DInput8\dinput8.def" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{dd39483f-2bb3-4564-8a5d-e9d8ee46e674}</ProjectGuid>
-    <RootNamespace>DInput8</RootNamespace>
+    <ProjectGuid>{37f61c0a-fdfc-4005-9da7-a59f4a9907cb}</ProjectGuid>
+    <RootNamespace>DInput</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -98,48 +73,46 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>dinput</TargetName>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
-    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>dinput</TargetName>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
-    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>dinput</TargetName>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
-    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>dinput</TargetName>
     <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
-    <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,40 +121,37 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
+      <EnableUAC>false</EnableUAC>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -190,23 +160,62 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;DINPUT8_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
+      <EnableUAC>false</EnableUAC>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\InputFusion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\detour.h" />
+    <ClInclude Include="..\src\DInput8\dinput8.h" />
+    <ClInclude Include="..\src\DInput\dinput.h" />
+    <ClInclude Include="..\src\dllmain.h" />
+    <ClInclude Include="..\src\resource.h" />
+    <ClInclude Include="..\src\util.h" />
+    <ClInclude Include="..\src\version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\detour.cpp" />
+    <ClCompile Include="..\src\DInput8\dinput8.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp" />
+    <ClCompile Include="..\src\DInput\dinput.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput2A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput2W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput7A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput7W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputA.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceA.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceW.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputW.cpp" />
+    <ClCompile Include="..\src\dllmain.cpp" />
+    <ClCompile Include="..\src\util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\DInput\dinput.def" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -42,11 +42,13 @@ STDMETHODIMP IDirectInputDevice8A::QueryInterface(REFIID riid, void** ppvObject)
 	if (ppvObject == nullptr)
 		return E_POINTER;
 
-	if (riid == IID_IUnknown || riid == IID_IDirectInputDevice8A) {
-		*ppvObject = static_cast<IDirectInputDevice8A*>(this);
-		AddRef();
-		return S_OK;
-	}
+  if(IsEqualGUID(riid, IID_IUnknown) ||
+     IsEqualGUID(riid, IID_IDirectInputDevice8A))
+  {
+    *ppvObject = static_cast<IDirectInputDevice8A*>(this);
+    AddRef();
+    return S_OK;
+  }
 
 	*ppvObject = nullptr;
 	return E_NOINTERFACE;

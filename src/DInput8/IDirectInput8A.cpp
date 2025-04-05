@@ -16,12 +16,24 @@ STDMETHODIMP IDirectInput8A::QueryInterface(REFIID riid, void** ppvObject) {
 	if (ppvObject == nullptr)
 		return E_POINTER;
 
-	if (riid == IID_IUnknown || riid == IID_IDirectInput8A) {
-		*ppvObject = static_cast<IDirectInput8A*>(this);
-		AddRef();
-		return S_OK;
-	}
+  if(IsEqualGUID(riid, IID_IUnknown) ||
+     IsEqualGUID(riid, IID_IDirectInput8A))
+  {
+    *ppvObject = static_cast<IDirectInput8A*>(this);
+    AddRef();
+    return S_OK;
+  }
 
+  if (IsEqualGUID(riid, IID_IDirectInputJoyConfig8)) {
+    SDL_Log("IID_IDirectInput8A::QueryInterface() > IDirectInputJoyConfig");
+
+    IDirectInputJoyConfig8* pDInputJoyConfig = new(std::nothrow) IDirectInputJoyConfig8;
+    if (pDInputJoyConfig == nullptr) return E_NOINTERFACE;
+    *ppvObject = static_cast<IDirectInputJoyConfig8*>(pDInputJoyConfig);
+
+    return S_OK;
+  }
+	
 	*ppvObject = nullptr;
 	return E_NOINTERFACE;
 }
@@ -134,16 +146,17 @@ STDMETHODIMP IDirectInput8A::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {
 STDMETHODIMP IDirectInput8A::Initialize(HINSTANCE hinst, DWORD dwVersion) {
 	SDL_Log("IDirectInput8A::Initialize()");
 
-	if (dwVersion < DIRECTINPUT_VERSION) return DIERR_OLDDIRECTINPUTVERSION;
+	//if (dwVersion < DIRECTINPUT_VERSION) return DIERR_OLDDIRECTINPUTVERSION;
+	SDL_Log("DInput version: %u", dwVersion);
 	return DI_OK;
 }
 
-STDMETHODIMP IDirectInput8A::FindDevice(REFGUID rguidClass, LPCTSTR ptszName, LPGUID pguidInstance) {
+STDMETHODIMP IDirectInput8A::FindDevice(REFGUID rguidClass, LPCSTR ptszName, LPGUID pguidInstance) {
 	SDL_Log("IDirectInput8A::FindDevice()");
 	return DI_OK;
 }
 
-STDMETHODIMP IDirectInput8A::EnumDevicesBySemantics(LPCTSTR ptszUserName, LPDIACTIONFORMATA lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBA lpCallback, LPVOID pvRef, DWORD dwFlags) {
+STDMETHODIMP IDirectInput8A::EnumDevicesBySemantics(LPCSTR ptszUserName, LPDIACTIONFORMATA lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBA lpCallback, LPVOID pvRef, DWORD dwFlags) {
 	SDL_Log("IDirectInput8A::EnumDevicesBySemantics()");
 	return DI_OK;
 }

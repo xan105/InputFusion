@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput.h"
+#include "../util.h"
 
 IDirectInput7A::IDirectInput7A() : m_refCount(1) {
   SDL_Log("IDirectInput7A");
@@ -40,6 +41,8 @@ STDMETHODIMP IDirectInput7A::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
+  SDL_Log("IDirectInput7A::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
@@ -63,9 +66,14 @@ STDMETHODIMP_(ULONG) IDirectInput7A::Release() {
 STDMETHODIMP IDirectInput7A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE7A *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
   SDL_Log("IDirectInput7A::CreateDevice()");
   
-  if (proxy){
-    proxy->CreateDevice(rguid, (LPDIRECTINPUTDEVICE8A *)lplpDirectInputDevice, pUnkOuter);
-  }
+  IDirectInputDevice7A* pDInputDevice = new(std::nothrow) IDirectInputDevice7A;
+  if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
+  *lplpDirectInputDevice = static_cast<IDirectInputDevice7A*>(pDInputDevice);
+
+  HRESULT hr = pDInputDevice->Initialize(NULL, DIRECTINPUT_VERSION_700, rguid);
+  if (FAILED(hr)) { return hr; }
+
+  return DI_OK;
   
   return E_POINTER;
 }
@@ -74,7 +82,7 @@ STDMETHODIMP IDirectInput7A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
   SDL_Log("IDirectInput7A::EnumDevices()");
   
   if (proxy){
-    proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
+      return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
   }
   
   return E_POINTER;
@@ -84,7 +92,7 @@ STDMETHODIMP IDirectInput7A::GetDeviceStatus(REFGUID rguidInstance){
   SDL_Log("IDirectInput7A::GetDeviceStatus()");
   
   if (proxy){
-    proxy->GetDeviceStatus(rguidInstance);
+      return proxy->GetDeviceStatus(rguidInstance);
   }
   
   return E_POINTER;
@@ -94,7 +102,7 @@ STDMETHODIMP IDirectInput7A::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
   SDL_Log("IDirectInput7A::RunControlPanel()");
   
   if (proxy){
-    proxy->RunControlPanel(hwndOwner, dwFlags);
+      return proxy->RunControlPanel(hwndOwner, dwFlags);
   }
   
   return E_POINTER;
@@ -104,7 +112,7 @@ STDMETHODIMP IDirectInput7A::Initialize(HINSTANCE hinst, DWORD dwVersion){
   SDL_Log("IDirectInput7A::Initialize()");
   
   if (proxy){
-    proxy->Initialize(hinst, dwVersion);
+    return proxy->Initialize(hinst, dwVersion);
   }
   
   return E_POINTER;
@@ -114,7 +122,7 @@ STDMETHODIMP IDirectInput7A::FindDevice(REFGUID rguidClass, LPCSTR ptszName, LPG
   SDL_Log("IDirectInput7A::FindDevice()");
   
   if (proxy){
-    proxy->FindDevice(rguidClass, ptszName, pguidInstance);
+      return proxy->FindDevice(rguidClass, ptszName, pguidInstance);
   }
   
   return E_POINTER;
@@ -125,7 +133,7 @@ STDMETHODIMP IDirectInput7A::CreateDeviceEx(REFGUID rguid, REFIID riid, LPVOID *
   
   if (proxy){
     SDL_Log("IDirectInput7A::CreateDeviceEx() -> IDirectInput8A::CreateDevice()");
-    proxy->CreateDevice(rguid, (LPDIRECTINPUTDEVICE8A *)ppvObj, pUnkOuter); 
+    return proxy->CreateDevice(rguid, (LPDIRECTINPUTDEVICE8A *)ppvObj, pUnkOuter);
   }
   
   return E_POINTER;

@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput.h"
+#include "../util.h"
 
 IDirectInputDevice7W::IDirectInputDevice7W() : m_refCount(1) {
   SDL_Log("IDirectInputDevice7W");
@@ -23,12 +24,16 @@ STDMETHODIMP IDirectInputDevice7W::QueryInterface(REFIID riid, void** ppvObject)
     return E_POINTER;
 
   if(IsEqualGUID(riid, IID_IUnknown) ||
-     IsEqualGUID(riid, IID_IDirectInputDevice7W))
+     IsEqualGUID(riid, IID_IDirectInputDevice7W) ||
+     IsEqualGUID(riid, IID_IDirectInputDevice2W) || //Dino Crisis 2 (2000) GOG
+     IsEqualGUID(riid, IID_IDirectInputDeviceW))
   {
     *ppvObject = static_cast<IDirectInputDevice7W*>(this);
     AddRef();
     return S_OK;
   }
+
+  SDL_Log("IDirectInputDevice7W::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -54,7 +59,7 @@ STDMETHODIMP IDirectInputDevice7W::GetCapabilities(LPDIDEVCAPS lpDIDevCaps){
   SDL_Log("IDirectInputDevice7W::GetCapabilities()");
   
   if (proxy){
-    proxy->GetCapabilities(lpDIDevCaps);
+      return proxy->GetCapabilities(lpDIDevCaps);
   }
   
   return E_POINTER;
@@ -64,7 +69,7 @@ STDMETHODIMP IDirectInputDevice7W::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lp
   SDL_Log("IDirectInputDevice7W::EnumObjects()");
   
   if (proxy){
-    proxy->EnumObjects(lpCallback, pvRef, dwFlags);
+      return proxy->EnumObjects(lpCallback, pvRef, dwFlags);
   }
   
   return E_POINTER;
@@ -74,7 +79,7 @@ STDMETHODIMP IDirectInputDevice7W::GetProperty(REFGUID rguidProp, LPDIPROPHEADER
   SDL_Log("IDirectInputDevice7W::GetProperty()");
   
   if (proxy){
-    proxy->GetProperty(rguidProp, pdiph);
+      return proxy->GetProperty(rguidProp, pdiph);
   }
   
   return E_POINTER;
@@ -84,7 +89,7 @@ STDMETHODIMP IDirectInputDevice7W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
   SDL_Log("IDirectInputDevice7W::SetProperty()");
   
   if (proxy){
-    proxy->SetProperty(rguidProp, pdiph);
+      return proxy->SetProperty(rguidProp, pdiph);
   }
   
   return E_POINTER;
@@ -94,7 +99,7 @@ STDMETHODIMP IDirectInputDevice7W::Acquire(){
   SDL_Log("IDirectInputDevice7W::Acquire()");
   
   if (proxy){
-    proxy->Acquire();
+      return proxy->Acquire();
   }
   
   return E_POINTER;
@@ -104,7 +109,7 @@ STDMETHODIMP IDirectInputDevice7W::Unacquire(){
   SDL_Log("IDirectInputDevice7W::Unacquire()");
   
   if (proxy){
-    proxy->Unacquire();
+      return proxy->Unacquire();
   }
   
   return E_POINTER;
@@ -114,7 +119,7 @@ STDMETHODIMP IDirectInputDevice7W::GetDeviceState(DWORD cbData, LPVOID lpvData){
   SDL_Log("IDirectInputDevice7W::GetDeviceState()");
   
   if (proxy){
-    proxy->GetDeviceState(cbData, lpvData);
+      return proxy->GetDeviceState(cbData, lpvData);
   }
   
   return E_POINTER;
@@ -124,7 +129,7 @@ STDMETHODIMP IDirectInputDevice7W::GetDeviceData(DWORD cbObjectData, LPDIDEVICEO
   SDL_Log("IDirectInputDevice7W::GetDeviceData()");
   
   if (proxy){
-    proxy->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
+      return proxy->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
   }
   
   return E_POINTER;
@@ -134,7 +139,7 @@ STDMETHODIMP IDirectInputDevice7W::SetDataFormat(LPCDIDATAFORMAT lpdf){
   SDL_Log("IDirectInputDevice7W::SetDataFormat()");
   
   if (proxy){
-    proxy->SetDataFormat(lpdf);
+      return proxy->SetDataFormat(lpdf);
   }
   
   return E_POINTER;
@@ -144,7 +149,7 @@ STDMETHODIMP IDirectInputDevice7W::SetEventNotification(HANDLE hEvent){
   SDL_Log("IDirectInputDevice7W::SetEventNotification()");
   
   if (proxy){
-    proxy->SetEventNotification(hEvent);
+      return proxy->SetEventNotification(hEvent);
   }
   
   return E_POINTER;
@@ -154,7 +159,7 @@ STDMETHODIMP IDirectInputDevice7W::SetCooperativeLevel(HWND hwnd, DWORD dwFlags)
   SDL_Log("IDirectInputDevice7W::SetCooperativeLevel()");
   
   if (proxy){
-    proxy->SetCooperativeLevel(hwnd, dwFlags);
+      return proxy->SetCooperativeLevel(hwnd, dwFlags);
   }
   
   return E_POINTER;
@@ -164,7 +169,7 @@ STDMETHODIMP IDirectInputDevice7W::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEW pdido
   SDL_Log("IDirectInputDevice7W::GetObjectInfo()");
   
   if (proxy){
-    proxy->GetObjectInfo(pdidoi, dwObj, dwHow);
+      return proxy->GetObjectInfo(pdidoi, dwObj, dwHow);
   }
   
   return E_POINTER;
@@ -174,7 +179,7 @@ STDMETHODIMP IDirectInputDevice7W::GetDeviceInfo(LPDIDEVICEINSTANCEW pdidi){
   SDL_Log("IDirectInputDevice7W::GetDeviceInfo()");
   
   if (proxy){
-    proxy->GetDeviceInfo(pdidi);
+      return proxy->GetDeviceInfo(pdidi);
   }
   
   return E_POINTER;
@@ -184,7 +189,7 @@ STDMETHODIMP IDirectInputDevice7W::RunControlPanel(HWND hwndOwner, DWORD dwFlags
   SDL_Log("IDirectInputDevice7W::RunControlPanel()");
   
   if (proxy){
-    proxy->RunControlPanel(hwndOwner, dwFlags);
+      return proxy->RunControlPanel(hwndOwner, dwFlags);
   }
   
   return E_POINTER;
@@ -194,7 +199,7 @@ STDMETHODIMP IDirectInputDevice7W::Initialize(HINSTANCE hinst, DWORD dwVersion, 
   SDL_Log("IDirectInputDevice7W::Initialize()");
   
   if (proxy){
-    proxy->Initialize(hinst, dwVersion, rguid);
+      return proxy->Initialize(hinst, dwVersion, rguid);
   }
   
   return E_POINTER;
@@ -204,7 +209,7 @@ STDMETHODIMP IDirectInputDevice7W::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff
   SDL_Log("IDirectInputDevice7W::CreateEffect()");
   
   if (proxy){
-    proxy->CreateEffect(rguid, lpeff, ppdeff, punkOuter);
+      return proxy->CreateEffect(rguid, lpeff, ppdeff, punkOuter);
   }
   
   return E_POINTER;
@@ -214,7 +219,7 @@ STDMETHODIMP IDirectInputDevice7W::EnumEffects(LPDIENUMEFFECTSCALLBACKW lpCallba
   SDL_Log("IDirectInputDevice7W::EnumEffects()");
   
   if (proxy){
-    proxy->EnumEffects(lpCallback, pvRef, dwEffType);
+      return proxy->EnumEffects(lpCallback, pvRef, dwEffType);
   }
   
   return E_POINTER;
@@ -224,7 +229,7 @@ STDMETHODIMP IDirectInputDevice7W::GetEffectInfo(LPDIEFFECTINFOW pdei, REFGUID r
   SDL_Log("IDirectInputDevice7W::GetEffectInfo()");
   
   if (proxy){
-    proxy->GetEffectInfo(pdei, rguid);
+      return proxy->GetEffectInfo(pdei, rguid);
   }
   
   return E_POINTER;
@@ -234,7 +239,7 @@ STDMETHODIMP IDirectInputDevice7W::GetForceFeedbackState(LPDWORD pdwOut){
   SDL_Log("IDirectInputDevice7W::GetForceFeedbackState()");
   
   if (proxy){
-    proxy->GetForceFeedbackState(pdwOut);
+      return proxy->GetForceFeedbackState(pdwOut);
   }
   
   return E_POINTER;
@@ -244,7 +249,7 @@ STDMETHODIMP IDirectInputDevice7W::SendForceFeedbackCommand(DWORD dwFlags){
   SDL_Log("IDirectInputDevice7W::SendForceFeedbackCommand()");
   
   if (proxy){
-    proxy->SendForceFeedbackCommand(dwFlags);
+      return proxy->SendForceFeedbackCommand(dwFlags);
   }
   
   return E_POINTER;
@@ -254,7 +259,7 @@ STDMETHODIMP IDirectInputDevice7W::EnumCreatedEffectObjects(LPDIENUMCREATEDEFFEC
   SDL_Log("IDirectInputDevice7W::EnumCreatedEffectObjects()");
   
   if (proxy){
-    proxy->EnumCreatedEffectObjects(lpCallback, pvRef, fl);
+      return proxy->EnumCreatedEffectObjects(lpCallback, pvRef, fl);
   }
   
   return E_POINTER;
@@ -264,7 +269,7 @@ STDMETHODIMP IDirectInputDevice7W::Escape(LPDIEFFESCAPE pesc){
   SDL_Log("IDirectInputDevice7W::Escape()");
   
   if (proxy){
-    proxy->Escape(pesc);
+      return proxy->Escape(pesc);
   }
   
   return E_POINTER;
@@ -274,7 +279,7 @@ STDMETHODIMP IDirectInputDevice7W::Poll(){
   SDL_Log("IDirectInputDevice7W::Poll()");
   
   if (proxy){
-    proxy->Poll();
+      return proxy->Poll();
   }
   
   return E_POINTER;
@@ -284,7 +289,7 @@ STDMETHODIMP IDirectInputDevice7W::SendDeviceData(DWORD cbObjectData, LPCDIDEVIC
   SDL_Log("IDirectInputDevice7W::SendDeviceData()");
   
   if (proxy){
-    proxy->SendDeviceData(cbObjectData, rgdod, pdwInOut, fl);
+      return proxy->SendDeviceData(cbObjectData, rgdod, pdwInOut, fl);
   }
   
   return E_POINTER;
@@ -295,7 +300,7 @@ STDMETHODIMP IDirectInputDevice7W::EnumEffectsInFile(LPCWSTR lpszFileName, LPDIE
   SDL_Log("IDirectInputDevice7W::EnumEffectsInFile()");
   
   if (proxy){
-    proxy->EnumEffectsInFile(lpszFileName, pec, pvRef, dwFlags);
+      return proxy->EnumEffectsInFile(lpszFileName, pec, pvRef, dwFlags);
   }
   
   return E_POINTER;
@@ -306,7 +311,7 @@ STDMETHODIMP IDirectInputDevice7W::WriteEffectToFile(LPCWSTR lpszFileName, DWORD
   SDL_Log("IDirectInputDevice7W::WriteEffectToFile()");
   
   if (proxy){
-    proxy->WriteEffectToFile(lpszFileName, dwEntries, rgDiFileEft, dwFlags);
+      return proxy->WriteEffectToFile(lpszFileName, dwEntries, rgDiFileEft, dwFlags);
   }
   
   return E_POINTER;

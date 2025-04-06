@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput.h"
+#include "../util.h"
 
 IDirectInput2W::IDirectInput2W() : m_refCount(1) {
   SDL_Log("IDirectInput2W");
@@ -40,6 +41,8 @@ STDMETHODIMP IDirectInput2W::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
+  SDL_Log("IDirectInput2W::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
@@ -63,18 +66,21 @@ STDMETHODIMP_(ULONG) IDirectInput2W::Release() {
 STDMETHODIMP IDirectInput2W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE2W *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
   SDL_Log("IDirectInput2W::CreateDevice()");
   
-  if (proxy){
-    proxy->CreateDevice(rguid, (LPDIRECTINPUTDEVICE8W *)lplpDirectInputDevice, pUnkOuter);
-  }
-  
-  return E_POINTER;
+  IDirectInputDevice2W* pDInputDevice = new(std::nothrow) IDirectInputDevice2W;
+  if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
+  *lplpDirectInputDevice = static_cast<IDirectInputDevice2W*>(pDInputDevice);
+
+  HRESULT hr = pDInputDevice->Initialize(NULL, DIRECTINPUT_VERSION_500, rguid);
+  if (FAILED(hr)) { return hr; }
+
+  return DI_OK;
 }
 
 STDMETHODIMP IDirectInput2W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags){
   SDL_Log("IDirectInput2W::EnumDevices()");
   
   if (proxy){
-    proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
+      return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
   }
   
   return E_POINTER;
@@ -84,7 +90,7 @@ STDMETHODIMP IDirectInput2W::GetDeviceStatus(REFGUID rguidInstance){
   SDL_Log("IDirectInput2W::GetDeviceStatus()");
   
   if (proxy){
-    proxy->GetDeviceStatus(rguidInstance);
+      return proxy->GetDeviceStatus(rguidInstance);
   }
   
   return E_POINTER;
@@ -94,7 +100,7 @@ STDMETHODIMP IDirectInput2W::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
   SDL_Log("IDirectInput2W::RunControlPanel()");
   
   if (proxy){
-    proxy->RunControlPanel(hwndOwner, dwFlags);
+      return proxy->RunControlPanel(hwndOwner, dwFlags);
   }
   
   return E_POINTER;
@@ -104,7 +110,7 @@ STDMETHODIMP IDirectInput2W::Initialize(HINSTANCE hinst, DWORD dwVersion){
   SDL_Log("IDirectInput2W::Initialize()");
   
   if (proxy){
-    proxy->Initialize(hinst, dwVersion);
+      return proxy->Initialize(hinst, dwVersion);
   }
   
   return E_POINTER;
@@ -114,7 +120,7 @@ STDMETHODIMP IDirectInput2W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LP
   SDL_Log("IDirectInput2W::FindDevice()");
   
   if (proxy){
-    proxy->FindDevice(rguidClass, ptszName, pguidInstance);
+      return proxy->FindDevice(rguidClass, ptszName, pguidInstance);
   }
   
   return E_POINTER;

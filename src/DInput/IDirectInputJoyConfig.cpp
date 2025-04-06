@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput.h"
+#include "../util.h"
 
 IDirectInputJoyConfig::IDirectInputJoyConfig() : m_refCount(1) {
   SDL_Log("IDirectInputJoyConfig");
@@ -29,6 +30,8 @@ STDMETHODIMP IDirectInputJoyConfig::QueryInterface(REFIID riid, void** ppvObject
     AddRef();
     return S_OK;
   }
+
+  SDL_Log("IDirectInputJoyConfig::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -206,7 +209,7 @@ STDMETHODIMP IDirectInputJoyConfig::OpenConfigKey(DWORD unnamedParam1, PHKEY unn
     
     if (proxy){
         SDL_Log("IDirectInputJoyConfig::OpenConfigKey() -> IDirectInputJoyConfig8::OpenAppStatusKey()");
-        proxy->OpenAppStatusKey(unnamedParam2);
+        return proxy->OpenAppStatusKey(unnamedParam2);
     }
  
     return E_POINTER;

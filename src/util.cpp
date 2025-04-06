@@ -41,3 +41,21 @@ void enableConsole() {
         freopen_s(&dummy, "CONOUT$", "w", stderr);
     }
 }
+
+// Converts a GUID to a std::string
+std::string GUIDToString(REFIID riid) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0')
+        << std::setw(8) << riid.Data1 << '-'
+        << std::setw(4) << riid.Data2 << '-'
+        << std::setw(4) << riid.Data3 << '-';
+
+    for (int i = 0; i < 2; ++i)
+        oss << std::setw(2) << static_cast<int>(riid.Data4[i]);
+
+    oss << '-';
+    for (int i = 2; i < 8; ++i)
+        oss << std::setw(2) << static_cast<int>(riid.Data4[i]);
+
+    return oss.str();
+}

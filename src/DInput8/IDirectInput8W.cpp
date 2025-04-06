@@ -5,8 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput8.h"
-
-DEFINE_GUID(IID_IDirectInputJoyConfig, 0x1DE12AB1, 0xC9F5, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00); //TEMPORARY FOR TESTING
+#include "../util.h"
 
 IDirectInput8W::IDirectInput8W() : m_refCount(1) {
   SDL_Log("IDirectInput8W");
@@ -26,7 +25,6 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  //https://github.com/tpn/winsdk-10/blob/master/Include/10.0.10240.0/shared/dinputd.h
   if (IsEqualGUID(riid, IID_IDirectInputJoyConfig8)){ //Resident Evil (1996) GOG
     SDL_Log("IDirectInput8W::QueryInterface() > IDirectInputJoyConfig8");
 
@@ -36,6 +34,8 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
 
     return S_OK;
   }
+
+  SDL_Log("IDirectInput8W::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -147,7 +147,7 @@ STDMETHODIMP IDirectInput8W::Initialize(HINSTANCE hinst, DWORD dwVersion) {
   SDL_Log("IDirectInput8W::Initialize()");
   
   //if (dwVersion < DIRECTINPUT_VERSION) return DIERR_OLDDIRECTINPUTVERSION;
-  SDL_Log("DInput version: %u.%u", HIWORD(dwVersion), LOWORD(dwVersion));
+  SDL_Log("DInput version: 0x%04X", dwVersion);
   return DI_OK;
 }
 

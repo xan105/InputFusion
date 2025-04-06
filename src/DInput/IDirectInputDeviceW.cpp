@@ -54,7 +54,7 @@ STDMETHODIMP IDirectInputDeviceW::GetCapabilities(LPDIDEVCAPS lpDIDevCaps){
   SDL_Log("IDirectInputDeviceW::GetCapabilities()");
   
   if (proxy){
-    proxy->GetCapabilities(lpDIDevCaps);
+      return proxy->GetCapabilities(lpDIDevCaps);
   }
   
   return E_POINTER;
@@ -64,7 +64,7 @@ STDMETHODIMP IDirectInputDeviceW::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lpC
   SDL_Log("IDirectInputDeviceW::EnumObjects()");
   
   if (proxy){
-    proxy->EnumObjects(lpCallback, pvRef, dwFlags);
+      return proxy->EnumObjects(lpCallback, pvRef, dwFlags);
   }
   
   return E_POINTER;
@@ -74,7 +74,7 @@ STDMETHODIMP IDirectInputDeviceW::GetProperty(REFGUID rguidProp, LPDIPROPHEADER 
   SDL_Log("IDirectInputDeviceW::GetProperty()");
   
   if (proxy){
-    proxy->GetProperty(rguidProp, pdiph);
+      return proxy->GetProperty(rguidProp, pdiph);
   }
   
   return E_POINTER;
@@ -84,7 +84,7 @@ STDMETHODIMP IDirectInputDeviceW::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER
   SDL_Log("IDirectInputDeviceW::SetProperty()");
   
   if (proxy){
-    proxy->SetProperty(rguidProp, pdiph);
+      return proxy->SetProperty(rguidProp, pdiph);
   }
   
   return E_POINTER;
@@ -94,7 +94,7 @@ STDMETHODIMP IDirectInputDeviceW::Acquire(){
   SDL_Log("IDirectInputDeviceW::Acquire()");
   
   if (proxy){
-    proxy->Acquire();
+      return proxy->Acquire();
   }
   
   return E_POINTER;
@@ -104,7 +104,7 @@ STDMETHODIMP IDirectInputDeviceW::Unacquire(){
   SDL_Log("IDirectInputDeviceW::Unacquire()");
   
   if (proxy){
-    proxy->Unacquire();
+      return proxy->Unacquire();
   }
   
   return E_POINTER;
@@ -114,7 +114,7 @@ STDMETHODIMP IDirectInputDeviceW::GetDeviceState(DWORD cbData, LPVOID lpvData){
   SDL_Log("IDirectInputDeviceW::GetDeviceState()");
   
   if (proxy){
-    proxy->GetDeviceState(cbData, lpvData);
+      return proxy->GetDeviceState(cbData, lpvData);
   }
   
   return E_POINTER;
@@ -124,7 +124,7 @@ STDMETHODIMP IDirectInputDeviceW::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOB
   SDL_Log("IDirectInputDeviceW::GetDeviceData()");
   
   if (proxy){
-    proxy->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
+      return proxy->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
   }
   
   return E_POINTER;
@@ -134,7 +134,7 @@ STDMETHODIMP IDirectInputDeviceW::SetDataFormat(LPCDIDATAFORMAT lpdf){
   SDL_Log("IDirectInputDeviceW::SetDataFormat()");
   
   if (proxy){
-    proxy->SetDataFormat(lpdf);
+      return proxy->SetDataFormat(lpdf);
   }
   
   return E_POINTER;
@@ -144,7 +144,7 @@ STDMETHODIMP IDirectInputDeviceW::SetEventNotification(HANDLE hEvent){
   SDL_Log("IDirectInputDeviceW::SetEventNotification()");
   
   if (proxy){
-    proxy->SetEventNotification(hEvent);
+      return proxy->SetEventNotification(hEvent);
   }
   
   return E_POINTER;
@@ -154,7 +154,7 @@ STDMETHODIMP IDirectInputDeviceW::SetCooperativeLevel(HWND hwnd, DWORD dwFlags){
   SDL_Log("IDirectInputDeviceW::SetCooperativeLevel()");
   
   if (proxy){
-    proxy->SetCooperativeLevel(hwnd, dwFlags);
+      return proxy->SetCooperativeLevel(hwnd, dwFlags);
   }
   
   return E_POINTER;
@@ -164,7 +164,7 @@ STDMETHODIMP IDirectInputDeviceW::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEW pdidoi
   SDL_Log("IDirectInputDeviceW::GetObjectInfo()");
   
   if (proxy){
-    proxy->GetObjectInfo(pdidoi, dwObj, dwHow);
+      return proxy->GetObjectInfo(pdidoi, dwObj, dwHow);
   }
   
   return E_POINTER;
@@ -174,7 +174,7 @@ STDMETHODIMP IDirectInputDeviceW::GetDeviceInfo(LPDIDEVICEINSTANCEW pdidi){
   SDL_Log("IDirectInputDeviceW::GetDeviceInfo()");
   
   if (proxy){
-    proxy->GetDeviceInfo(pdidi);
+      return proxy->GetDeviceInfo(pdidi);
   }
   
   return E_POINTER;
@@ -184,7 +184,7 @@ STDMETHODIMP IDirectInputDeviceW::RunControlPanel(HWND hwndOwner, DWORD dwFlags)
   SDL_Log("IDirectInputDeviceW::RunControlPanel()");
   
   if (proxy){
-    proxy->RunControlPanel(hwndOwner, dwFlags);
+      return proxy->RunControlPanel(hwndOwner, dwFlags);
   }
   
   return E_POINTER;
@@ -194,7 +194,7 @@ STDMETHODIMP IDirectInputDeviceW::Initialize(HINSTANCE hinst, DWORD dwVersion, R
   SDL_Log("IDirectInputDeviceW::Initialize()");
   
   if (proxy){
-    proxy->Initialize(hinst, dwVersion, rguid);
+      return proxy->Initialize(hinst, dwVersion, rguid);
   }
   
   return E_POINTER;

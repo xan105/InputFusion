@@ -7,6 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "dinput8.h"
 #include <unordered_map>
 #include <algorithm>
+#include "../util.h"
 
 const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
   {SDL_GAMEPAD_BUTTON_SOUTH, 0},
@@ -49,6 +50,8 @@ STDMETHODIMP IDirectInputDevice8W::QueryInterface(REFIID riid, void** ppvObject)
     AddRef();
     return S_OK;
   }
+
+  SDL_Log("IDirectInputDevice8A::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -326,7 +329,7 @@ STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, 
 
   if (this->playerIndex >= 0) return S_FALSE; //device already initialized
 
-  //REMOVE TEMPORARY
+  //REMOVED TEMPORARY
   /*if (rguid.Data1 != MAKELONG(XBOX360_VID, XBOX360_PID) ||
     std::string(reinterpret_cast<const char*>(rguid.Data4) + 2, 6) != "PLAYER") return DIERR_DEVICENOTREG;
 

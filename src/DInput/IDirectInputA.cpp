@@ -53,18 +53,21 @@ STDMETHODIMP_(ULONG) IDirectInputA::Release() {
 STDMETHODIMP IDirectInputA::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICEA *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
   SDL_Log("IDirectInputA::CreateDevice()");
   
-  if (proxy){
-    proxy->CreateDevice(rguid, (LPDIRECTINPUTDEVICE8A *)lplpDirectInputDevice, pUnkOuter);
-  }
-  
-  return E_POINTER;
+  IDirectInputDeviceA* pDInputDevice = new(std::nothrow) IDirectInputDeviceA;
+  if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
+  *lplpDirectInputDevice = static_cast<IDirectInputDeviceA*>(pDInputDevice);
+
+  HRESULT hr = pDInputDevice->Initialize(NULL, DIRECTINPUT_VERSION_300, rguid);
+  if (FAILED(hr)) { return hr; }
+
+  return DI_OK;
 }
 
 STDMETHODIMP IDirectInputA::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags){
   SDL_Log("IDirectInputA::EnumDevices()");
   
   if (proxy){
-    proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
+      return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
   }
   
   return E_POINTER;
@@ -74,7 +77,7 @@ STDMETHODIMP IDirectInputA::GetDeviceStatus(REFGUID rguidInstance){
   SDL_Log("IDirectInputA::GetDeviceStatus()");
   
   if (proxy){
-    proxy->GetDeviceStatus(rguidInstance);
+      return proxy->GetDeviceStatus(rguidInstance);
   }
   
   return E_POINTER;
@@ -84,7 +87,7 @@ STDMETHODIMP IDirectInputA::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
   SDL_Log("IDirectInputA::RunControlPanel()");
   
   if (proxy){
-    proxy->RunControlPanel(hwndOwner, dwFlags);
+      return proxy->RunControlPanel(hwndOwner, dwFlags);
   }
   
   return E_POINTER;
@@ -94,7 +97,7 @@ STDMETHODIMP IDirectInputA::Initialize(HINSTANCE hinst, DWORD dwVersion){
   SDL_Log("IDirectInputA::Initialize()");
   
   if (proxy){
-    proxy->Initialize(hinst, dwVersion);
+      return proxy->Initialize(hinst, dwVersion);
   }
   
   return E_POINTER;

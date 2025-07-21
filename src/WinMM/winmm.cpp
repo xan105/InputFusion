@@ -286,13 +286,13 @@ extern "C" {
             pjiEx->dwZpos = (0x8000 + rt) - lt;
         }
         if (pjiEx->dwFlags & JOY_RETURNR) {
-            pjiEx->dwRpos = 0;
+            pjiEx->dwRpos = 0x8000;
         }
         if (pjiEx->dwFlags & JOY_RETURNU) {
-            pjiEx->dwUpos = 0;
+            pjiEx->dwUpos = 0x8000;
         }
         if (pjiEx->dwFlags & JOY_RETURNV) {
-            pjiEx->dwVpos = 0;
+            pjiEx->dwVpos = 0x8000;
         }
 
         if (pjiEx->dwFlags & JOY_RETURNPOV)

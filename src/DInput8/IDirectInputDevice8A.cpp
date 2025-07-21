@@ -35,8 +35,15 @@ const std::vector<SDL_GamepadAxis> AXIS = {
 IDirectInputDevice8A::IDirectInputDevice8A() : m_refCount(1) {
   SDL_Log("IDirectInputDevice8A");
   this->playerIndex = -1;
+  this->AXIS_LEFTX_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_LEFTX_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_LEFTY_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_LEFTY_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_RIGHTX_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_RIGHTX_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_RIGHTY_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_RIGHTY_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
 }
-
 
 STDMETHODIMP IDirectInputDevice8A::QueryInterface(REFIID riid, void** ppvObject) {
   SDL_Log("IDirectInputDevice8A::QueryInterface()");
@@ -121,12 +128,62 @@ STDMETHODIMP IDirectInputDevice8A::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKA lp
 
 STDMETHODIMP IDirectInputDevice8A::GetProperty(REFGUID rguidProp, LPDIPROPHEADER pdiph) {
   SDL_Log("IDirectInputDevice8A::GetProperty()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
-  SDL_Log("IDirectInputDevice8A::SetProperty()");
-  return E_NOTIMPL;
+
+    SDL_Log("IDirectInputDevice8A::SetProperty()");
+
+    if (pdiph == nullptr) return E_POINTER;
+    if (pdiph->dwHeaderSize != sizeof(DIPROPHEADER)) return DIERR_INVALIDPARAM;
+
+    //Check if it is just a small integer disguised as a pointer and not an actual GUID pointer.
+    if (((ULONG_PTR)(&rguidProp) >> 16) != 0) return DI_OK;
+
+    WORD propID = LOWORD(reinterpret_cast<ULONG_PTR>(&rguidProp));
+
+    switch (propID) {
+    case DIPROP_RANGE:
+        SDL_Log("SetProperty: DIPROP_RANGE");
+        if (pdiph->dwSize == sizeof(DIPROPRANGE)) {
+            DIPROPRANGE* range = (DIPROPRANGE*)pdiph;
+            SDL_Log("    Range: lMin = %ld, lMax = %ld for 0x%08X as %d", range->lMin, range->lMax, range->diph.dwObj, range->diph.dwHow);
+
+            if (range->diph.dwHow == DIPH_BYOFFSET) {
+                switch (range->diph.dwObj) {
+                //Assuming DIJOYSTATE
+                case 0x00: //lX
+                    this->AXIS_LEFTX_MIN = range->lMin;
+                    this->AXIS_LEFTX_MAX = range->lMax;
+                    break;
+                case 0x04: //lY
+                    this->AXIS_LEFTY_MIN = range->lMin;
+                    this->AXIS_LEFTY_MAX = range->lMax;
+                    break;
+                case 0x08: //lZ
+                    break;
+                case 0x0C: //lRx
+                    this->AXIS_RIGHTX_MIN = range->lMin;
+                    this->AXIS_RIGHTX_MAX = range->lMax;
+                    break;
+                case 0x10: //lRy
+                    this->AXIS_RIGHTY_MIN = range->lMin;
+                    this->AXIS_RIGHTY_MAX = range->lMax;
+                    break;
+                case 0x14: //lRz
+                    break;
+                }
+            }
+        }
+        break;
+    default:
+        SDL_Log("SetProperty: Unsupported property ID = %hu", propID);
+        break;
+    };
+    
+    //return DIERR_UNSUPPORTED;
+    return DI_OK; //(dino crisis 1 needs kbm first)
 }
 
 STDMETHODIMP IDirectInputDevice8A::Acquire() {
@@ -146,24 +203,23 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   //c_dfDIJoystick -> DIJOYSTATE
   //c_dfDIJoystick2 -> DIJOYSTATE2
 
-
   if (lpvData == nullptr) return DIERR_INVALIDPARAM;
   if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2)) return DIERR_INVALIDPARAM;
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
 
+  ZeroMemory(lpvData, cbData);
+
   SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
   if (!(Flags & SDL_INIT_GAMEPAD)) {
-    return E_PENDING;
+      return DI_OK;
   }
 
   SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(this->playerIndex);
   if (gamepad == nullptr) {
-    return DIERR_NOTACQUIRED;
+      return DI_OK;
   }
 
   SDL_UpdateGamepads();
-
-  ZeroMemory(lpvData, cbData);
 
   for (const auto& [sdl_button, index] : BUTTONS) {
     if (SDL_GetGamepadButton(gamepad, sdl_button)) {
@@ -219,36 +275,43 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
 
   for (const auto& sdl_axis : AXIS) {
     int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
+    float normalized = value / (float)(value < 0 ? -SDL_JOYSTICK_AXIS_MIN : SDL_JOYSTICK_AXIS_MAX);
+    //NB: what about the triggers (to-do)
+
     if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
+      LONG linear = static_cast<LONG>(this->AXIS_LEFTX_MIN + (normalized + 1.0f) * (this->AXIS_LEFTX_MAX - this->AXIS_LEFTX_MIN) / 2.0f);
       if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lX = value;
+          ((DIJOYSTATE*)lpvData)->lX = linear;
       }
       else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lX = value;
+          ((DIJOYSTATE2*)lpvData)->lX = linear;
       }
     }
     else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTY) {
+      LONG linear = static_cast<LONG>(this->AXIS_LEFTY_MIN + (normalized + 1.0f) * (this->AXIS_LEFTY_MAX - this->AXIS_LEFTY_MIN) / 2.0f);
       if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lY = value;
+        ((DIJOYSTATE*)lpvData)->lY = linear;
       }
       else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lY = value;
+        ((DIJOYSTATE2*)lpvData)->lY = linear;
       }
     }
     else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTX) {
+      LONG linear = static_cast<LONG>(this->AXIS_RIGHTX_MIN + (normalized + 1.0f) * (this->AXIS_RIGHTX_MAX - this->AXIS_RIGHTX_MIN) / 2.0f);
       if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lRx = value;
+        ((DIJOYSTATE*)lpvData)->lRx = linear;
       }
       else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lRx = value;
+        ((DIJOYSTATE2*)lpvData)->lRx = linear;
       }
     }
     else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTY) {
+      LONG linear = static_cast<LONG>(this->AXIS_RIGHTY_MIN + (normalized + 1.0f) * (this->AXIS_RIGHTY_MAX - this->AXIS_RIGHTY_MIN) / 2.0f);
       if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lRy = value;
+        ((DIJOYSTATE*)lpvData)->lRy = linear;
       }
       else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lRy = value;
+        ((DIJOYSTATE2*)lpvData)->lRy = linear;
       }
     }
     // Combine left trigger and right trigger as one axis for DInput Xbox controllers
@@ -275,7 +338,7 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
 
 STDMETHODIMP IDirectInputDevice8A::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::GetDeviceData()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::SetDataFormat(LPCDIDATAFORMAT lpdf) {
@@ -284,7 +347,7 @@ STDMETHODIMP IDirectInputDevice8A::SetDataFormat(LPCDIDATAFORMAT lpdf) {
   //if (IsEqualGUID(*lpdf->rgodf->pguid, c_dfDIJoystick)
 
   if (lpdf == nullptr) return DIERR_INVALIDPARAM;
-  if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
+  //if (this->playerIndex < 0) return DIERR_NOTINITIALIZED; //dino crisis 1 needs kbm first
   return DI_OK;
 }
 
@@ -305,70 +368,72 @@ STDMETHODIMP IDirectInputDevice8A::SetCooperativeLevel(HWND hwnd, DWORD dwFlags)
 
 STDMETHODIMP IDirectInputDevice8A::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEA pdidoi, DWORD dwObj, DWORD dwHow) {
   SDL_Log("IDirectInputDevice8A::GetObjectInfo()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::GetDeviceInfo(LPDIDEVICEINSTANCEA pdidi) {
   SDL_Log("IDirectInputDevice8A::GetDeviceInfo()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::RunControlPanel()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::Initialize(HINSTANCE hinst, DWORD dwVersion, REFGUID rguid) {
   SDL_Log("IDirectInputDevice8A::Initialize()");
 
+  if (IsEqualGUID(rguid, GUID_SysKeyboard)) {
+      SDL_Log("HELLO KBM");
+      return DI_OK; //fixme later: let it through
+  }
+
   if (this->playerIndex >= 0) return S_FALSE; //device already initialized
 
-  //REMOVED TEMPORARY
-  /*if (rguid.Data1 != MAKELONG(XBOX360_VID, XBOX360_PID) ||
+  if (rguid.Data1 != MAKELONG(XBOX360_VID, XBOX360_PID) ||
     std::string(reinterpret_cast<const char*>(rguid.Data4)+2, 6) != "PLAYER") return DIERR_DEVICENOTREG;
 
   this->playerIndex = rguid.Data4[1];
-  if (this->playerIndex < 0) return DIERR_DEVICENOTREG;*/
+  if (this->playerIndex < 0) return DIERR_DEVICENOTREG;
   
-  this->playerIndex = 0;
-
   SDL_Log("IDirectInputDevice8A::Initialize() > Set player to %i", this->playerIndex);
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8A::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff, LPDIRECTINPUTEFFECT* ppdeff, LPUNKNOWN punkOuter) {
   SDL_Log("IDirectInputDevice8A::CreateEffect()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::EnumEffects(LPDIENUMEFFECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwEffType) {
   SDL_Log("IDirectInputDevice8A::EnumEffects()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::GetEffectInfo(LPDIEFFECTINFOA pdei, REFGUID rguid) {
   SDL_Log("IDirectInputDevice8A::GetEffectInfo()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::GetForceFeedbackState(LPDWORD pdwOut) {
   SDL_Log("IDirectInputDevice8A::GetForceFeedbackState()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::SendForceFeedbackCommand(DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::SendForceFeedbackCommand()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::EnumCreatedEffectObjects(LPDIENUMCREATEDEFFECTOBJECTSCALLBACK lpCallback, LPVOID pvRef, DWORD fl) {
   SDL_Log("IDirectInputDevice8A::EnumCreatedEffectObjects()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::Escape(LPDIEFFESCAPE pesc) {
   SDL_Log("IDirectInputDevice8A::Escape()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::Poll() {
@@ -378,30 +443,30 @@ STDMETHODIMP IDirectInputDevice8A::Poll() {
 
 STDMETHODIMP IDirectInputDevice8A::SendDeviceData(DWORD cbObjectData, LPCDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD fl) {
   SDL_Log("IDirectInputDevice8A::SendDeviceData()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::EnumEffectsInFile(LPCSTR lpszFileName, LPDIENUMEFFECTSINFILECALLBACK pec, LPVOID pvRef, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::EnumEffectsInFile()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::WriteEffectToFile(LPCSTR lpszFileName, DWORD dwEntries, LPCDIFILEEFFECT rgDiFileEft, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::WriteEffectToFile()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::BuildActionMap(LPDIACTIONFORMATA lpdiaf, LPCTSTR lpszUserName, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::BuildActionMap()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::SetActionMap(LPCDIACTIONFORMATA lpdiActionFormat, LPCTSTR lptszUserName, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::SetActionMap()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8A::GetImageInfo(LPDIDEVICEIMAGEINFOHEADERA lpdiDevImageInfoHeader) {
   SDL_Log("IDirectInputDevice8A::GetImageInfo()");
-  return E_NOTIMPL;
+  return DIERR_UNSUPPORTED;
 }

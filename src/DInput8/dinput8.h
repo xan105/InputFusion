@@ -12,7 +12,8 @@ found in the LICENSE file in the root directory of this source tree.
 #include <atomic>
 #include <initguid.h> //DEFINE_GUID
 
-#define DIRECTINPUT_VERSION 0x0800
+#define DIRECTINPUT_USER_MAX_COUNT      4   //Custom; change it if you need more than 8 gamepads.
+#define DIRECTINPUT_VERSION             0x0800
 
 DEFINE_GUID(IID_IDirectInput8A, 0xBF798030, 0x483A, 0x4DA2, 0xAA, 0x99, 0x5D, 0x64, 0xED, 0x36, 0x97, 0x00);
 DEFINE_GUID(IID_IDirectInput8W, 0xBF798031, 0x483A, 0x4DA2, 0xAA, 0x99, 0x5D, 0x64, 0xED, 0x36, 0x97, 0x00);
@@ -20,14 +21,53 @@ DEFINE_GUID(IID_IDirectInputDevice8A, 0x54D41080, 0xDC15, 0x4833, 0xA4, 0x1B, 0x
 DEFINE_GUID(IID_IDirectInputDevice8W, 0x54D41081, 0xDC15, 0x4833, 0xA4, 0x1B, 0x74, 0x8F, 0x73, 0xA3, 0x81, 0x79);
 DEFINE_GUID(IID_IDirectInputJoyConfig8, 0xeb0d7dfa,0x1990,0x4f27,0xb4,0xd6,0xed,0xf2,0xee,0xc4,0xa4,0x4c);
 
-DEFINE_GUID(GUID_SysKeyboard, 0x6b9b1bdf, 0x846b, 0x11d0, 0x97, 0x0b, 0x00, 0xa0, 0xc9, 0x1f, 0x5d, 0x6c);
-DEFINE_GUID(GUID_SysMouse, 0x6b9b1bf0, 0x846b, 0x11d0, 0x97, 0x0b, 0x00, 0xa0, 0xc9, 0x1f, 0x5d, 0x6c);
+DEFINE_GUID(GUID_SysKeyboard, 0x6F1D2B61, 0xD5A0, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00);
+DEFINE_GUID(GUID_SysMouse, 0x6F1D2B60, 0xD5A0, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00);
+
+// Special GUIDs (Fake pointer)
+#define DIPROP_BUFFERSIZE	      1
+#define DIPROP_AXISMODE		      2
+#define DIPROP_GRANULARITY	    3
+#define DIPROP_RANGE		        4
+#define DIPROP_DEADZONE		      5
+#define DIPROP_SATURATION	      6
+#define DIPROP_FFGAIN		        7
+#define DIPROP_FFLOAD		        8
+#define DIPROP_AUTOCENTER	      9
+#define DIPROP_CALIBRATIONMODE	10
+#define DIPROP_CALIBRATION	    11
+#define DIPROP_GUIDANDPATH	    12
+#define DIPROP_INSTANCENAME     13
+#define DIPROP_PRODUCTNAME      14
+#define DIPROP_JOYSTICKID       15
+#define DIPROP_PHYSICALRANGE    18
+#define DIPROP_LOGICALRANGE     19
+#define DIPROP_KEYNAME          20
+#define DIPROP_CPOINTS          21
+#define DIPROP_APPDATA          22
+#define DIPROP_SCANCODE         23
+#define DIPROP_VIDPID           24
+#define DIPROP_USERNAME         25
+#define DIPROP_TYPENAME         26
+
+#define DIPROPAXISMODE_ABS	            0
+#define DIPROPAXISMODE_REL	            1
+#define DIPROPAUTOCENTER_OFF	          0
+#define DIPROPAUTOCENTER_ON	            1
+#define DIPROPCALIBRATIONMODE_COOKED	  0
+#define DIPROPCALIBRATIONMODE_RAW	      1
+
+#define DIPH_DEVICE     0
+#define DIPH_BYOFFSET   1
+#define DIPH_BYID       2
+#define DIPH_BYUSAGE    3
 
 #define DI_OK				            S_OK
 #define DIERR_INVALIDPARAM	            E_INVALIDARG
 #define DIERR_OUTOFMEMORY	            E_OUTOFMEMORY
 #define DIERR_DEVICENOTREG              REGDB_E_CLASSNOTREG
 #define DIERR_NOINTERFACE               E_NOINTERFACE
+#define DIERR_UNSUPPORTED               E_NOTIMPL
 
 #define DIERR_OLDDIRECTINPUTVERSION		MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_OLD_WIN_VERSION)
 #define DIERR_NOTINITIALIZED			MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_NOT_READY)
@@ -517,8 +557,22 @@ typedef struct DIJOYUSERVALUES {
 } DIJOYUSERVALUES, *LPDIJOYUSERVALUES;
 typedef const DIJOYUSERVALUES *LPCDIJOYUSERVALUES;
 
+typedef struct DIPROPRANGE {
+    DIPROPHEADER diph;
+    LONG lMin;
+    LONG lMax;
+} DIPROPRANGE, * LPDIPROPRANGE;
+
+typedef struct DIPROPDWORD {
+    DIPROPHEADER diph;
+    DWORD dwData;
+} DIPROPDWORD, * LPDIPROPDWORD;
+  
 class IDirectInputEffect : public IUnknown
 {
+private:
+    std::atomic<long> m_refCount;
+    
 public:
     virtual STDMETHODIMP QueryInterface(REFIID riid, void** ppvObject) override;
     virtual STDMETHODIMP_(ULONG) AddRef() override;
@@ -555,9 +609,16 @@ class IDirectInputDevice8A : public IUnknown {
 private:
     std::atomic<long> m_refCount;
     int playerIndex;
+    LONG AXIS_LEFTX_MIN;
+    LONG AXIS_LEFTX_MAX;
+    LONG AXIS_LEFTY_MIN;
+    LONG AXIS_LEFTY_MAX;
+    LONG AXIS_RIGHTX_MIN;
+    LONG AXIS_RIGHTX_MAX;
+    LONG AXIS_RIGHTY_MIN;
+    LONG AXIS_RIGHTY_MAX;
 
 public:
-
     IDirectInputDevice8A();
     virtual STDMETHODIMP QueryInterface(REFIID riid, void** ppvObject) override;
     virtual STDMETHODIMP_(ULONG) AddRef() override;

@@ -389,8 +389,9 @@ extern "C" {
 
         if (hwnd == nullptr) return JOYERR_PARMS;
         if (uJoyID > MAXJOY) return JOYERR_PARMS;
-        if (uPeriod < JOY_PERIOD_MIN || uPeriod > JOY_PERIOD_MAX) return JOYERR_PARMS;
-
+        if (uPeriod < JOY_PERIOD_MIN) uPeriod = JOY_PERIOD_MIN;
+        else if (uPeriod > JOY_PERIOD_MAX) uPeriod = JOY_PERIOD_MAX;
+            
         if (Joysticks[uJoyID].capture || !IsWindow(hwnd)) return JOYERR_NOCANDO;
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);

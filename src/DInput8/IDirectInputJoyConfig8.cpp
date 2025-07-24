@@ -8,14 +8,14 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInputJoyConfig8::IDirectInputJoyConfig8() : m_refCount(1) {
-	SDL_Log("IDirectInputJoyConfig8");
+  SDL_Log("IDirectInputJoyConfig8");
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::QueryInterface(REFIID riid, void** ppvObject) {
-	SDL_Log("IDirectInputJoyConfig8::QueryInterface()");
+  SDL_Log("IDirectInputJoyConfig8::QueryInterface()");
 
-	if (ppvObject == nullptr)
-		return E_POINTER;
+  if (ppvObject == nullptr)
+    return E_POINTER;
 
   if(IsEqualGUID(riid, IID_IUnknown) ||
      IsEqualGUID(riid, IID_IDirectInputJoyConfig8))
@@ -27,24 +27,24 @@ STDMETHODIMP IDirectInputJoyConfig8::QueryInterface(REFIID riid, void** ppvObjec
 
   SDL_Log("IDirectInputJoyConfig8::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
 
-	*ppvObject = nullptr;
-	return E_NOINTERFACE;
+  *ppvObject = nullptr;
+  return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInputJoyConfig8::AddRef() {
-	SDL_Log("IDirectInputJoyConfig8::AddRef()");
+  SDL_Log("IDirectInputJoyConfig8::AddRef()");
 
-	return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
+  return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputJoyConfig8::Release() {
-	SDL_Log("IDirectInputJoyConfig8::Release()");
+  SDL_Log("IDirectInputJoyConfig8::Release()");
 
-	ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
-	if (refCount == 0) {
-		delete this;
-	}
-	return refCount;
+  ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
+  if (refCount == 0) {
+    delete this;
+  }
+  return refCount;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::Acquire(){
@@ -95,16 +95,40 @@ STDMETHODIMP IDirectInputJoyConfig8::DeleteType(LPCWSTR unnamedParam1){
   return DI_OK;
 }
 
-STDMETHODIMP IDirectInputJoyConfig8::GetConfig(UINT unnamedParam1, LPDIJOYCONFIG unnamedParam2, DWORD unnamedParam3){
-  SDL_Log("IDirectInputJoyConfig8::GetConfig()");
+STDMETHODIMP IDirectInputJoyConfig8::GetConfig(UINT uid, LPDIJOYCONFIG pjc, DWORD flags){
+  SDL_Log("IDirectInputJoyConfig8::GetConfig() for joystick %u", uid);
   
-  //https://learn.microsoft.com/en-us/windows/win32/api/dinputd/nf-dinputd-idirectinputjoyconfig8-getconfig
-  /*
-	DIJC_GUIDINSTANCE
-	Indicates that the instance GUID for the joystick is being requested. 
-	An application can pass the instance GUID to IDirectInput::CreateDevice to obtain an IDirectInputDevice interface to the joystick.
-  */
-
+  if (uid > DIRECTINPUT_USER_MAX_COUNT - 1) {
+    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIERR_NOMOREITEMS");
+    return DIERR_NOMOREITEMS;
+  }
+  if (pjc == nullptr) return E_POINTER;
+  
+  if (flags && DIJC_GUIDINSTANCE) {
+    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_GUIDINSTANCE");
+    
+        //To ID the gamepad later on when creating a device, I'm encoding the corresponding playerIndex into the fake guid instance
+        pjc->guidInstance = {
+        MAKELONG(XBOX360_VID, XBOX360_PID),														    // Data1 (VID + PID)
+        0x0000,																					                  // Data2 (reserved)
+        0x0000,																					                  // Data3 (reserved)
+        { 0x00, (BYTE)unnamedParam1, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	// Data4 (ASCII "PLAYER")
+      };
+  }
+  
+  if (flags && DIJC_REGHWCONFIGTYPE) {
+    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_REGHWCONFIGTYPE");
+  }
+  
+  if (flags && DIJC_GAIN) {
+    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_GAIN");
+  }
+  
+  if (flags && DIJC_CALLOUT) {
+    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_CALLOUT");
+  }
+  
+  SDL_Log("IDirectInputJoyConfig8::GetConfig() > DI_OK");
   return DI_OK;
 }
 

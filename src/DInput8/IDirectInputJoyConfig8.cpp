@@ -112,7 +112,7 @@ STDMETHODIMP IDirectInputJoyConfig8::GetConfig(UINT uid, LPDIJOYCONFIG pjc, DWOR
         MAKELONG(XBOX360_VID, XBOX360_PID),														    // Data1 (VID + PID)
         0x0000,																					                  // Data2 (reserved)
         0x0000,																					                  // Data3 (reserved)
-        { 0x00, (BYTE)unnamedParam1, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	// Data4 (ASCII "PLAYER")
+        { 0x00, (BYTE)uid, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	          // Data4 (ASCII "PLAYER")
       };
   }
   

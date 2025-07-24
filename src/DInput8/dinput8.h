@@ -12,7 +12,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include <atomic>
 #include <initguid.h> //DEFINE_GUID
 
-#define DIRECTINPUT_USER_MAX_COUNT      4   //Custom; change it if you need more than 8 gamepads.
+#define DIRECTINPUT_USER_MAX_COUNT      1 //A lot of games completely crash when they are more than one controller 😩 (FIXME)
 #define DIRECTINPUT_VERSION             0x0800
 
 DEFINE_GUID(IID_IDirectInput8A, 0xBF798030, 0x483A, 0x4DA2, 0xAA, 0x99, 0x5D, 0x64, 0xED, 0x36, 0x97, 0x00);

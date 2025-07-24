@@ -73,59 +73,35 @@ STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* 
 STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
   SDL_Log("IDirectInput8W::EnumDevices()");
 
-  if (dwDevType != DI8DEVCLASS_ALL && dwDevType != DI8DEVCLASS_GAMECTRL)
-    return E_NOTIMPL;
+  for (int i = 0; i < DIRECTINPUT_USER_MAX_COUNT; i++) { //These are placeholder gamepads so we can connect/disconnect while playing
+          DIDEVICEINSTANCEW lpddi = { 0 };
+          lpddi.dwSize = sizeof(DIDEVICEINSTANCEW);
 
-  SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-  if (!(Flags & SDL_INIT_GAMEPAD)) {
-    return DIERR_NOTINITIALIZED;
+          //add a flag to create a ds4 instead ?
+
+          //To ID the gamepad later on when creating a device, I'm encoding the corresponding playerIndex into the fake guid instance
+          lpddi.guidInstance = {
+            MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 (VID + PID)
+            0x0000,																					// Data2 (reserved)
+            0x0000,																					// Data3 (reserved)
+            { 0x00, (BYTE)i, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	                                // Data4 (ASCII "PLAYER")
+          };
+          lpddi.guidProduct = {
+            MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 VID + PID
+            0x0000,																					// Data2 (reserved)
+            0x0000,																					// Data3 (reserved)
+            { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }										// Data4 (ASCII "PIDVID")
+          };
+
+          lpddi.dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID); //0x00010215
+          wcscpy_s(lpddi.tszInstanceName, _countof(lpddi.tszInstanceName), XBOX360_INSTANCE_NAMEW);
+          wcscpy_s(lpddi.tszProductName, _countof(lpddi.tszProductName), XBOX360_PRODUCT_NAMEW);
+          lpddi.guidFFDriver = GUID_NULL;
+          lpddi.wUsagePage = 0x01;
+          lpddi.wUsage = 0x05;
+
+          if (lpCallback(&lpddi, pvRef) == DIENUM_STOP){ break; }
   }
-
-  int count;
-  SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
-  if (gamepads == nullptr) {
-    return DIERR_NOTINITIALIZED;
-  }
-
-  for (int i = 0; i < count; i++) {
-
-    SDL_JoystickID id = gamepads[i];
-    SDL_Gamepad* gamepad = SDL_GetGamepadFromID(id);
-    if (gamepad == nullptr) continue;
-
-    DIDEVICEINSTANCEW lpddi = { 0 };
-    lpddi.dwSize = sizeof(DIDEVICEINSTANCEW);
-
-    //add a flag to create a ds4 instead ?
-
-    //To ID the gamepad later on when creating a device, I'm encoding the corresponding playerIndex into the fake guid instance
-    lpddi.guidInstance = {
-      MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 (VID + PID)
-      0x0000,																					// Data2 (reserved)
-      0x0000,																					// Data3 (reserved)
-      { 0x00, (BYTE)SDL_GetGamepadPlayerIndex(gamepad), 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	// Data4 (ASCII "PLAYER")
-    };
-    lpddi.guidProduct = {
-      MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 VID + PID
-      0x0000,																					// Data2 (reserved)
-      0x0000,																					// Data3 (reserved)
-      { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }										// Data4 (ASCII "PIDVID")
-    };
-
-    lpddi.dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID); //0x00010215
-    wcscpy_s(lpddi.tszInstanceName, _countof(lpddi.tszInstanceName), XBOX360_INSTANCE_NAMEW);
-    wcscpy_s(lpddi.tszProductName, _countof(lpddi.tszProductName), XBOX360_PRODUCT_NAMEW);
-    lpddi.guidFFDriver = GUID_NULL;
-    lpddi.wUsagePage = 0x01;
-    lpddi.wUsage = 0x05;
-
-    bool DIENUM = lpCallback(&lpddi, pvRef);
-    if (DIENUM == DIENUM_STOP) {
-      break;
-    }
-
-  }
-  SDL_free(gamepads);
 
   return DI_OK;
 }

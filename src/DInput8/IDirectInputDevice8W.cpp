@@ -329,14 +329,11 @@ STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, 
 
   if (this->playerIndex >= 0) return S_FALSE; //device already initialized
 
-  //REMOVED TEMPORARY
-  /*if (rguid.Data1 != MAKELONG(XBOX360_VID, XBOX360_PID) ||
+  if (rguid.Data1 != MAKELONG(XBOX360_VID, XBOX360_PID) ||
     std::string(reinterpret_cast<const char*>(rguid.Data4) + 2, 6) != "PLAYER") return DIERR_DEVICENOTREG;
 
   this->playerIndex = rguid.Data4[1];
-  if (this->playerIndex < 0) return DIERR_DEVICENOTREG;*/
-
-  this->playerIndex = 0;
+  if (this->playerIndex < 0) return DIERR_DEVICENOTREG;
 
   SDL_Log("IDirectInputDevice8W::Initialize() > Set player to %i", this->playerIndex);
   return DI_OK;

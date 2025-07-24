@@ -28,6 +28,14 @@ STDMETHODIMP IDirectInputDevice7A::QueryInterface(REFIID riid, void** ppvObject)
      IsEqualGUID(riid, IID_IDirectInputDevice2A) || //Dino Crisis 2 (2000) GOG
      IsEqualGUID(riid, IID_IDirectInputDeviceA))
   {
+    
+    if(IsEqualGUID(riid, IID_IDirectInputDevice2A)) {
+      SDL_Log("IDirectInputDevice7A::QueryInterface() > IDirectInputDevice2A");
+    }
+    if(IsEqualGUID(riid, IID_IDirectInputDeviceA)) {
+      SDL_Log("IDirectInputDevice7A::QueryInterface() > IDirectInputDeviceA");
+    }
+    
     *ppvObject = static_cast<IDirectInputDevice7A*>(this);
     AddRef();
     return S_OK;
@@ -296,8 +304,8 @@ STDMETHODIMP IDirectInputDevice7A::SendDeviceData(DWORD cbObjectData, LPCDIDEVIC
 }
 
 STDMETHODIMP IDirectInputDevice7A::EnumEffectsInFile(LPCSTR lpszFileName, LPDIENUMEFFECTSINFILECALLBACK pec, LPVOID pvRef, DWORD dwFlags){
-	SDL_Log("IDirectInputDevice7A::EnumEffectsInFile()");
-	
+  SDL_Log("IDirectInputDevice7A::EnumEffectsInFile()");
+  
   if (proxy){
     return proxy->EnumEffectsInFile(lpszFileName, pec, pvRef, dwFlags);
   }
@@ -306,8 +314,8 @@ STDMETHODIMP IDirectInputDevice7A::EnumEffectsInFile(LPCSTR lpszFileName, LPDIEN
 }
 
 STDMETHODIMP IDirectInputDevice7A::WriteEffectToFile(LPCSTR lpszFileName, DWORD dwEntries, LPDIFILEEFFECT rgDiFileEft, DWORD dwFlags){
-	SDL_Log("IDirectInputDevice7A::WriteEffectToFile()");
-	
+  SDL_Log("IDirectInputDevice7A::WriteEffectToFile()");
+  
   if (proxy){
     return proxy->WriteEffectToFile(lpszFileName, dwEntries, rgDiFileEft, dwFlags);
   }

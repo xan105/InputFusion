@@ -64,8 +64,8 @@ STDMETHODIMP_(ULONG) IDirectInput7A::Release() {
 }
 
 STDMETHODIMP IDirectInput7A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE7A *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInput7A::CreateDevice()");
-  
+  SDL_Log("IDirectInput7A::CreateDevice() <%s>", GUIDToString(rguid).c_str());
+
   IDirectInputDevice7A* pDInputDevice = new(std::nothrow) IDirectInputDevice7A;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
   *lplpDirectInputDevice = static_cast<IDirectInputDevice7A*>(pDInputDevice);
@@ -74,8 +74,6 @@ STDMETHODIMP IDirectInput7A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE7A *
   if (FAILED(hr)) { return hr; }
 
   return DI_OK;
-  
-  return E_POINTER;
 }
 
 STDMETHODIMP IDirectInput7A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags){

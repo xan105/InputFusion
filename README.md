@@ -17,97 +17,12 @@ If you are a game developper and you'd like your game to support a variety of ga
 Gamepad APIs support
 ====================
 
-<details><summary>XInput</summary>
-
-  - XInputGetState ✔️
-  - XInputGetStateEx ✔️
-  - XInputSetState ✔️
-  - XInputSetStateEx¹ ✔️
-  - XInputGetCapabilities ✔️
-  - XInputGetCapabilitiesEx ✔️
-  - XInputGetBatteryInformation ✔️ 
-  - XInputGetKeystroke ❌️
-  - XInputWaitForGuideButton ❌️
-  - XInputCancelGuideButtonWait ❌
-  - XInputPowerOffController ❌
-  - XInputGetBaseBusInformation ❌
-  - XInputEnable 🚫
-  - XInputGetAudioDeviceIds 🚫
-  - XInputGetDSoundAudioDeviceGuids 🚫
-
-💡XInputGetCapabilitiesEx() will report the real VID/PID of the controller.
-
-¹ NB: XInputSetStateEx() from GDK _(XInputOnGameInput)_ is implemented and has been arbitrarily set to ordinal 1000. It does not exist in XInput. 
-
-</details>
-
-<details><summary>DInput8</summary>
-
-  - DirectInput8Create ✔️
-    + IDirectInput8::ConfigureDevices ❌
-    + IDirectInput8::CreateDevice ⚠
-      - IDirectInputDevice8::Acquire ⚠
-      - IDirectInputDevice8::BuildActionMap ❌
-      - IDirectInputDevice8::CreateEffect ❌
-      - IDirectInputDevice8::EnumCreatedEffectObjects ❌
-      - IDirectInputDevice8::EnumEffects ❌
-      - IDirectInputDevice8::EnumEffectsInFile ❌
-      - IDirectInputDevice8::EnumObjects ⚠
-      - IDirectInputDevice8::Escape ❌
-      - IDirectInputDevice8::GetCapabilities ✔
-      - IDirectInputDevice8::GetDeviceData ❌
-      - IDirectInputDevice8::GetDeviceInfo ❌
-      - IDirectInputDevice8::GetDeviceState ⚠
-      - IDirectInputDevice8::GetEffectInfo ❌
-      - IDirectInputDevice8::GetForceFeedbackState ❌
-      - IDirectInputDevice8::GetImageInfo ❌
-      - IDirectInputDevice8::GetObjectInfo ❌
-      - IDirectInputDevice8::GetProperty ❌
-      - IDirectInputDevice8::Initialize ⚠
-      - IDirectInputDevice8::Poll ✔
-      - IDirectInputDevice8::RunControlPanel ❌
-      - IDirectInputDevice8::SendDeviceData ❌
-      - IDirectInputDevice8::SendForceFeedbackCommand ❌
-      - IDirectInputDevice8::SetActionMap ❌
-      - IDirectInputDevice8::SetCooperativeLevel ⚠
-      - IDirectInputDevice8::SetDataFormat ⚠
-      - IDirectInputDevice8::SetEventNotification ❌
-      - IDirectInputDevice8::SetProperty ❌
-      - IDirectInputDevice8::Unacquire ⚠
-      - IDirectInputDevice8::WriteEffectToFile ❌
-    + IDirectInput8::EnumDevices ⚠
-    + IDirectInput8::EnumDevicesBySemantics ❌
-    + IDirectInput8::FindDevice ❌
-    + IDirectInput8::GetDeviceStatus ❌
-    + IDirectInput8::Initialize ⚠
-    + IDirectInput8::RunControlPanel ❌
-
-</details>
-
-<details><summary>DInput (1-7)</summary>
-_To Do_
-</details>
-
-<details><summary>WinMM</summary>
-
-  - joyConfigChanged ⚠
-  - joyGetDevCapsA ⚠
-  - joyGetDevCapsW ⚠
-  - joyGetNumDevs ✔
-  - joyGetPos ✔
-  - joyGetPosEx ✔
-  - joyGetThreshold ⚠
-  - joyReleaseCapture ⚠
-  - joySetCapture ⚠
-  - joySetThreshold ⚠
+- XInput
+- DInput8
+- DInput(1-7) -> DInput8
+- WinMM
   
-</details>
-
-|✔|⚠|❌|🚫|
-|-|-|-|-|
-|Implemented|Work in progress|To do|Won't (Deprecated)|
-
-### Out of scope
+## Out of scope
 
 <details><summary>Steam Input API</summary>
   <br/>
@@ -134,14 +49,7 @@ _To Do_
   Many mods and other 3rd party "fix" rely on these low level access to do their job.
   And they often complain about the new Steam Input capabilities of hooking system wide all relevant APIs for gamepad while Steam is running.
   
-  As such, I do no think these API are relevant for my project.
-  
-</details>
-
-<details><summary>WGI (Windows Gaming Input)</summary>
-  <br/>
-  This API is new and specifically designed to allow support for Gamepad others than Xbox controllers in a standardised way.
-  Doesn't seem pertinent to this project for now.
+  As such, I do no think these API are relevant for my project (for now).
   
 </details>
 
@@ -177,7 +85,7 @@ Here is a simple example in Node.js using [xan105/node-remote-thread](https://gi
 import { env } from "node:process";
 import { spawn } from "node:child_process";
 import { dirname } from "node:path";
-import { createRemoteThread } from "@xan105/create-remote-thread";
+import { createRemoteThread } from "@xan105/remote-thread";
 
 const EXECUTABLE = "G:\\METAPHOR\\METAPHOR.exe";
 const ADDON = "G:\\METAPHOR\\InputFusion.dll";
@@ -199,12 +107,65 @@ binary.once("spawn", () => {
 });
 ```
 
+Gamepad Layout
+==============
+
+Games have different layout expectation depending on their era and/or gamepads they support.
+For practical reasons, this project tries to mimic a Xbox controller unless otherwise specified.
+Very old and legacy APIs tend to have a more custom/retro layout to match their era.
+
+💡 Please be advised that SDL has also the ability to change the mapping of a gamepad: see [Input Re-mapping](#input-re-mapping) below.
+
+- XInput:
+As an Xbox controller
+
+- DInput8:
+As an Xbox controller therefore it has the same limitations as a real Xbox controller with DInput such as no individual trigger axis.
+
+- DInput (1-7):
+
+As DInput8.
+
+- WinMM:
+
+[!NOTE]
+> After considering the games from that era that could be played with a gamepad. I somewhat deviated from the "usual" mapping for this implementation.
+
+The D-Pad and the left joystick both map the X/Y axis, usually used for movement.
+The right joystick maps to Z/R axes and to the POV when pressed + _direction_, usually used to move the camera point of view.
+The right and left trigger are mapped to buttons.
+Buttons order is tweaked to allow triggers in games supporting a limited amount of buttons and start/options to usually end up as the PAUSE button.
+
+Input Re-mapping
+================
+
+SDL has the ability to change the mapping of an existing gamepad or add support for gamepads that SDL is unaware of.
+To manually do so the end user can, for example, use the env var `SDL_GAMECONTROLLERCONFIG` or `SDL_GAMECONTROLLERCONFIG_FILE`.
+
+The mapping string has the format: `GUID,name,mapping`. 
+
+Example of a valid mapping for a Dualshock4 v2:
+```
+"03008fe54c050000a00b000000016800,*,a:b0,b:b1,back:b4,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,touchpad:b11,crc:e58f,platform:Windows,"
+```
+
+🎮 Buttons can be used as axes and vice versa.
+
+Example to swap the D-PAD with the Left Joystick for retro gaming:
+```
+[...] dpup:-a1,dpdown:+a1,dpleft:-a0,dpright:+a0,-leftx:h0.8,+leftx:h0.2,-lefty:h0.1,+lefty:h0.4, [...]
+```
+
+📄 For more details, please kindly see the [SDL documentation](https://wiki.libsdl.org/SDL3/SDL_AddGamepadMapping).
+
 Env Var
 =======
 
 🧪 Mostly experimental features are behind env var flags.
 
-#### `GAMEPAD_LED=BATTERYLVL`
+#### `GAMEPAD_LED=BATTERYLVL|OFF`
+
+**BATTERYLVL**
 
 When enabled the LED light of the controller is used to show the battery level of the controller:
 
@@ -212,7 +173,7 @@ When enabled the LED light of the controller is used to show the battery level o
   - 75% / Yellow
   - 50% / Orange
   - 25% / Red
-
+  
 Currently only available for PS4/PS5 controller in wireless.
 
 `DLL: Any`
@@ -231,10 +192,6 @@ This forces the use of the DInput8 functions from the DLL when calling DInput8 f
 
 `DLL: InputFusion, Dinput8, XInput`
 
-> [!WARNING]  
-> The current implementation is very barebone and is based on a Xbox 360 controller, therefore it has the same limitations as a real Xbox 360 controller with DInput such as no force feedback and no individual trigger axis.
-> Games have different DInput layout expectation depending on their era and/or gamepads they support.
-
 #### `GAMEPAD_API_WINMM=HOOK`
 
 Enable WinMM functions hooking / detouring.
@@ -242,28 +199,21 @@ This forces the use of the WinMM functions from the DLL when calling WinMM Joyst
 
 `DLL: InputFusion, WinMM`
 
-> [!NOTE]
-> After considering the games from that era that could be played with a gamepad.
-> I somewhat deviated from the usual mapping for this implementation.
-> 
-> The D-Pad and the left joystick both map the X and Y axis usually used for movement.
-> The right joystick maps to the POV since back then it was used to move the camera point of view around which is traditionally the role of the right joystick on a gamepad.
-> The right and left trigger are mapped to the Z axis meaning no individual trigger axis, similar to a Xbox360 in DInput.
+Linux (Wine/Proton)
+===================
 
-Input Re-mapping
-================
+Wine/Proton already translates Windows gamepad API calls. So it's a bit redundant, but yes this project does work under Wine/Proton.
+You just need to tell Wine/Proton to load the dll instead of its built-in:
 
-SDL has the ability to change the mapping of an existing gamepad or add support for gamepads that SDL is unaware of.
-To manually do so the end user can, for example, use the env var `SDL_GAMECONTROLLERCONFIG` or `SDL_GAMECONTROLLERCONFIG_FILE`.
+Example:
 
-The mapping string has the format: `GUID,name,mapping`. Buttons can be used as a gamepad axes and vice versa.
-
-Example of a valid mapping for a gamepad:
 ```
-"341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b8,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftshoulder:b4,rightshoulder:b5,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b6,righttrigger:b7"
+WINEDLLOVERRIDES="xinput1_3=n,b
 ```
 
-📄 For more details, please kindly see the [SDL documentation](https://wiki.libsdl.org/SDL3/SDL_AddGamepadMapping).
+NB: In case of DLL injection you need a DLL injector that can run under Wine/Proton.
+The classic combo `createRemoteThread()` + `LoadLibrary()` from Kernel32 works under Wine/Proton.
+A quick google search will find you plenty on GitHub. Otherwise may I suggest my own: [xan105/Mini-Launcher](https://github.com/xan105/Mini-Launcher)
 
 Caveats
 =======
@@ -272,7 +222,7 @@ Caveats
 
 - Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.
-  The focus of this project is **for now** on API translation and not on _poorly engineered_ games compatibility. 
+  The focus of this project is **for now** on API translation and not on compatibility for _poorly engineered_ games. 
 
 Build
 =====

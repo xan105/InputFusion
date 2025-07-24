@@ -90,7 +90,7 @@ STDMETHODIMP IDirectInputDevice2A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
   if (proxy){
       return proxy->SetProperty(rguidProp, pdiph);
   }
-  
+
   return E_POINTER;
 }
 

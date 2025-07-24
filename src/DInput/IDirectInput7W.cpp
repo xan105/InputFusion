@@ -64,7 +64,7 @@ STDMETHODIMP_(ULONG) IDirectInput7W::Release() {
 }
 
 STDMETHODIMP IDirectInput7W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE7W *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInput7W::CreateDevice()");
+  SDL_Log("IDirectInput7W::CreateDevice() <%s>", GUIDToString(rguid).c_str());
   
   IDirectInputDevice7W* pDInputDevice = new(std::nothrow) IDirectInputDevice7W;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;

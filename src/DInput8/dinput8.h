@@ -69,11 +69,12 @@ DEFINE_GUID(GUID_SysMouse, 0x6F1D2B60, 0xD5A0, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0
 #define DIERR_NOINTERFACE               E_NOINTERFACE
 #define DIERR_UNSUPPORTED               E_NOTIMPL
 
-#define DIERR_OLDDIRECTINPUTVERSION		MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_OLD_WIN_VERSION)
-#define DIERR_NOTINITIALIZED			MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_NOT_READY)
+#define DIERR_OLDDIRECTINPUTVERSION		  MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_OLD_WIN_VERSION)
+#define DIERR_NOTINITIALIZED			      MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_NOT_READY)
 #define DIERR_INPUTLOST                 MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_READ_FAULT)
 #define DIERR_ACQUIRED                  MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_BUSY)
 #define DIERR_NOTACQUIRED               MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_INVALID_ACCESS)
+#define DIERR_NOMOREITEMS               MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_NO_MORE_ITEMS)
 
 #define DIENUM_STOP			            0
 #define DIENUM_CONTINUE		            1
@@ -103,6 +104,12 @@ DEFINE_GUID(GUID_SysMouse, 0x6F1D2B60, 0xD5A0, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0
 #define DIDC_ATTACHED                   0x00000001
 #define DIDC_EMULATED                   0x00000004
 
+#define DIJC_GUIDINSTANCE               0x00000001
+#define DIJC_REGHWCONFIGTYPE            0x00000002
+#define DIJC_GAIN                       0x00000004
+#define DIJC_CALLOUT                    0x00000008
+#define DIJC_WDMGAMEPORT                0x00000010
+
 #define MAX_JOYSTRING                   256
 #define MAX_JOYSTICKOEMVXDNAME          260
 #define JOY_POV_NUMDIRS                 4
@@ -113,7 +120,6 @@ DEFINE_GUID(GUID_SysMouse, 0x6F1D2B60, 0xD5A0, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0
 #define XBOX360_PRODUCT_NAMEW           (L"XBOX 360 For Windows (Controller)")
 #define XBOX360_INSTANCE_NAMEA          ("XBOX 360 For Windows (Controller)")
 #define XBOX360_PRODUCT_NAMEA           ("XBOX 360 For Windows (Controller)")
-
 
 typedef DWORD D3DCOLOR;
 
@@ -659,7 +665,15 @@ class IDirectInputDevice8W : public IUnknown {
 private:
     std::atomic<long> m_refCount;
     int playerIndex;
-
+    LONG AXIS_LEFTX_MIN;
+    LONG AXIS_LEFTX_MAX;
+    LONG AXIS_LEFTY_MIN;
+    LONG AXIS_LEFTY_MAX;
+    LONG AXIS_RIGHTX_MIN;
+    LONG AXIS_RIGHTX_MAX;
+    LONG AXIS_RIGHTY_MIN;
+    LONG AXIS_RIGHTY_MAX;
+    
 public:
 
     IDirectInputDevice8W();
@@ -759,7 +773,7 @@ public:
     virtual STDMETHODIMP GetTypeInfo(LPCWSTR unnamedParam1, LPDIJOYTYPEINFO unnamedParam2, DWORD unnamedParam3);
     virtual STDMETHODIMP SetTypeInfo(LPCWSTR unnamedParam1, LPCDIJOYTYPEINFO unnamedParam2, DWORD unnamedParam3, LPWSTR unnamedParam4);
     virtual STDMETHODIMP DeleteType(LPCWSTR unnamedParam1);
-    virtual STDMETHODIMP GetConfig(UINT unnamedParam1, LPDIJOYCONFIG unnamedParam2, DWORD unnamedParam3);
+    virtual STDMETHODIMP GetConfig(UINT uid, LPDIJOYCONFIG pjc, DWORD flags);
     virtual STDMETHODIMP SetConfig(UINT unnamedParam1, LPCDIJOYCONFIG unnamedParam2, DWORD unnamedParam3);
     virtual STDMETHODIMP DeleteConfig(UINT unnamedParam1);
     virtual STDMETHODIMP GetUserValues(LPDIJOYUSERVALUES unnamedParam1, DWORD unnamedParam2);

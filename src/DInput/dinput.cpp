@@ -83,9 +83,7 @@ HRESULT WINAPI DirectInputCreateEx(HINSTANCE hinst, DWORD dwVersion, REFIID riid
 
       HRESULT hr = pDInput->Initialize(NULL, dwVersion);
       if (FAILED(hr)) { return hr; }
-
-      SDL_Log("DI_OK");
-
+      
       return DI_OK;
     } 
     else if (IsEqualGUID(riid, IID_IDirectInput7W))

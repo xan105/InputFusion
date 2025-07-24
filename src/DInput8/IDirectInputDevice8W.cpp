@@ -35,6 +35,14 @@ const std::vector<SDL_GamepadAxis> AXIS = {
 IDirectInputDevice8W::IDirectInputDevice8W() : m_refCount(1) {
   SDL_Log("IDirectInputDevice8W");
   this->playerIndex = -1;
+  this->AXIS_LEFTX_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_LEFTX_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_LEFTY_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_LEFTY_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_RIGHTX_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_RIGHTX_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_RIGHTY_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
+  this->AXIS_RIGHTY_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
 }
 
 STDMETHODIMP IDirectInputDevice8W::QueryInterface(REFIID riid, void** ppvObject) {
@@ -126,11 +134,60 @@ STDMETHODIMP IDirectInputDevice8W::GetProperty(REFGUID rguidProp, LPDIPROPHEADER
 
 STDMETHODIMP IDirectInputDevice8W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
   SDL_Log("IDirectInputDevice8W::SetProperty()");
-  return E_NOTIMPL;
+  
+    if (pdiph == nullptr) return E_POINTER;
+    if (pdiph->dwHeaderSize != sizeof(DIPROPHEADER)) return DIERR_INVALIDPARAM;
+
+    //Check if it is just a small integer disguised as a pointer and not an actual GUID pointer.
+    if (((ULONG_PTR)(&rguidProp) >> 16) != 0) return DI_OK;
+
+    WORD propID = LOWORD(reinterpret_cast<ULONG_PTR>(&rguidProp));
+
+    switch (propID) {
+    case DIPROP_RANGE:
+        SDL_Log("SetProperty: DIPROP_RANGE");
+        if (pdiph->dwSize == sizeof(DIPROPRANGE)) {
+            DIPROPRANGE* range = (DIPROPRANGE*)pdiph;
+            SDL_Log("    Range: lMin = %ld, lMax = %ld for 0x%08X as %d", range->lMin, range->lMax, range->diph.dwObj, range->diph.dwHow);
+
+            if (range->diph.dwHow == DIPH_BYOFFSET) {
+                switch (range->diph.dwObj) {
+                //Assuming DIJOYSTATE
+                case 0x00: //lX
+                    this->AXIS_LEFTX_MIN = range->lMin;
+                    this->AXIS_LEFTX_MAX = range->lMax;
+                    break;
+                case 0x04: //lY
+                    this->AXIS_LEFTY_MIN = range->lMin;
+                    this->AXIS_LEFTY_MAX = range->lMax;
+                    break;
+                case 0x08: //lZ
+                    break;
+                case 0x0C: //lRx
+                    this->AXIS_RIGHTX_MIN = range->lMin;
+                    this->AXIS_RIGHTX_MAX = range->lMax;
+                    break;
+                case 0x10: //lRy
+                    this->AXIS_RIGHTY_MIN = range->lMin;
+                    this->AXIS_RIGHTY_MAX = range->lMax;
+                    break;
+                case 0x14: //lRz
+                    break;
+                }
+            }
+        }
+        break;
+    default:
+        SDL_Log("SetProperty: Unsupported property ID = %hu", propID);
+        break;
+    };
+    
+    //return DIERR_UNSUPPORTED;
+    return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Acquire() {
-  SDL_Log("IDirectInputDevice8W::Acquire()");
+  SDL_Log("IDirectInputDevice8W::Acquire() for %d", this->playerIndex);
   return DI_OK;
 }
 
@@ -140,15 +197,45 @@ STDMETHODIMP IDirectInputDevice8W::Unacquire() {
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) {
-  SDL_Log("IDirectInputDevice8W::GetDeviceState()");
+  SDL_Log("IDirectInputDevice8W::GetDeviceState() for %d", this->playerIndex);
 
   //IDirectInputDevice8::SetDataFormat
   //c_dfDIJoystick -> DIJOYSTATE
   //c_dfDIJoystick2 -> DIJOYSTATE2
 
   if (lpvData == nullptr) return DIERR_INVALIDPARAM;
-  //if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2)) return DIERR_INVALIDPARAM;
+  if (cbData == 256) { //Keyboard | c_dfDIKeyboard
+    /*ZeroMemory(lpvData, cbData);
+    if (GetKeyboardState((PBYTE)lpvData)){
+      //Strip off unwanted low-bit 0x01 (if any)
+      BYTE* keys = (BYTE*)lpvData;
+      for (int i = 0; i < 256; ++i) {
+        keys[i] = (keys[i] & 0x80) ? 0x80 : 0x00;
+      }
+      SDL_Log("IDirectInputDevice8W::GetDeviceState() > GetKeyboardState()");
+      return DI_OK; 
+    } else {
+      return DIERR_INPUTLOST;
+    }*/
+    return DI_OK;
+  }
+  
+  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %d or %d", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2);
+  
+  if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
+    SDL_Log("IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
+    return DIERR_INVALIDPARAM;
+  }
+  if (cbData == sizeof(DIJOYSTATE)) {
+    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
+  }
+  else if (cbData == sizeof(DIJOYSTATE2)) {
+    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
+  }
+  
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
+
+  ZeroMemory(lpvData, cbData);
 
   SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
   if (!(Flags & SDL_INIT_GAMEPAD)) {
@@ -161,17 +248,6 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   }
   
   SDL_UpdateGamepads();
-
-  //ZeroMemory(lpvData, cbData);
-
-  if (cbData == sizeof(DIJOYSTATE)) {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
-  }
-  else if (cbData == sizeof(DIJOYSTATE2)) {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
-  }
-
-  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u", cbData); //re = 60 ??!! maybe because previous call did not give correctly gamepad capabilities or its own DIDATAFORMAT with SetDataFormat() ??
 
   for (const auto& [sdl_button, index] : BUTTONS) {
     if (SDL_GetGamepadButton(gamepad, sdl_button)) {
@@ -278,6 +354,7 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     }
   }
   
+  SDL_Log("IDirectInputDevice8W::GetDeviceState() > OK");
   return DI_OK;
 }
 
@@ -291,7 +368,7 @@ STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
   //if (IsEqualGUID(*lpdf->rgodf->pguid, c_dfDIJoystick)
   
   if (lpdf == nullptr) return DIERR_INVALIDPARAM;
-  if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
+  //if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
   return DI_OK;
 }
 
@@ -327,13 +404,21 @@ STDMETHODIMP IDirectInputDevice8W::RunControlPanel(HWND hwndOwner, DWORD dwFlags
 STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, REFGUID rguid) {
   SDL_Log("IDirectInputDevice8W::Initialize()");
 
+  if (IsEqualGUID(rguid, GUID_SysKeyboard)) {
+      SDL_Log("HELLO KBM");
+      return DI_OK; //fixme later: let it through
+  }
+
   if (this->playerIndex >= 0) return S_FALSE; //device already initialized
 
   if (rguid.Data1 != MAKELONG(XBOX360_VID, XBOX360_PID) ||
     std::string(reinterpret_cast<const char*>(rguid.Data4) + 2, 6) != "PLAYER") return DIERR_DEVICENOTREG;
 
   this->playerIndex = rguid.Data4[1];
-  if (this->playerIndex < 0) return DIERR_DEVICENOTREG;
+  if (this->playerIndex < 0) {
+    SDL_Log("IDirectInputDevice8W::Initialize() > DIERR_DEVICENOTREG");
+    return DIERR_DEVICENOTREG;
+  }
 
   SDL_Log("IDirectInputDevice8W::Initialize() > Set player to %i", this->playerIndex);
   return DI_OK;

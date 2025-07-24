@@ -204,7 +204,21 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   //c_dfDIJoystick2 -> DIJOYSTATE2
 
   if (lpvData == nullptr) return DIERR_INVALIDPARAM;
-  if (cbData == 256) return DI_OK; //Keyboard | c_dfDIKeyboard
+  if (cbData == 256) { //Keyboard | c_dfDIKeyboard
+    /*ZeroMemory(lpvData, cbData);
+    if (GetKeyboardState((PBYTE)lpvData)){
+      //Strip off unwanted low-bit 0x01 (if any)
+      BYTE* keys = (BYTE*)lpvData;
+      for (int i = 0; i < 256; ++i) {
+        keys[i] = (keys[i] & 0x80) ? 0x80 : 0x00;
+      }
+      SDL_Log("IDirectInputDevice8A::GetDeviceState() > GetKeyboardState()");
+      return DI_OK; 
+    } else {
+      return DIERR_INPUTLOST;
+    }*/
+    return DI_OK;
+  }
   if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
     SDL_Log("IDirectInputDevice8A::GetDeviceState() > Unknown data format!");
     return DIERR_INVALIDPARAM;
@@ -407,7 +421,10 @@ STDMETHODIMP IDirectInputDevice8A::Initialize(HINSTANCE hinst, DWORD dwVersion, 
     std::string(reinterpret_cast<const char*>(rguid.Data4)+2, 6) != "PLAYER") return DIERR_DEVICENOTREG;
 
   this->playerIndex = rguid.Data4[1];
-  if (this->playerIndex < 0) return DIERR_DEVICENOTREG;
+  if (this->playerIndex < 0) {
+    SDL_Log("IDirectInputDevice8A::Initialize() > DIERR_DEVICENOTREG");
+    return DIERR_DEVICENOTREG;
+  }
   
   SDL_Log("IDirectInputDevice8A::Initialize() > Set player to %i", this->playerIndex);
   return DI_OK;

@@ -7,7 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #define WIN32_LEAN_AND_MEAN
 #include "../DInput8/dinput8.h"
 
-enum DirectInputVersions: DWORD {
+typedef enum DirectInputVersions: DWORD {
     DIRECTINPUT_VERSION_300 = 0x0300,
     DIRECTINPUT_VERSION_500 = 0x0500,
     DIRECTINPUT_VERSION_50A = 0x050A,
@@ -16,7 +16,7 @@ enum DirectInputVersions: DWORD {
     DIRECTINPUT_VERSION_61A = 0x061A,
     DIRECTINPUT_VERSION_700 = 0x0700,
     DIRECTINPUT_VERSION_800 = 0x0800
-};
+} DirectInputVersions;
 
 DEFINE_GUID(IID_IDirectInputA,        0x89521360,0xAA8A,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 DEFINE_GUID(IID_IDirectInputW,        0x89521361,0xAA8A,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);

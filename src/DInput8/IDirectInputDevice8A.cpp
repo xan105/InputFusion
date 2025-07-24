@@ -187,7 +187,7 @@ STDMETHODIMP IDirectInputDevice8A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
 }
 
 STDMETHODIMP IDirectInputDevice8A::Acquire() {
-  SDL_Log("IDirectInputDevice8A::Acquire()");
+  SDL_Log("IDirectInputDevice8A::Acquire() for %d", this->playerIndex);
   return DI_OK;
 }
 
@@ -197,16 +197,27 @@ STDMETHODIMP IDirectInputDevice8A::Unacquire() {
 }
 
 STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) {
-  SDL_Log("IDirectInputDevice8A::GetDeviceState()");
+  SDL_Log("IDirectInputDevice8A::GetDeviceState() for %d", this->playerIndex);
 
   //IDirectInputDevice8::SetDataFormat
   //c_dfDIJoystick -> DIJOYSTATE
   //c_dfDIJoystick2 -> DIJOYSTATE2
 
   if (lpvData == nullptr) return DIERR_INVALIDPARAM;
-  if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2)) return DIERR_INVALIDPARAM;
+  if (cbData == 256) return DI_OK; //Keyboard | c_dfDIKeyboard
+  if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
+    SDL_Log("IDirectInputDevice8A::GetDeviceState() > Unknown data format!");
+    return DIERR_INVALIDPARAM;
+  }
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
 
+  if (cbData == sizeof(DIJOYSTATE)) {
+    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE");
+  }
+  if (cbData == sizeof(DIJOYSTATE2)) {
+    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE2");
+  }
+  
   ZeroMemory(lpvData, cbData);
 
   SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
@@ -332,7 +343,8 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
       }
     }
   }
-
+  
+  SDL_Log("IDirectInputDevice8A::GetDeviceState() > OK");
   return DI_OK;
 }
 
@@ -373,7 +385,7 @@ STDMETHODIMP IDirectInputDevice8A::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEA pdido
 
 STDMETHODIMP IDirectInputDevice8A::GetDeviceInfo(LPDIDEVICEINSTANCEA pdidi) {
   SDL_Log("IDirectInputDevice8A::GetDeviceInfo()");
-  return DIERR_UNSUPPORTED;
+  return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8A::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {

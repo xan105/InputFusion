@@ -1,0 +1,9 @@
+LIBRARY "GameInput.dll"
+EXPORTS
+GameInputCreate                   @1
+GameInputDeviceCallback
+GameInputKeyboardLayoutCallback
+GameInputReadingCallback
+GameInputSystemButtonCallback
+DllCanUnloadNow                   PRIVATE 
+DllGetClassObject                 PRIVATE

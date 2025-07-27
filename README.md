@@ -19,8 +19,10 @@ Gamepad APIs support
 
 - XInput
 - DInput8
-- DInput(1-7) -> DInput8
+- DInput(1-7)
 - WinMM
+
+NB: DInput and DInput8 are still a work in progress. Depending on the game, "your mileage may vary", as they say.
   
 ## Out of scope
 
@@ -117,9 +119,11 @@ Very old and legacy APIs tend to have a more custom/retro layout to match their 
 💡 Please be advised that SDL has also the ability to change the mapping of a gamepad: see [Input Re-mapping](#input-re-mapping) below.
 
 - XInput:
+
 As an Xbox controller
 
 - DInput8:
+
 As an Xbox controller therefore it has the same limitations as a real Xbox controller with DInput such as no individual trigger axis.
 
 - DInput (1-7):
@@ -128,7 +132,7 @@ As DInput8.
 
 - WinMM:
 
-[!NOTE]
+> [!NOTE] 
 > After considering the games from that era that could be played with a gamepad. I somewhat deviated from the "usual" mapping for this implementation.
 
 The D-Pad and the left joystick both map the X/Y axis, usually used for movement.
@@ -213,7 +217,7 @@ WINEDLLOVERRIDES="xinput1_3=n,b
 
 NB: In case of DLL injection you need a DLL injector that can run under Wine/Proton.
 The classic combo `createRemoteThread()` + `LoadLibrary()` from Kernel32 works under Wine/Proton.
-A quick google search will find you plenty on GitHub. Otherwise may I suggest my own: [xan105/Mini-Launcher](https://github.com/xan105/Mini-Launcher)
+A quick google search will find you plenty on GitHub. Otherwise may I suggest one of my own: [xan105/Mini-Launcher](https://github.com/xan105/Mini-Launcher)
 
 Caveats
 =======

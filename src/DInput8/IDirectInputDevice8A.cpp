@@ -119,6 +119,64 @@ STDMETHODIMP IDirectInputDevice8A::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
 STDMETHODIMP IDirectInputDevice8A::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags) {
   SDL_Log("IDirectInputDevice8A::EnumObjects()");
 
+  //Offsets below assume DIJOYSTATE
+  
+  if (lpCallback == nullptr) return E_POINTER;
+
+  if (dwFlags & DIDFT_ALL || dwFlags & DIDFT_AXIS) {
+        static const struct {
+            GUID guid;
+            DWORD offset;
+            const char* name;
+        } Axes[] = {
+            { GUID_XAxis, 0,   "X Axis" },
+            { GUID_YAxis, 4,   "Y Axis" },
+            { GUID_ZAxis, 8,   "Z Axis" },
+            { GUID_RxAxis, 12, "X Rotation" },
+            { GUID_RyAxis, 16, "Y Rotation" },
+            { GUID_RzAxis, 20, "Z Rotation" },
+        };
+  
+        for (int i = 0; i < std::size(Axes); ++i) {
+            DIDEVICEOBJECTINSTANCEA lpddoi = { 0 };
+            lpddoi.dwSize = sizeof(DIDEVICEOBJECTINSTANCEA);
+            lpddoi.guidType = Axes[i].guid;
+            lpddoi.dwOfs = Axes[i].offset;
+            lpddoi.dwType = DIDFT_AXIS | DIDFT_MAKEINSTANCE(i);
+            strcpy_s(lpddoi.tszName, MAX_PATH, Axes[i].name);
+            if (lpCallback(&lpddoi, pvRef) == DIENUM_STOP) return DI_OK;
+        }
+        if (dwFlags & DIDFT_AXIS) return DI_OK;
+    }
+
+  if (dwFlags & DIDFT_ALL || dwFlags & DIDFT_POV) {
+        static const DWORD POV[] = { 32, 36, 40, 44 };
+  
+        for (int i = 0; i < 4; ++i) {
+            DIDEVICEOBJECTINSTANCEA lpddoi = { 0 };
+            lpddoi.dwSize = sizeof(DIDEVICEOBJECTINSTANCEA);
+            lpddoi.guidType = GUID_POV;
+            lpddoi.dwOfs = POV[i];
+            lpddoi.dwType = DIDFT_POV | DIDFT_MAKEINSTANCE(i);
+            sprintf_s(lpddoi.tszName, MAX_PATH, "POV %d", i);
+            if (lpCallback(&lpddoi, pvRef) == DIENUM_STOP) return DI_OK;
+        }
+        if (dwFlags & DIDFT_POV) return DI_OK;
+  }
+
+  if (dwFlags & DIDFT_ALL || dwFlags & DIDFT_BUTTON) {
+        for (int i = 0; i < 32; ++i) {
+            DIDEVICEOBJECTINSTANCEA lpddoi = { 0 };
+            lpddoi.dwSize = sizeof(DIDEVICEOBJECTINSTANCEA);
+            lpddoi.guidType = GUID_Button;
+            lpddoi.dwOfs = 48 + i;
+            lpddoi.dwType = DIDFT_BUTTON | DIDFT_MAKEINSTANCE(i);
+            sprintf_s(lpddoi.tszName, MAX_PATH, "Button %d", i);
+            if (lpCallback(&lpddoi, pvRef) == DIENUM_STOP) return DI_OK;
+        }
+        if (dwFlags & DIDFT_BUTTON) return DI_OK;
+  }
+
   DIDEVICEOBJECTINSTANCEA lpddoi = { 0 };
   lpddoi.dwSize = sizeof(DIDEVICEOBJECTINSTANCEA);
 
@@ -128,7 +186,27 @@ STDMETHODIMP IDirectInputDevice8A::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKA lp
 
 STDMETHODIMP IDirectInputDevice8A::GetProperty(REFGUID rguidProp, LPDIPROPHEADER pdiph) {
   SDL_Log("IDirectInputDevice8A::GetProperty()");
-  return DIERR_UNSUPPORTED;
+
+  if (pdiph == nullptr) return E_POINTER;
+
+  //Check if it is just a small integer disguised as a pointer and not an actual GUID pointer.
+  if (((ULONG_PTR)(&rguidProp) >> 16) != 0) return DI_OK;
+
+  WORD propID = LOWORD(reinterpret_cast<ULONG_PTR>(&rguidProp));
+
+  switch (propID) {
+  case DIPROP_GRANULARITY: {
+      SDL_Log("GetProperty: DIPROP_GRANULARITY");
+      DIPROPDWORD* pd = reinterpret_cast<DIPROPDWORD*>(pdiph);
+      pd->dwData = 1;
+      break;
+  }
+  default:
+      SDL_Log("GetProperty: Unsupported property ID = %hu", propID);
+      break;
+  };
+
+  return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
@@ -182,8 +260,7 @@ STDMETHODIMP IDirectInputDevice8A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
         break;
     };
     
-    //return DIERR_UNSUPPORTED;
-    return DI_OK; //(dino crisis 1 needs kbm first)
+    return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8A::Acquire() {
@@ -219,18 +296,21 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     }*/
     return DI_OK;
   }
+  
+  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %d or %d", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
+  
   if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
-    SDL_Log("IDirectInputDevice8A::GetDeviceState() > Unknown data format!");
+    SDL_Log("IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
     return DIERR_INVALIDPARAM;
   }
-  if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
-
   if (cbData == sizeof(DIJOYSTATE)) {
-    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE");
+    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
   }
-  if (cbData == sizeof(DIJOYSTATE2)) {
-    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE2");
+  else if (cbData == sizeof(DIJOYSTATE2)) {
+    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
   }
+  
+  if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
   
   ZeroMemory(lpvData, cbData);
 
@@ -301,7 +381,6 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   for (const auto& sdl_axis : AXIS) {
     int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
     float normalized = value / (float)(value < 0 ? -SDL_JOYSTICK_AXIS_MIN : SDL_JOYSTICK_AXIS_MAX);
-    //NB: what about the triggers (to-do)
 
     if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
       LONG linear = static_cast<LONG>(this->AXIS_LEFTX_MIN + (normalized + 1.0f) * (this->AXIS_LEFTX_MAX - this->AXIS_LEFTX_MIN) / 2.0f);
@@ -372,14 +451,13 @@ STDMETHODIMP IDirectInputDevice8A::SetDataFormat(LPCDIDATAFORMAT lpdf) {
 
   //if (IsEqualGUID(*lpdf->rgodf->pguid, c_dfDIJoystick)
 
-  if (lpdf == nullptr) return DIERR_INVALIDPARAM;
+  if (lpdf == nullptr) return E_POINTER;
   //if (this->playerIndex < 0) return DIERR_NOTINITIALIZED; //dino crisis 1 needs kbm first
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8A::SetEventNotification(HANDLE hEvent) {
   SDL_Log("IDirectInputDevice8A::SetEventNotification()");
-
   //SDL_UpdateGamepads();
   //SetEvent(&hEvent);
   return DI_OK;
@@ -399,6 +477,31 @@ STDMETHODIMP IDirectInputDevice8A::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEA pdido
 
 STDMETHODIMP IDirectInputDevice8A::GetDeviceInfo(LPDIDEVICEINSTANCEA pdidi) {
   SDL_Log("IDirectInputDevice8A::GetDeviceInfo()");
+  
+  if (pdidi == nullptr) return E_POINTER;
+  if (pdidi->dwSize != sizeof(DIDEVICEINSTANCEA)) return DIERR_INVALIDPARAM;
+  
+  pdidi->guidInstance = {
+    MAKELONG(XBOX360_VID, XBOX360_PID),														            // Data1 (VID + PID)
+    0x0000,																					                          // Data2 (reserved)
+    0x0000,																					                          // Data3 (reserved)
+    { 0x00, (BYTE)this->playerIndex, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	    // Data4 (ASCII "PLAYER")
+  };
+  
+  pdidi->guidProduct = {
+    MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 VID + PID
+    0x0000,																					              // Data2 (reserved)
+    0x0000,																					              // Data3 (reserved)
+    { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }						// Data4 (ASCII "PIDVID")
+  };
+  
+  pdidi->dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID); //0x00010215
+  strcpy_s(pdidi->tszInstanceName, _countof(pdidi->tszInstanceName), XBOX360_INSTANCE_NAMEA);
+  strcpy_s(pdidi->tszProductName, _countof(pdidi->tszProductName), XBOX360_PRODUCT_NAMEA);
+  pdidi->guidFFDriver = GUID_NULL;
+  pdidi->wUsagePage = 0x01;
+  pdidi->wUsage = 0x05;
+  
   return DI_OK;
 }
 
@@ -411,7 +514,7 @@ STDMETHODIMP IDirectInputDevice8A::Initialize(HINSTANCE hinst, DWORD dwVersion, 
   SDL_Log("IDirectInputDevice8A::Initialize()");
 
   if (IsEqualGUID(rguid, GUID_SysKeyboard)) {
-      SDL_Log("HELLO KBM");
+      SDL_Log("KBM");
       return DI_OK; //fixme later: let it through
   }
 

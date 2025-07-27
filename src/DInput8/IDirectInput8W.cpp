@@ -25,7 +25,7 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  if (IsEqualGUID(riid, IID_IDirectInputJoyConfig8)){ //Resident Evil (1996) GOG
+  if (IsEqualGUID(riid, IID_IDirectInputJoyConfig8)){
     SDL_Log("IDirectInput8W::QueryInterface() > IDirectInputJoyConfig8");
 
     IDirectInputJoyConfig8* pDInputJoyConfig = new(std::nothrow) IDirectInputJoyConfig8;

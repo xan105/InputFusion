@@ -6,6 +6,7 @@ found in the LICENSE file in the root directory of this source tree.
 
 #define WIN32_LEAN_AND_MEAN 
 #include <Windows.h>
+#include <SDL3/SDL.h>
 #include <atomic>
 #include "../vendor/Detour/detours.h"
 #if defined(_X86_)

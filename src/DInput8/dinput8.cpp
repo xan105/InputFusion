@@ -18,7 +18,7 @@ extern "C" {
     if (dwVersion < DIRECTINPUT_VERSION)
       return DIERR_OLDDIRECTINPUTVERSION;
 
-    if (riidltf == IID_IDirectInput8A) {
+    if(IsEqualGUID(riidltf, IID_IDirectInput8A)){
       IDirectInput8A* pDInput = new(std::nothrow) IDirectInput8A;
       if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
       *ppvOut = static_cast<IDirectInput8A*>(pDInput);
@@ -28,7 +28,7 @@ extern "C" {
 
       return DI_OK;
     }
-    else if (riidltf == IID_IDirectInput8W) {
+    else if(IsEqualGUID(riidltf, IID_IDirectInput8W)){
       IDirectInput8W* pDInput = new(std::nothrow) IDirectInput8W;
       if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
       *ppvOut = static_cast<IDirectInput8W*>(pDInput);
@@ -41,22 +41,30 @@ extern "C" {
     
     return DIERR_INVALIDPARAM;
   }
-
-  HRESULT WINAPI DllCanUnloadNow(){
-    return S_OK;
-  }
-  
-  HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv){
-    return CLASS_E_CLASSNOTAVAILABLE;
-  }
-  
-  HRESULT WINAPI DllRegisterServer(){
-    return NULL;
-  }
-  
-  HRESULT WINAPI DllUnregisterServer(){
-    return S_OK;
-  }
 #ifdef DINPUT8_EXPORTS
+}
+#endif
+
+#if defined(DINPUT8_EXPORTS) || defined(DINPUT_EXPORTS)
+extern "C" {
+#endif
+
+HRESULT WINAPI DllCanUnloadNow() {
+    return S_OK;
+}
+
+HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
+    return CLASS_E_CLASSNOTAVAILABLE;
+}
+
+HRESULT WINAPI DllRegisterServer() {
+    return NULL;
+}
+
+HRESULT WINAPI DllUnregisterServer() {
+    return S_OK;
+}
+
+#if defined(DINPUT8_EXPORTS) || defined(DINPUT_EXPORTS)
 }
 #endif

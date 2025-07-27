@@ -64,6 +64,9 @@
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\DInput8\dinput8.def">

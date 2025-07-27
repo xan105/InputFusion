@@ -13,11 +13,16 @@ const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
         {SDL_GAMEPAD_BUTTON_NORTH, 3},
         {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
         {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
-        {SDL_GAMEPAD_BUTTON_BACK, 6},
-        {SDL_GAMEPAD_BUTTON_START, 7},
-        {SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
-        {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
-        {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6}
+        {SDL_GAMEPAD_BUTTON_BACK, 8},
+        {SDL_GAMEPAD_BUTTON_START, 9},
+        {SDL_GAMEPAD_BUTTON_LEFT_STICK, 10},
+        {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 11},
+        {SDL_GAMEPAD_BUTTON_TOUCHPAD, 8}
+};
+
+const std::unordered_map<SDL_GamepadAxis, DWORD> TRIGGERS = {
+        {SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 6},
+        {SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 7}
 };
 
 JOYSTICK Joysticks[MAXJOY] = {};
@@ -97,39 +102,33 @@ extern "C" {
         strcpy_s(pjc->szRegKey, _countof(pjc->szRegKey), "DINPUT.DLL");
         if (uJoyID == ~(UINT_PTR)0) return JOYERR_NOERROR; //is -1 ?
 
-        SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-        if (!(Flags & SDL_INIT_GAMEPAD)) {
-            return MMSYSERR_NODRIVER;
-        }
+        JOYCAPSW caps;
+        MMRESULT res = joyGetDevCapsW(uJoyID, &caps, sizeof(JOYCAPSW));
+        if (res != JOYERR_NOERROR) return res;
 
-        SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(static_cast<int>(uJoyID));
-        if (gamepad == nullptr) {
-            return MMSYSERR_NODRIVER;
-        }
-
-        pjc->wMid = SDL_GetGamepadVendor(gamepad) | 0x045E;
-        pjc->wPid = SDL_GetGamepadProduct(gamepad) | 0x028E;
-        strcpy_s(pjc->szPname, _countof(pjc->szPname), "Microsoft PC-joystick driver");
-        pjc->wXmin = 0;
-        pjc->wXmax = 0xffff;
-        pjc->wYmin = 0;
-        pjc->wYmax = 0xffff;
-        pjc->wZmin = 0;
-        pjc->wZmax = 0xffff;
-        pjc->wNumButtons = 10;
-        pjc->wPeriodMin = JOY_PERIOD_MIN;
-        pjc->wPeriodMax = JOY_PERIOD_MAX;
-        pjc->wRmin = 0;
-        pjc->wRmax = 0;
-        pjc->wUmin = 0;
-        pjc->wUmax = 0;
-        pjc->wVmin = 0;
-        pjc->wVmax = 0;
-        pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASPOV;
-        pjc->wMaxAxes = 5;
-        pjc->wNumAxes = 5;
-        pjc->wMaxButtons = 10;
-        strcpy_s(pjc->szOEMVxD, _countof(pjc->szOEMVxD), "");
+        pjc->wXmin = caps.wXmin;
+        pjc->wXmax = caps.wXmax;
+        pjc->wYmin = caps.wYmin;
+        pjc->wYmax = caps.wYmax;
+        pjc->wZmin = caps.wZmin;
+        pjc->wZmax = caps.wZmax;
+        pjc->wRmin = caps.wRmin;
+        pjc->wRmax = caps.wRmax;
+        pjc->wUmin = caps.wUmin;
+        pjc->wUmax = caps.wUmax;
+        pjc->wVmin = caps.wVmin;
+        pjc->wVmax = caps.wVmax;
+        pjc->wCaps = caps.wCaps;
+        pjc->wPeriodMin = caps.wPeriodMin;
+        pjc->wPeriodMax = caps.wPeriodMax;
+        pjc->wNumButtons = caps.wNumButtons;
+        pjc->wMaxButtons = caps.wMaxButtons;
+        pjc->wMaxAxes = caps.wMaxAxes;
+        pjc->wNumAxes = caps.wNumAxes;
+        pjc->wMid = caps.wMid;
+        pjc->wPid = caps.wPid;
+        WideCharToMultiByte(CP_ACP, 0, caps.szPname, -1, pjc->szPname, sizeof(pjc->szPname), NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, caps.szOEMVxD, -1, pjc->szOEMVxD, sizeof(pjc->szOEMVxD), NULL, NULL);
 
         return JOYERR_NOERROR;
     }
@@ -155,28 +154,28 @@ extern "C" {
             return MMSYSERR_NODRIVER;
         }
 
-        pjc->wMid = SDL_GetGamepadVendor(gamepad) | 0x045E;
-        pjc->wPid = SDL_GetGamepadProduct(gamepad) | 0x028E;
-        wcscpy_s(pjc->szPname, _countof(pjc->szPname), L"Microsoft PC-joystick driver");
         pjc->wXmin = 0;
         pjc->wXmax = 0xffff;
         pjc->wYmin = 0;
         pjc->wYmax = 0xffff;
         pjc->wZmin = 0;
         pjc->wZmax = 0xffff;
-        pjc->wNumButtons = 10;
+        pjc->wRmin = 0;
+        pjc->wRmax = 0xffff;
+        pjc->wUmin = 0;
+        pjc->wUmax = 0xffff;
+        pjc->wVmin = 0;
+        pjc->wVmax = 0xffff;
+        pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASR | JOYCAPS_HASPOV;
         pjc->wPeriodMin = JOY_PERIOD_MIN;
         pjc->wPeriodMax = JOY_PERIOD_MAX;
-        pjc->wRmin = 0;
-        pjc->wRmax = 0;
-        pjc->wUmin = 0;
-        pjc->wUmax = 0;
-        pjc->wVmin = 0;
-        pjc->wVmax = 0;
-        pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASPOV;
-        pjc->wMaxAxes = 5;
-        pjc->wNumAxes = 5;
-        pjc->wMaxButtons = 10;
+        pjc->wNumAxes = 4;
+        pjc->wMaxAxes = 4;
+        pjc->wNumButtons = 12;
+        pjc->wMaxButtons = 12;
+        pjc->wMid = SDL_GetGamepadVendor(gamepad) | 0x045E;
+        pjc->wPid = SDL_GetGamepadProduct(gamepad) | 0x028E;
+        wcscpy_s(pjc->szPname, _countof(pjc->szPname), L"Microsoft PC-joystick driver");
         wcscpy_s(pjc->szOEMVxD, _countof(pjc->szOEMVxD), L"");
 
         return JOYERR_NOERROR;
@@ -281,12 +280,26 @@ extern "C" {
             }
         }
         if (pjiEx->dwFlags & JOY_RETURNZ) {
+            /*
+            //Xbox style single axis Z for trigger
             int lt = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
             int rt = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
-            pjiEx->dwZpos = (0x8000 + rt) - lt;
+            pjiEx->dwZpos = (0x8000 + rt) - lt;*/
+            
+            if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+              pjiEx->dwZpos = 0x8000;
+            } else {
+              int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
+              pjiEx->dwZpos = (DWORD)(value + 0x8000);
+            }
         }
         if (pjiEx->dwFlags & JOY_RETURNR) {
-            pjiEx->dwRpos = 0x8000;
+            if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+              pjiEx->dwRpos = 0x8000;
+            } else {
+              int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
+              pjiEx->dwRpos = (DWORD)(value + 0x8000);
+            }
         }
         if (pjiEx->dwFlags & JOY_RETURNU) {
             pjiEx->dwUpos = 0x8000;
@@ -297,40 +310,43 @@ extern "C" {
 
         if (pjiEx->dwFlags & JOY_RETURNPOV)
         {
-            const float deadZone = 8000 / 32767.0f;
-
-            float rX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
-            float rY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
-            float magnitude = std::sqrt(rX * rX + rY * rY);
-
             pjiEx->dwPOV = 0xFFFF;
+            
+            if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+            
+                const float deadZone = 8000 / 32767.0f;
 
-            if (magnitude >= deadZone) {
-                if (rX > 0.5f && std::abs(rY) < 0.5f) {
-                    pjiEx->dwPOV = 0x2328;  // Right
+                float rX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
+                float rY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
+                float magnitude = std::sqrt(rX * rX + rY * rY);
+                
+                if (magnitude >= deadZone) {
+                  if (rX > 0.5f && std::abs(rY) < 0.5f) {
+                      pjiEx->dwPOV = 0x2328;  // Right
+                  }
+                  else if (rX < -0.5f && std::abs(rY) < 0.5f) {
+                      pjiEx->dwPOV = 0x6978;  // Left
+                  }
+                  else if (rY > 0.5f && std::abs(rX) < 0.5f) {
+                      pjiEx->dwPOV = 0x4650;  // Down
+                  }
+                  else if (rY < -0.5f && std::abs(rX) < 0.5f) {
+                      pjiEx->dwPOV = 0x0;  // Up
+                  }
+                  else if (rX > 0.5f && rY > 0.5f) {
+                      pjiEx->dwPOV = 0x34BC;  // Down-Right
+                  }
+                  else if (rX > 0.5f && rY < -0.5f) {
+                      pjiEx->dwPOV = 0x1194;  // Up-Right
+                  }
+                  else if (rX < -0.5f && rY > 0.5f) {
+                      pjiEx->dwPOV = 0x57E4;  // Down-Left
+                  }
+                  else if (rX < -0.5f && rY < -0.5f) {
+                      pjiEx->dwPOV = 0x7B0C;  // Up-Left
+                  }
                 }
-                else if (rX < -0.5f && std::abs(rY) < 0.5f) {
-                    pjiEx->dwPOV = 0x6978;  // Left
-                }
-                else if (rY > 0.5f && std::abs(rX) < 0.5f) {
-                    pjiEx->dwPOV = 0x4650;  // Down
-                }
-                else if (rY < -0.5f && std::abs(rX) < 0.5f) {
-                    pjiEx->dwPOV = 0x0;  // Up
-                }
-                else if (rX > 0.5f && rY > 0.5f) {
-                    pjiEx->dwPOV = 0x34BC;  // Down-Right
-                }
-                else if (rX > 0.5f && rY < -0.5f) {
-                    pjiEx->dwPOV = 0x1194;  // Up-Right
-                }
-                else if (rX < -0.5f && rY > 0.5f) {
-                    pjiEx->dwPOV = 0x57E4;  // Down-Left
-                }
-                else if (rX < -0.5f && rY < -0.5f) {
-                    pjiEx->dwPOV = 0x7B0C;  // Up-Left
-                }
-            }
+            } 
         }
 
         if (pjiEx->dwFlags & JOY_RETURNBUTTONS)
@@ -341,6 +357,13 @@ extern "C" {
                     pjiEx->dwButtons |= 1 << index;
                 }
             }
+  
+            for (const auto& [sdl_axis, index] : TRIGGERS) {
+              if (SDL_GetGamepadAxis(gamepad, sdl_axis) > 30) {
+                pjiEx->dwButtons |= 1 << index;
+              } 
+            }
+
             pjiEx->dwButtonNumber = static_cast<DWORD>(std::bitset<32>(pjiEx->dwButtons).count());
         }
 
@@ -391,7 +414,7 @@ extern "C" {
         if (uJoyID > MAXJOY) return JOYERR_PARMS;
         if (uPeriod < JOY_PERIOD_MIN) uPeriod = JOY_PERIOD_MIN;
         else if (uPeriod > JOY_PERIOD_MAX) uPeriod = JOY_PERIOD_MAX;
-            
+
         if (Joysticks[uJoyID].capture || !IsWindow(hwnd)) return JOYERR_NOCANDO;
 
         SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);

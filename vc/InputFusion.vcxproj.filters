@@ -76,5 +76,8 @@
     <ClCompile Include="..\src\XInput\xinput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

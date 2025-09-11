@@ -37,6 +37,7 @@
     <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
     <ClCompile Include="..\src\util.cpp" />
     <ClCompile Include="..\src\XInput\xinput.cpp" />

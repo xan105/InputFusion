@@ -36,23 +36,21 @@ void closeGamepads() {
 void SDL_eventLoop() {
 
     hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-    
+   
     //SDL Gamepad APIs
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0"); //Prevent SDL using our implementation of DInput (when hooking)
     SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0"); //Prevent SDL using our implementation of XInput (when hooking)
     SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-    //SDL Gamepad APIs Tweaks
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "1"); //raw input pull data from WGI providing better support for Xbox controllers.
-    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers raw input (SDL is not running in the main thread)
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); //Enable PS3 via its driver
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-    //SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1"); //Breaks DInput for others app until controller reboot | enable later
-    //SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1"); //Breaks DInput for others app until controller reboot | enable later
-    //SDL_HINT_JOYSTICK_ENHANCED_REPORTS => will replace SDL_HINT_JOYSTICK_HIDAPI_PS*_RUMBLE (SDL3 next version)
+    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "0"); //Prevent SDL using our implementation of GameInput (when hooking)
 
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0"); //0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
+        SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0"); //raw input pull data from WGI/XInput providing better support for Xbox controllers. //0 => Disable for now cf: https://github.com/xan105/InputFusion/issues/12
+        SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers raw input (SDL is not running in the main thread)
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); //Enable PS3 via its driver
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0"); //"1" => Breaks DInput for others app until controller reboot | enable later
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
@@ -62,7 +60,7 @@ void SDL_eventLoop() {
     SDL_Log("SDL_INIT");
     
     const int version = SDL_GetVersion();
-    SDL_Log("SDL version %d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version));
+    SDL_Log("SDL version %d.%d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
 
     bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
     SDL_Event event;
@@ -74,7 +72,32 @@ void SDL_eventLoop() {
                     SDL_JoystickID id = event.gdevice.which;
                     SDL_Gamepad* gamepad = SDL_OpenGamepad(id);
                     if (gamepad != nullptr) {
-                        SDL_Log("Open gamepad: %s", SDL_GetGamepadName(gamepad));
+                        std::string name = SDL_GetGamepadName(gamepad);
+                        SDL_Log("Open gamepad: %s", name.c_str());
+
+                        if (name.find("Xbox") != std::string::npos) { //https://github.com/libsdl-org/SDL/issues/12071#issuecomment-2682639565
+                            SDL_GUID guid = SDL_GetGamepadGUIDForID(id);
+                            char buffer[64];
+                            SDL_GUIDToString(guid, buffer, sizeof(buffer));
+                            std::string guidStr(buffer);
+                            if (guidStr.size() >= 4) {
+                                std::string suffix = guidStr.substr(guidStr.size() - 4);
+                                if (suffix == "7200") {
+                                    SDL_Log("%s is using RAW Input driver", name.c_str());
+                                }
+                                else if (suffix == "7701") {
+                                    SDL_Log("%s is using WGI driver", name.c_str());
+                                }
+                                else if (suffix == "6700") {
+                                    SDL_Log("%s is using GameInput driver", name.c_str());
+                                }
+                                else if (guidStr.find("xinput") != std::string::npos) {
+                                    SDL_Log("%s is using XInput driver", name.c_str());
+                                }
+                            }
+
+                        }
+
                         char* mapping = SDL_GetGamepadMapping(gamepad);
                         SDL_Log("Gamepad Mapping: \"%s\"", mapping);
                         SDL_free(mapping);
@@ -150,7 +173,7 @@ DWORD WINAPI Main(LPVOID lpReserved) {
     #ifdef _DEBUG
         enableConsole();
     #endif
-
+    
     setDetours();
     SDL_eventLoop();
     return 0;

@@ -203,7 +203,7 @@ Env Var
 
 🧪 Mostly experimental features are behind env var flags.
 
-#### `GAMEPAD_LED=BATTERYLVL|OFF`
+#### `GAMEPAD_LED=BATTERYLVL`
 
 **BATTERYLVL**
 

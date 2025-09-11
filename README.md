@@ -76,12 +76,46 @@ _NB: If necessary, you can opt-in to also hook/detour API calls to force the gam
 
 ## B) DLL Injection
 
-Before executing and injecting into your target process, you must specify which API you intend to hook/detour.
-This is achieved by setting the corresponding environment variable for the desired API. For details please refer to the `Env Var` section below.
+> [!IMPORTANT]
+> Before executing and injecting into your target process, you must specify which API you intend to hook/detour.
+> This is achieved by setting the corresponding environment variable for the desired API.
+> If you do not configure the environment variable before injection, the process will only initialize SDL without performing any meaningful actions.
+> For details please refer to the `Env Var` section below.
 
-Important: If you do not configure the environment variable before injection, the process will only initialize SDL without performing any meaningful actions.
+You need a DLL injector to inject `InputFusion` into the target process.
 
-Here is a simple example in Node.js using [xan105/node-remote-thread](https://github.com/xan105/node-remote-thread):
+A quick google search will find you plenty on GitHub.<br/>
+🐧 Linux: the classic combo `createRemoteThread()` + `LoadLibrary()` from `Kernel32` works under Wine/Proton.
+
+Alternatively, here are some of my own:
+
+- [xan105/Mini-Launcher](https://github.com/xan105/Mini-Launcher):
+
+  > CLI launcher with DLL Injection, Lua Scripting, Splash screen, and other goodies.
+
+- [xan105/node-remote-thread](https://github.com/xan105/node-remote-thread):
+
+  > Node.js NAPI Native addon for Windows DLL injection with support for Wow64 and Unicode path.
+
+> [!TIP]
+> Consider changing the file extension from `.dll` to `.asi` to help prevent false positive with Windows Defender.
+
+<details><summary>Example (xan105/Mini-Launcher)</summary>
+
+```json
+{
+  "bin": "Binaries/NMS.exe",
+  "env": {
+    "GAMEPAD_API_XINPUT": "HOOK"
+  },
+  "addons": [
+    { "path": "Binaries/InputFusion.asi", "required": true }
+  ]
+}
+```
+</details>
+
+<details><summary>Example (xan105/node-remote-thread)</summary>
 
 ```js
 import { env } from "node:process";
@@ -108,6 +142,7 @@ binary.once("spawn", () => {
   createRemoteThread(binary.pid, ADDON);
 });
 ```
+</details>
 
 Gamepad Layout
 ==============

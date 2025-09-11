@@ -79,6 +79,7 @@ _NB: If necessary, you can opt-in to also hook/detour API calls to force the gam
 > [!IMPORTANT]
 > Before executing and injecting into your target process, you must specify which API you intend to hook/detour.
 > This is achieved by setting the corresponding environment variable for the desired API.
+>
 > If you do not configure the environment variable before injection, the process will only initialize SDL without performing any meaningful actions.
 > For details please refer to the `Env Var` section below.
 

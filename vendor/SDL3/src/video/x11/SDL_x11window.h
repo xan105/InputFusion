@@ -68,13 +68,13 @@ struct SDL_WindowData
     bool pending_move;
     SDL_Point pending_move_point;
     XConfigureEvent last_xconfigure;
+    XConfigureEvent pending_xconfigure;
     struct SDL_VideoData *videodata;
     unsigned long user_time;
     Atom xdnd_req;
     Window xdnd_source;
     bool flashing_window;
     Uint64 flash_cancel_time;
-    SDL_Window *keyboard_focus;
 #ifdef SDL_VIDEO_OPENGL_EGL
     EGLSurface egl_surface;
 #endif
@@ -103,13 +103,20 @@ struct SDL_WindowData
         X11_PENDING_OP_RESIZE = 0x20
     } pending_operation;
 
+    enum
+    {
+        X11_SIZE_MOVE_EVENTS_DISABLE = 0x01, // Events are completely disabled.
+        X11_SIZE_MOVE_EVENTS_WAIT_FOR_BORDERS = 0x02, // Events are disabled until a _NET_FRAME_EXTENTS event arrives.
+    } size_move_event_flags;
+
     bool pending_size;
     bool pending_position;
     bool window_was_maximized;
-    bool disable_size_position_events;
     bool previous_borders_nonzero;
     bool toggle_borders;
     bool fullscreen_borders_forced_on;
+    bool was_shown;
+    bool emit_size_move_after_property_notify;
     SDL_HitTestResult hit_test_result;
 
     XPoint xim_spot;

@@ -171,9 +171,11 @@ static VideoBootStrap *bootstrap[] = {
     }
 
 #if defined(SDL_PLATFORM_MACOS) && defined(SDL_VIDEO_DRIVER_COCOA)
-// Support for macOS fullscreen spaces
+// Support for macOS fullscreen spaces, etc.
 extern bool Cocoa_IsWindowInFullscreenSpace(SDL_Window *window);
+extern bool Cocoa_IsWindowInFullscreenSpaceTransition(SDL_Window *window);
 extern bool Cocoa_SetWindowFullscreenSpace(SDL_Window *window, bool state, bool blocking);
+extern bool Cocoa_IsShowingModalDialog(SDL_Window *window);
 #endif
 
 #ifdef SDL_VIDEO_DRIVER_UIKIT
@@ -333,6 +335,9 @@ static bool SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window *window, 
 
         if (!render_driver) {
             render_driver = SDL_GetHint(SDL_HINT_RENDER_DRIVER);
+        }
+        if (render_driver && SDL_strcasecmp(render_driver, SDL_SOFTWARE_RENDERER) == 0) {
+            render_driver = NULL;
         }
 
         char *render_driver_copy = NULL;
@@ -593,6 +598,7 @@ const char *SDL_GetVideoDriver(int index)
     if (index >= 0 && index < SDL_GetNumVideoDrivers()) {
         return deduped_bootstrap[index]->name;
     }
+    SDL_InvalidParamError("index");
     return NULL;
 }
 
@@ -651,7 +657,8 @@ bool SDL_VideoInit(const char *driver_name)
                                                                      : SDL_strlen(driver_attempt);
 
             for (i = 0; bootstrap[i]; ++i) {
-                if ((driver_attempt_len == SDL_strlen(bootstrap[i]->name)) &&
+                if (!bootstrap[i]->is_preferred &&
+                    (driver_attempt_len == SDL_strlen(bootstrap[i]->name)) &&
                     (SDL_strncasecmp(bootstrap[i]->name, driver_attempt, driver_attempt_len) == 0)) {
                     video = bootstrap[i]->create();
                     if (video) {
@@ -1156,7 +1163,7 @@ float SDL_GetDisplayContentScale(SDL_DisplayID displayID)
 
 void SDL_SetWindowHDRProperties(SDL_Window *window, const SDL_HDROutputProperties *HDR, bool send_event)
 {
-    if (window->HDR.HDR_headroom != HDR->HDR_headroom || window->HDR.SDR_white_level != window->HDR.SDR_white_level) {
+    if (window->HDR.HDR_headroom != HDR->HDR_headroom || window->HDR.SDR_white_level != HDR->SDR_white_level) {
         SDL_PropertiesID window_props = SDL_GetWindowProperties(window);
 
         SDL_SetFloatProperty(window_props, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, SDL_max(HDR->HDR_headroom, 1.0f));
@@ -1429,6 +1436,11 @@ static bool DisplayModeChanged(const SDL_DisplayMode *old_mode, const SDL_Displa
 void SDL_SetDesktopDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode)
 {
     SDL_DisplayMode last_mode;
+
+    if (display->fullscreen_active) {
+        // This is a temporary mode change, don't save the desktop mode
+        return;
+    }
 
     SDL_copyp(&last_mode, &display->desktop_mode);
 
@@ -1721,11 +1733,24 @@ SDL_VideoDisplay *SDL_GetVideoDisplayForFullscreenWindow(SDL_Window *window)
     return SDL_GetVideoDisplay(displayID);
 }
 
+#define SDL_PROP_SDL2_COMPAT_WINDOW_PREFERRED_FULLSCREEN_DISPLAY "sdl2-compat.window.preferred_fullscreen_display"
+
 SDL_DisplayID SDL_GetDisplayForWindow(SDL_Window *window)
 {
     SDL_DisplayID displayID = 0;
 
     CHECK_WINDOW_MAGIC(window, 0);
+
+    /* sdl2-compat calls this function to get a display on which to make the window fullscreen,
+     * so pass it the preferred fullscreen display ID in a property.
+     */
+    SDL_PropertiesID window_props = SDL_GetWindowProperties(window);
+    SDL_VideoDisplay *fs_display = SDL_GetVideoDisplayForFullscreenWindow(window);
+    if (fs_display) {
+        SDL_SetNumberProperty(window_props, SDL_PROP_SDL2_COMPAT_WINDOW_PREFERRED_FULLSCREEN_DISPLAY, fs_display->id);
+    } else {
+        SDL_ClearProperty(window_props, SDL_PROP_SDL2_COMPAT_WINDOW_PREFERRED_FULLSCREEN_DISPLAY);
+    }
 
     // An explicit fullscreen display overrides all
     if (window->flags & SDL_WINDOW_FULLSCREEN) {
@@ -1939,6 +1964,8 @@ bool SDL_UpdateFullscreenMode(SDL_Window *window, SDL_FullscreenOp fullscreen, b
             SDL_MinimizeWindow(display->fullscreen_window);
         }
 
+        display->fullscreen_active = window->fullscreen_exclusive;
+
         if (!SDL_SetDisplayModeForDisplay(display, mode)) {
             goto error;
         }
@@ -1956,6 +1983,7 @@ bool SDL_UpdateFullscreenMode(SDL_Window *window, SDL_FullscreenOp fullscreen, b
                     SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_ENTER_FULLSCREEN, 0, 0);
                 }
             } else if (ret == SDL_FULLSCREEN_FAILED) {
+                display->fullscreen_active = false;
                 goto error;
             }
         }
@@ -1971,17 +1999,23 @@ bool SDL_UpdateFullscreenMode(SDL_Window *window, SDL_FullscreenOp fullscreen, b
              * This is also unnecessary on Cocoa, Wayland, Win32, and X11 (will send SDL_EVENT_WINDOW_RESIZED).
              */
             if (!SDL_SendsFullscreenDimensions(_this)) {
+                SDL_Rect displayRect;
+
                 if (mode) {
                     mode_w = mode->w;
                     mode_h = mode->h;
+                    SDL_GetDisplayBounds(mode->displayID, &displayRect);
                 } else {
                     mode_w = display->desktop_mode.w;
                     mode_h = display->desktop_mode.h;
+                    SDL_GetDisplayBounds(display->id, &displayRect);
                 }
 
                 if (window->w != mode_w || window->h != mode_h) {
                     resized = true;
                 }
+
+                SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_MOVED, displayRect.x, displayRect.y);
 
                 if (resized) {
                     SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_RESIZED, mode_w, mode_h);
@@ -2000,6 +2034,8 @@ bool SDL_UpdateFullscreenMode(SDL_Window *window, SDL_FullscreenOp fullscreen, b
 
         // Restore the desktop mode
         if (display) {
+            display->fullscreen_active = false;
+
             SDL_SetDisplayModeForDisplay(display, NULL);
         }
         if (commit) {
@@ -2029,6 +2065,7 @@ bool SDL_UpdateFullscreenMode(SDL_Window *window, SDL_FullscreenOp fullscreen, b
             }
 
             if (!SDL_SendsFullscreenDimensions(_this)) {
+                SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_MOVED, window->windowed.x, window->windowed.y);
                 if (resized) {
                     SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_RESIZED, window->windowed.w, window->windowed.h);
                 } else {
@@ -2075,6 +2112,16 @@ bool SDL_SetWindowFullscreenMode(SDL_Window *window, const SDL_DisplayMode *mode
      * is in progress. It will be overwritten if a new request is made.
      */
     SDL_copyp(&window->current_fullscreen_mode, &window->requested_fullscreen_mode);
+
+#if defined(SDL_PLATFORM_MACOS) && defined(SDL_VIDEO_DRIVER_COCOA)
+    /* If this is called while in the middle of a Cocoa fullscreen spaces transition,
+     * wait until the transition has completed, or the window can wind up in a weird,
+     * broken state if a mode switch occurs while in a fullscreen space.
+     */
+    if (SDL_strcmp(_this->name, "cocoa") == 0 && Cocoa_IsWindowInFullscreenSpaceTransition(window)) {
+        SDL_SyncWindow(window);
+    }
+#endif
     if (SDL_WINDOW_FULLSCREEN_VISIBLE(window)) {
         SDL_UpdateFullscreenMode(window, SDL_FULLSCREEN_OP_UPDATE, true);
         SDL_SyncIfRequired(window);
@@ -2151,7 +2198,7 @@ void SDL_ToggleDragAndDropSupport(void)
     }
 }
 
-SDL_Window **SDLCALL SDL_GetWindows(int *count)
+SDL_Window ** SDLCALL SDL_GetWindows(int *count)
 {
     if (count) {
         *count = 0;
@@ -2468,6 +2515,7 @@ SDL_Window *SDL_CreateWindowWithProperties(SDL_PropertiesID props)
     window->is_destroying = false;
     window->last_displayID = SDL_GetDisplayForWindow(window);
     window->external_graphics_context = external_graphics_context;
+    window->constrain_popup = SDL_GetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_CONSTRAIN_POPUP_BOOLEAN, true);
 
     if (_this->windows) {
         _this->windows->prev = window;
@@ -2478,7 +2526,9 @@ SDL_Window *SDL_CreateWindowWithProperties(SDL_PropertiesID props)
     SDL_UpdateWindowHierarchy(window, parent);
 
     if (_this->CreateSDLWindow && !_this->CreateSDLWindow(_this, window, props)) {
+        PUSH_SDL_ERROR()
         SDL_DestroyWindow(window);
+        POP_SDL_ERROR()
         return NULL;
     }
 
@@ -2726,7 +2776,7 @@ SDL_Window *SDL_GetWindowFromID(SDL_WindowID id)
             }
         }
     }
-    SDL_SetError("Invalid window ID");                                 \
+    SDL_SetError("Invalid window ID");
     return NULL;
 }
 
@@ -2762,9 +2812,16 @@ bool SDL_SetWindowTitle(SDL_Window *window, const char *title)
     if (title == window->title) {
         return true;
     }
+    if (!title) {
+        title = "";
+    }
+    if (window->title && SDL_strcmp(title, window->title) == 0) {
+        return true;
+    }
+
     SDL_free(window->title);
 
-    window->title = SDL_strdup(title ? title : "");
+    window->title = SDL_strdup(title);
 
     if (_this->SetWindowTitle) {
         _this->SetWindowTitle(_this, window);
@@ -2895,11 +2952,12 @@ bool SDL_GetWindowPosition(SDL_Window *window, int *x, int *y)
             }
         }
     } else {
+        const bool use_pending = (window->flags & SDL_WINDOW_HIDDEN) && window->last_position_pending;
         if (x) {
-            *x = window->x;
+            *x = use_pending ? window->pending.x : window->x;
         }
         if (y) {
-            *y = window->y;
+            *y = use_pending ? window->pending.y : window->y;
         }
     }
     return true;
@@ -3616,6 +3674,10 @@ bool SDL_SetWindowParent(SDL_Window *window, SDL_Window *parent)
         CHECK_WINDOW_NOT_POPUP(parent, false);
     }
 
+    if (window == parent) {
+        return SDL_SetError("Cannot set the parent of a window to itself.");
+    }
+
     if (!_this->SetWindowParent) {
         return SDL_Unsupported();
     }
@@ -3659,6 +3721,48 @@ bool SDL_SetWindowModal(SDL_Window *window, bool modal)
     }
 
     return _this->SetWindowModal(_this, window, modal);
+}
+
+bool SDL_ShouldRelinquishPopupFocus(SDL_Window *window, SDL_Window **new_focus)
+{
+    SDL_Window *focus = window->parent;
+    bool set_focus = !!(window->flags & SDL_WINDOW_INPUT_FOCUS);
+
+    // Find the highest level window, up to the toplevel parent, that isn't being hidden or destroyed, and can grab the keyboard focus.
+    while (SDL_WINDOW_IS_POPUP(focus) && ((focus->flags & SDL_WINDOW_NOT_FOCUSABLE) || focus->is_hiding || focus->is_destroying)) {
+        focus = focus->parent;
+
+        // If some window in the chain currently had focus, set it to the new lowest-level window.
+        if (!set_focus) {
+            set_focus = !!(focus->flags & SDL_WINDOW_INPUT_FOCUS);
+        }
+    }
+
+    *new_focus = focus;
+    return set_focus;
+}
+
+bool SDL_ShouldFocusPopup(SDL_Window *window)
+{
+    SDL_Window *toplevel_parent;
+    for (toplevel_parent = window->parent; SDL_WINDOW_IS_POPUP(toplevel_parent); toplevel_parent = toplevel_parent->parent) {
+    }
+
+    SDL_Window *current_focus = toplevel_parent->keyboard_focus;
+    bool found_higher_focus = false;
+
+    /* Traverse the window tree from the currently focused window to the toplevel parent and see if we encounter
+     * the new focus request. If the new window is found, a higher-level window already has focus.
+     */
+    SDL_Window *w;
+    for (w = current_focus; w != toplevel_parent; w = w->parent) {
+        if (w == window) {
+            found_higher_focus = true;
+            break;
+        }
+    }
+
+    return !found_higher_focus || w == toplevel_parent;
 }
 
 bool SDL_SetWindowFocusable(SDL_Window *window, bool focusable)
@@ -4079,7 +4183,9 @@ static bool SDL_ShouldMinimizeOnFocusLoss(SDL_Window *window)
 
 #if defined(SDL_PLATFORM_MACOS) && defined(SDL_VIDEO_DRIVER_COCOA)
     if (SDL_strcmp(_this->name, "cocoa") == 0) { // don't do this for X11, etc
-        if (Cocoa_IsWindowInFullscreenSpace(window)) {
+        if (Cocoa_IsShowingModalDialog(window)) {
+            return false;  // modal system dialogs can live over fullscreen windows, don't minimize.
+        } else if (Cocoa_IsWindowInFullscreenSpace(window)) {
             return false;
         }
     }
@@ -4127,6 +4233,31 @@ SDL_Window *SDL_GetToplevelForKeyboardFocus(void)
     }
 
     return focus;
+}
+
+bool SDL_AddWindowRenderer(SDL_Window *window, SDL_Renderer *renderer)
+{
+    SDL_Renderer **renderers = (SDL_Renderer **)SDL_realloc(window->renderers, (window->num_renderers + 1) * sizeof(*renderers));
+    if (!renderers) {
+        return false;
+    }
+
+    window->renderers = renderers;
+    window->renderers[window->num_renderers++] = renderer;
+    return true;
+}
+
+void SDL_RemoveWindowRenderer(SDL_Window *window, SDL_Renderer *renderer)
+{
+    for (int i = 0; i < window->num_renderers; ++i) {
+        if (window->renderers[i] == renderer) {
+            if (i < (window->num_renderers - 1)) {
+                SDL_memmove(&window->renderers[i], &window->renderers[i + 1], (window->num_renderers - i - 1) * sizeof(window->renderers[i]));
+            }
+            --window->num_renderers;
+            break;
+        }
+    }
 }
 
 void SDL_DestroyWindow(SDL_Window *window)
@@ -4211,9 +4342,7 @@ void SDL_DestroyWindow(SDL_Window *window)
         _this->current_glwin = NULL;
     }
 
-    if (_this->wakeup_window == window) {
-        _this->wakeup_window = NULL;
-    }
+    SDL_CompareAndSwapAtomicPointer(&_this->wakeup_window, window, NULL);
 
     // Now invalidate magic
     SDL_SetObjectValid(window, SDL_OBJECT_TYPE_WINDOW, false);
@@ -4235,6 +4364,7 @@ void SDL_DestroyWindow(SDL_Window *window)
         _this->windows = window->next;
     }
 
+    SDL_free(window->renderers);
     SDL_free(window);
 
 #ifdef SDL_VIDEO_DRIVER_UIKIT
@@ -4291,7 +4421,9 @@ void SDL_VideoQuit(void)
     }
 
     // Halt event processing before doing anything else
+#if 0 // This was moved to the end to fix a memory leak
     SDL_QuitPen();
+#endif
     SDL_QuitTouch();
     SDL_QuitMouse();
     SDL_QuitKeyboard();
@@ -4322,6 +4454,9 @@ void SDL_VideoQuit(void)
     }
     _this->free(_this);
     _this = NULL;
+
+    // This needs to happen after the video subsystem has removed pen data
+    SDL_QuitPen();
 }
 
 bool SDL_GL_LoadLibrary(const char *path)
@@ -4960,8 +5095,7 @@ bool SDL_GL_GetAttribute(SDL_GLAttr attr, int *value)
             }
             if (fbo_type != GL_NONE) {
                 glGetFramebufferAttachmentParameterivFunc(GL_FRAMEBUFFER, attachment, attachmentattrib, (GLint *)value);
-            }
-            else {
+            } else {
                 *value = 0;
             }
             if (glBindFramebufferFunc && (current_fbo != 0)) {
@@ -5192,7 +5326,7 @@ bool SDL_GL_SwapWindow(SDL_Window *window)
 bool SDL_GL_DestroyContext(SDL_GLContext context)
 {
     if (!_this) {
-        return SDL_UninitializedVideo();                                       \
+        return SDL_UninitializedVideo();
     }
     if (!context) {
         return SDL_InvalidParamError("context");
@@ -5344,6 +5478,10 @@ bool SDL_GetTextInputMultiline(SDL_PropertiesID props)
 static bool AutoShowingScreenKeyboard(void)
 {
     const char *hint = SDL_GetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD);
+    if (!hint) {
+        // Steam will eventually have smarts about whether a keyboard is active, so always request the on-screen keyboard on Steam Deck
+        hint = SDL_GetHint("SteamDeck");
+    }
     if (((!hint || SDL_strcasecmp(hint, "auto") == 0) && !SDL_HasKeyboard()) ||
         SDL_GetStringBoolean(hint, false)) {
         return true;

@@ -52,13 +52,13 @@ int main(int argc, char *argv[])
     }
 
     if (!SDL_CreateWindowAndRenderer("Parent Window", 640, 480, 0, &w1, &r1)) {
-        SDL_Log("Failed to create parent window and/or renderer: %s\n", SDL_GetError());
+        SDL_Log("Failed to create parent window and/or renderer: %s", SDL_GetError());
         exit_code = 1;
         goto sdl_quit;
     }
 
     if (!SDL_CreateWindowAndRenderer("Non-Modal Window", 320, 200, 0, &w2, &r2)) {
-        SDL_Log("Failed to create parent window and/or renderer: %s\n", SDL_GetError());
+        SDL_Log("Failed to create parent window and/or renderer: %s", SDL_GetError());
         exit_code = 1;
         goto sdl_quit;
     }
@@ -91,13 +91,13 @@ int main(int argc, char *argv[])
             } else if (e.type == SDL_EVENT_KEY_DOWN) {
                 if ((e.key.key == SDLK_M || e.key.key == SDLK_N) && !w2) {
                     if (!SDL_CreateWindowAndRenderer("Non-Modal Window", 320, 200, SDL_WINDOW_HIDDEN, &w2, &r2)) {
-                        SDL_Log("Failed to create modal window and/or renderer: %s\n", SDL_GetError());
+                        SDL_Log("Failed to create modal window and/or renderer: %s", SDL_GetError());
                         exit_code = 1;
                         goto sdl_quit;
                     }
 
                     if (e.key.key == SDLK_M) {
-                        if (SDL_SetWindowParent(w2, w2)) {
+                        if (SDL_SetWindowParent(w2, w1)) {
                             if (SDL_SetWindowModal(w2, true)) {
                                 SDL_SetWindowTitle(w2, "Modal Window");
                             }

@@ -402,7 +402,7 @@ static bool HIDAPI_DriverPS5_InitDevice(SDL_HIDAPI_Device *device)
     if (size > 0) {
         HIDAPI_DumpPacket("PS5 first packet: size = %d", data, size);
     } else {
-        SDL_Log("PS5 first packet: size = %d\n", size);
+        SDL_Log("PS5 first packet: size = %d", size);
     }
 #endif
     if (size == 64) {
@@ -561,7 +561,7 @@ static void HIDAPI_DriverPS5_LoadCalibrationData(SDL_HIDAPI_Device *device)
     size = ReadFeatureReport(device->dev, k_EPS5FeatureReportIdCalibration, data, sizeof(data));
     if (size < 35) {
 #ifdef DEBUG_PS5_CALIBRATION
-        SDL_Log("Short read of calibration data: %d, ignoring calibration\n", size);
+        SDL_Log("Short read of calibration data: %d, ignoring calibration", size);
 #endif
         return;
     }
@@ -631,12 +631,12 @@ static void HIDAPI_DriverPS5_LoadCalibrationData(SDL_HIDAPI_Device *device)
         for (i = 0; i < 6; ++i) {
             float divisor = (i < 3 ? 64.0f : 1.0f);
 #ifdef DEBUG_PS5_CALIBRATION
-            SDL_Log("calibration[%d] bias = %d, sensitivity = %f\n", i, ctx->calibration[i].bias, ctx->calibration[i].sensitivity);
+            SDL_Log("calibration[%d] bias = %d, sensitivity = %f", i, ctx->calibration[i].bias, ctx->calibration[i].sensitivity);
 #endif
             // Some controllers have a bad calibration
             if ((SDL_abs(ctx->calibration[i].bias) > 1024) || (SDL_fabsf(1.0f - ctx->calibration[i].sensitivity / divisor) > 0.5f)) {
 #ifdef DEBUG_PS5_CALIBRATION
-                SDL_Log("invalid calibration, ignoring\n");
+                SDL_Log("invalid calibration, ignoring");
 #endif
                 ctx->hardware_calibration = false;
             }
@@ -812,14 +812,19 @@ static void HIDAPI_DriverPS5_SetEnhancedModeAvailable(SDL_DriverPS5_Context *ctx
     }
 
     if (ctx->sensors_supported) {
+        // Standard DualSense sensor update rate is 250 Hz over USB
+        float update_rate = 250.0f;
+        
         if (ctx->device->is_bluetooth) {
             // Bluetooth sensor update rate appears to be 1000 Hz
-            SDL_PrivateJoystickAddSensor(ctx->joystick, SDL_SENSOR_GYRO, 1000.0f);
-            SDL_PrivateJoystickAddSensor(ctx->joystick, SDL_SENSOR_ACCEL, 1000.0f);
-        } else {
-            SDL_PrivateJoystickAddSensor(ctx->joystick, SDL_SENSOR_GYRO, 250.0f);
-            SDL_PrivateJoystickAddSensor(ctx->joystick, SDL_SENSOR_ACCEL, 250.0f);
+            update_rate = 1000.0f;
+        } else if (SDL_IsJoystickDualSenseEdge(ctx->device->vendor_id, ctx->device->product_id)) {
+            // DualSense Edge sensor update rate is 1000 Hz over USB
+            update_rate = 1000.0f;
         }
+
+        SDL_PrivateJoystickAddSensor(ctx->joystick, SDL_SENSOR_GYRO, update_rate);
+        SDL_PrivateJoystickAddSensor(ctx->joystick, SDL_SENSOR_ACCEL, update_rate);
     }
 
     ctx->report_battery = true;
@@ -952,7 +957,7 @@ static bool HIDAPI_DriverPS5_OpenJoystick(SDL_HIDAPI_Device *device, SDL_Joystic
 
     SDL_AddHintCallback(SDL_HINT_JOYSTICK_ENHANCED_REPORTS,
                         SDL_PS5EnhancedReportsChanged, ctx);
-    SDL_AddHintCallback(SDL_HINT_JOYSTICK_ENHANCED_REPORTS,
+    SDL_AddHintCallback(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED,
                         SDL_PS5PlayerLEDHintChanged, ctx);
 
     return true;
@@ -1355,8 +1360,8 @@ static void HIDAPI_DriverPS5_HandleStatePacketCommon(SDL_Joystick *joystick, SDL
 
 static void HIDAPI_DriverPS5_HandleStatePacket(SDL_Joystick *joystick, SDL_hid_device *dev, SDL_DriverPS5_Context *ctx, PS5StatePacket_t *packet, Uint64 timestamp)
 {
-    static const float TOUCHPAD_SCALEX = 1.0f / 1920;
-    static const float TOUCHPAD_SCALEY = 1.0f / 1070;
+    static const float TOUCHPAD_SCALEX = 5.20833333e-4f; // 1.0f / 1920
+    static const float TOUCHPAD_SCALEY = 9.34579439e-4f; // 1.0f / 1070
     bool touchpad_down;
     int touchpad_x, touchpad_y;
 
@@ -1406,8 +1411,8 @@ static void HIDAPI_DriverPS5_HandleStatePacket(SDL_Joystick *joystick, SDL_hid_d
 
 static void HIDAPI_DriverPS5_HandleStatePacketAlt(SDL_Joystick *joystick, SDL_hid_device *dev, SDL_DriverPS5_Context *ctx, PS5StatePacketAlt_t *packet, Uint64 timestamp)
 {
-    static const float TOUCHPAD_SCALEX = 1.0f / 1920;
-    static const float TOUCHPAD_SCALEY = 1.0f / 1070;
+    static const float TOUCHPAD_SCALEX = 5.20833333e-4f; // 1.0f / 1920
+    static const float TOUCHPAD_SCALEY = 9.34579439e-4f; // 1.0f / 1070
     bool touchpad_down;
     int touchpad_x, touchpad_y;
 
@@ -1531,7 +1536,7 @@ static bool HIDAPI_DriverPS5_UpdateDevice(SDL_HIDAPI_Device *device)
             break;
         default:
 #ifdef DEBUG_JOYSTICK
-            SDL_Log("Unknown PS5 packet: 0x%.2x\n", data[0]);
+            SDL_Log("Unknown PS5 packet: 0x%.2x", data[0]);
 #endif
             break;
         }

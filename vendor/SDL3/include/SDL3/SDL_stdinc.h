@@ -1299,8 +1299,11 @@ extern "C" {
  *
  * If `size` is 0, it will be set to 1.
  *
- * If you want to allocate memory aligned to a specific alignment, consider
- * using SDL_aligned_alloc().
+ * If the allocation is successful, the returned pointer is guaranteed to be
+ * aligned to either the *fundamental alignment* (`alignof(max_align_t)` in
+ * C11 and later) or `2 * sizeof(void *)`, whichever is smaller. Use
+ * SDL_aligned_alloc() if you need to allocate memory aligned to an alignment
+ * greater than this guarantee.
  *
  * \param size the size to allocate.
  * \returns a pointer to the allocated memory, or NULL if allocation failed.
@@ -1322,6 +1325,10 @@ extern SDL_DECLSPEC SDL_MALLOC void * SDLCALL SDL_malloc(size_t size);
  * The memory returned by this function must be freed with SDL_free().
  *
  * If either of `nmemb` or `size` is 0, they will both be set to 1.
+ *
+ * If the allocation is successful, the returned pointer is guaranteed to be
+ * aligned to either the *fundamental alignment* (`alignof(max_align_t)` in
+ * C11 and later) or `2 * sizeof(void *)`, whichever is smaller.
  *
  * \param nmemb the number of elements in the array.
  * \param size the size of each element of the array.
@@ -1356,6 +1363,11 @@ extern SDL_DECLSPEC SDL_MALLOC SDL_ALLOC_SIZE2(1, 2) void * SDLCALL SDL_calloc(s
  *   and cannot be dereferenced anymore.
  * - If it returns NULL (indicating failure), then `mem` will remain valid and
  *   must still be freed with SDL_free().
+ *
+ * If the allocation is successfully resized, the returned pointer is
+ * guaranteed to be aligned to either the *fundamental alignment*
+ * (`alignof(max_align_t)` in C11 and later) or `2 * sizeof(void *)`,
+ * whichever is smaller.
  *
  * \param mem a pointer to allocated memory to reallocate, or NULL.
  * \param size the new size of the memory.
@@ -3414,7 +3426,7 @@ extern SDL_DECLSPEC size_t SDLCALL SDL_utf8strnlen(const char *str, size_t bytes
  * Convert an integer into a string.
  *
  * This requires a radix to specified for string format. Specifying 10
- * produces a decimal number, 16 hexidecimal, etc. Must be in the range of 2
+ * produces a decimal number, 16 hexadecimal, etc. Must be in the range of 2
  * to 36.
  *
  * Note that this function will overflow a buffer if `str` is not large enough
@@ -3442,7 +3454,7 @@ extern SDL_DECLSPEC char * SDLCALL SDL_itoa(int value, char *str, int radix);
  * Convert an unsigned integer into a string.
  *
  * This requires a radix to specified for string format. Specifying 10
- * produces a decimal number, 16 hexidecimal, etc. Must be in the range of 2
+ * produces a decimal number, 16 hexadecimal, etc. Must be in the range of 2
  * to 36.
  *
  * Note that this function will overflow a buffer if `str` is not large enough
@@ -3470,7 +3482,7 @@ extern SDL_DECLSPEC char * SDLCALL SDL_uitoa(unsigned int value, char *str, int 
  * Convert a long integer into a string.
  *
  * This requires a radix to specified for string format. Specifying 10
- * produces a decimal number, 16 hexidecimal, etc. Must be in the range of 2
+ * produces a decimal number, 16 hexadecimal, etc. Must be in the range of 2
  * to 36.
  *
  * Note that this function will overflow a buffer if `str` is not large enough
@@ -3498,7 +3510,7 @@ extern SDL_DECLSPEC char * SDLCALL SDL_ltoa(long value, char *str, int radix);
  * Convert an unsigned long integer into a string.
  *
  * This requires a radix to specified for string format. Specifying 10
- * produces a decimal number, 16 hexidecimal, etc. Must be in the range of 2
+ * produces a decimal number, 16 hexadecimal, etc. Must be in the range of 2
  * to 36.
  *
  * Note that this function will overflow a buffer if `str` is not large enough
@@ -3528,7 +3540,7 @@ extern SDL_DECLSPEC char * SDLCALL SDL_ultoa(unsigned long value, char *str, int
  * Convert a long long integer into a string.
  *
  * This requires a radix to specified for string format. Specifying 10
- * produces a decimal number, 16 hexidecimal, etc. Must be in the range of 2
+ * produces a decimal number, 16 hexadecimal, etc. Must be in the range of 2
  * to 36.
  *
  * Note that this function will overflow a buffer if `str` is not large enough
@@ -3556,7 +3568,7 @@ extern SDL_DECLSPEC char * SDLCALL SDL_lltoa(long long value, char *str, int rad
  * Convert an unsigned long long integer into a string.
  *
  * This requires a radix to specified for string format. Specifying 10
- * produces a decimal number, 16 hexidecimal, etc. Must be in the range of 2
+ * produces a decimal number, 16 hexadecimal, etc. Must be in the range of 2
  * to 36.
  *
  * Note that this function will overflow a buffer if `str` is not large enough
@@ -3911,7 +3923,7 @@ extern SDL_DECLSPEC int SDLCALL SDL_strcasecmp(const char *str1, const char *str
 extern SDL_DECLSPEC int SDLCALL SDL_strncasecmp(const char *str1, const char *str2, size_t maxlen);
 
 /**
- * Searches a string for the first occurence of any character contained in a
+ * Searches a string for the first occurrence of any character contained in a
  * breakset, and returns a pointer from the string to that character.
  *
  * \param str The null-terminated string to be searched. Must not be NULL, and
@@ -3919,7 +3931,7 @@ extern SDL_DECLSPEC int SDLCALL SDL_strncasecmp(const char *str1, const char *st
  * \param breakset A null-terminated string containing the list of characters
  *                 to look for. Must not be NULL, and must not overlap with
  *                 `str`.
- * \returns A pointer to the location, in str, of the first occurence of a
+ * \returns A pointer to the location, in str, of the first occurrence of a
  *          character present in the breakset, or NULL if none is found.
  *
  * \threadsafety It is safe to call this function from any thread.
@@ -4243,14 +4255,14 @@ extern SDL_DECLSPEC int SDLCALL SDL_vasprintf(char **strp, SDL_PRINTF_FORMAT_STR
 /**
  * Seeds the pseudo-random number generator.
  *
- * Reusing the seed number will cause SDL_rand_*() to repeat the same stream
- * of 'random' numbers.
+ * Reusing the seed number will cause SDL_rand() to repeat the same stream of
+ * 'random' numbers.
  *
  * \param seed the value to use as a random number seed, or 0 to use
  *             SDL_GetPerformanceCounter().
  *
  * \threadsafety This should be called on the same thread that calls
- *               SDL_rand*()
+ *               SDL_rand()
  *
  * \since This function is available since SDL 3.2.0.
  *
@@ -4644,7 +4656,7 @@ extern SDL_DECLSPEC float SDLCALL SDL_atanf(float x);
  *
  * Domain: `-INF <= x <= INF`, `-INF <= y <= INF`
  *
- * Range: `-Pi/2 <= y <= Pi/2`
+ * Range: `-Pi <= y <= Pi`
  *
  * This function operates on double-precision floating point values, use
  * SDL_atan2f for single-precision floats.
@@ -4680,7 +4692,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_atan2(double y, double x);
  *
  * Domain: `-INF <= x <= INF`, `-INF <= y <= INF`
  *
- * Range: `-Pi/2 <= y <= Pi/2`
+ * Range: `-Pi <= y <= Pi`
  *
  * This function operates on single-precision floating point values, use
  * SDL_atan2 for double-precision floats.
@@ -4701,7 +4713,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_atan2(double y, double x);
  *
  * \since This function is available since SDL 3.2.0.
  *
- * \sa SDL_atan2f
+ * \sa SDL_atan2
  * \sa SDL_atan
  * \sa SDL_tan
  */
@@ -4810,7 +4822,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_copysign(double x, double y);
  *
  * \since This function is available since SDL 3.2.0.
  *
- * \sa SDL_copysignf
+ * \sa SDL_copysign
  * \sa SDL_fabsf
  */
 extern SDL_DECLSPEC float SDLCALL SDL_copysignf(float x, float y);
@@ -4943,7 +4955,7 @@ extern SDL_DECLSPEC float SDLCALL SDL_expf(float x);
  * Range: `0 <= y <= INF`
  *
  * This function operates on double-precision floating point values, use
- * SDL_copysignf for single-precision floats.
+ * SDL_fabsf for single-precision floats.
  *
  * \param x floating point value to use as the magnitude.
  * \returns the absolute value of `x`.
@@ -4964,7 +4976,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_fabs(double x);
  * Range: `0 <= y <= INF`
  *
  * This function operates on single-precision floating point values, use
- * SDL_copysignf for double-precision floats.
+ * SDL_fabs for double-precision floats.
  *
  * \param x floating point value to use as the magnitude.
  * \returns the absolute value of `x`.
@@ -5016,7 +5028,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_floor(double x);
  * Range: `-INF <= y <= INF`, y integer
  *
  * This function operates on single-precision floating point values, use
- * SDL_floorf for double-precision floats.
+ * SDL_floor for double-precision floats.
  *
  * \param x floating point value.
  * \returns the floor of `x`.
@@ -5073,7 +5085,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_trunc(double x);
  * Range: `-INF <= y <= INF`, y integer
  *
  * This function operates on single-precision floating point values, use
- * SDL_truncf for double-precision floats.
+ * SDL_trunc for double-precision floats.
  *
  * \param x floating point value.
  * \returns `x` truncated to an integer.
@@ -5131,7 +5143,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_fmod(double x, double y);
  * Range: `-y <= z <= y`
  *
  * This function operates on single-precision floating point values, use
- * SDL_fmod for single-precision floats.
+ * SDL_fmod for double-precision floats.
  *
  * \param x the numerator.
  * \param y the denominator. Must not be 0.
@@ -5409,7 +5421,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_pow(double x, double y);
  * instead.
  *
  * This function operates on single-precision floating point values, use
- * SDL_powf for double-precision floats.
+ * SDL_pow for double-precision floats.
  *
  * This function may use a different approximation across different versions,
  * platforms and configurations. i.e, it can return a different value given
@@ -5469,8 +5481,8 @@ extern SDL_DECLSPEC double SDLCALL SDL_round(double x);
  *
  * Range: `-INF <= y <= INF`, y integer
  *
- * This function operates on double-precision floating point values, use
- * SDL_roundf for single-precision floats. To get the result as an integer
+ * This function operates on single-precision floating point values, use
+ * SDL_round for double-precision floats. To get the result as an integer
  * type, use SDL_lroundf.
  *
  * \param x floating point value.
@@ -5499,7 +5511,7 @@ extern SDL_DECLSPEC float SDLCALL SDL_roundf(float x);
  * Range: `MIN_LONG <= y <= MAX_LONG`
  *
  * This function operates on double-precision floating point values, use
- * SDL_lround for single-precision floats. To get the result as a
+ * SDL_lroundf for single-precision floats. To get the result as a
  * floating-point type, use SDL_round.
  *
  * \param x floating point value.
@@ -5528,8 +5540,8 @@ extern SDL_DECLSPEC long SDLCALL SDL_lround(double x);
  * Range: `MIN_LONG <= y <= MAX_LONG`
  *
  * This function operates on single-precision floating point values, use
- * SDL_lroundf for double-precision floats. To get the result as a
- * floating-point type, use SDL_roundf,
+ * SDL_lround for double-precision floats. To get the result as a
+ * floating-point type, use SDL_roundf.
  *
  * \param x floating point value.
  * \returns the nearest integer to `x`.
@@ -5742,7 +5754,7 @@ extern SDL_DECLSPEC double SDLCALL SDL_tan(double x);
  * Range: `-INF <= y <= INF`
  *
  * This function operates on single-precision floating point values, use
- * SDL_tanf for double-precision floats.
+ * SDL_tan for double-precision floats.
  *
  * This function may use a different approximation across different versions,
  * platforms and configurations. i.e, it can return a different value given
@@ -5809,7 +5821,7 @@ extern SDL_DECLSPEC int SDLCALL SDL_iconv_close(SDL_iconv_t cd);
  * This function converts text between encodings, reading from and writing to
  * a buffer.
  *
- * It returns the number of succesful conversions on success. On error,
+ * It returns the number of successful conversions on success. On error,
  * SDL_ICONV_E2BIG is returned when the output buffer is too small, or
  * SDL_ICONV_EILSEQ is returned when an invalid input sequence is encountered,
  * or SDL_ICONV_EINVAL is returned when an incomplete input sequence is
@@ -5962,14 +5974,17 @@ size_t wcslcpy(wchar_t *dst, const wchar_t *src, size_t size);
 size_t wcslcat(wchar_t *dst, const wchar_t *src, size_t size);
 #endif
 
+#ifndef _WIN32
 /* strdup is not ANSI but POSIX, and its prototype might be hidden... */
+/* not for windows: might conflict with string.h where strdup may have
+ * dllimport attribute: https://github.com/libsdl-org/SDL/issues/12948 */
 char *strdup(const char *str);
+#endif
 
 /* Starting LLVM 16, the analyser errors out if these functions do not have
    their prototype defined (clang-diagnostic-implicit-function-declaration) */
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
 
 #define SDL_malloc malloc
 #define SDL_calloc calloc

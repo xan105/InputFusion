@@ -486,6 +486,12 @@
     <ClInclude Include="..\..\src\audio\SDL_audioresample.h">
       <Filter>audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\windows\SDL_directx.h">
+      <Filter>core\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\windows\SDL_gameinput.h">
+      <Filter>core\windows</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\core\windows\SDL_hid.h">
       <Filter>core\windows</Filter>
     </ClInclude>
@@ -664,6 +670,9 @@
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\video\SDL_egl_c.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\SDL_stb_c.h">
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\video\SDL_yuv_c.h">
@@ -941,6 +950,7 @@
     <ClInclude Include="..\..\include\SDL3\SDL_storage.h" />
     <ClInclude Include="..\..\include\SDL3\SDL_time.h" />
     <ClInclude Include="..\..\src\events\SDL_categories_c.h" />
+    <ClInclude Include="..\..\src\events\SDL_eventwatch_c.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\audio\wasapi\SDL_wasapi.c" />
@@ -1027,6 +1037,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\core\SDL_core_unsupported.c">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\windows\SDL_gameinput.c">
+      <Filter>core\windows</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\core\windows\SDL_hid.c">
       <Filter>core\windows</Filter>
@@ -1281,6 +1294,9 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\video\SDL_rect.c">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDL_stb.c">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\video\SDL_stretch.c">
@@ -1564,6 +1580,7 @@
     <ClCompile Include="..\..\src\storage\generic\SDL_genericstorage.c" />
     <ClCompile Include="..\..\src\storage\steam\SDL_steamstorage.c" />
     <ClCompile Include="..\..\src\storage\SDL_storage.c" />
+    <ClCompile Include="..\..\src\events\SDL_eventwatch.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\core\windows\version.rc" />

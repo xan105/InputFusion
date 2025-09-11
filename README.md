@@ -17,6 +17,7 @@ If you are a game developper and you'd like your game to support a variety of ga
 Gamepad APIs support
 ====================
 
+- ~~GameInput~~
 - XInput
 - DInput8
 - DInput(1-7)
@@ -24,7 +25,7 @@ Gamepad APIs support
 
 NB: DInput and DInput8 are still a work in progress. Depending on the game, "your mileage may vary", as they say.
   
-## Out of scope
+## Out of scope (for now)
 
 <details><summary>Steam Input API</summary>
   <br/>
@@ -53,6 +54,11 @@ NB: DInput and DInput8 are still a work in progress. Depending on the game, "you
   
   As such, I do no think these API are relevant for my project (for now).
   
+</details>
+
+<details><summary>WGI: Windows.Gaming.Input Namespace</summary>
+  <br/>
+  Originaly designed for UWP/WinRT apps, now legacy, it can be used in win32 apps with some effort.
 </details>
 
 Usage

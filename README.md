@@ -204,6 +204,15 @@ Example to swap the D-PAD with the Left Joystick for retro gaming:
 
 📄 For more details, please kindly see the [SDL documentation](https://wiki.libsdl.org/SDL3/SDL_AddGamepadMapping).
 
+> [!TIP]
+> [SDL testcontroller](https://github.com/libsdl-org/SDL/tree/main/test) is a GUI tool that can be used to create a string mapping (Setup Mapping > Copy).
+> A precompiled build can be found in this repo `/test/SDL_testcontroller` folder.
+
+<p align="center">
+  <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/SDL_testcontroller.png">
+  <em>SDL testcontroller</em>
+</p>
+
 Env Var
 =======
 

@@ -50,73 +50,73 @@ bool setDetoursForXInput() {
         SDL_Log("LoadLibraryA: %s", version.c_str());
 
         XInputEnable_t pXInputEnable = (XInputEnable_t)GetProcAddress(hMod, "XInputEnable");
-        if (pXInputEnable != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputEnable, XInputEnable)) return false;
+        if (pXInputEnable != nullptr && !takeDetour(&(PVOID&)pXInputEnable, XInputEnable)) {
+            return false;
         }
 
         XInputGetState_t pXInputGetState = (XInputGetState_t)GetProcAddress(hMod, "XInputGetState");
-        if (pXInputGetState != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetState, XInputGetState)) return false;
+        if (pXInputGetState != nullptr && !takeDetour(&(PVOID&)pXInputGetState, XInputGetState)) {
+            return false;
         }
 
         XInputSetState_t pXInputSetState = (XInputSetState_t)GetProcAddress(hMod, "XInputSetState");
-        if (pXInputSetState != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputSetState, XInputSetState)) return false;
+        if (pXInputSetState != nullptr && !takeDetour(&(PVOID&)pXInputSetState, XInputSetState)) {
+            return false;
         }
 
         XInputGetCapabilities_t pXInputGetCapabilities = (XInputGetCapabilities_t)GetProcAddress(hMod, "XInputGetCapabilities");
-        if (pXInputGetCapabilities != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetCapabilities, XInputGetCapabilities)) return false;
+        if (pXInputGetCapabilities != nullptr && !takeDetour(&(PVOID&)pXInputGetCapabilities, XInputGetCapabilities)) {
+            return false;
         }
 
         XInputGetBatteryInformation_t pXInputGetBatteryInformation = (XInputGetBatteryInformation_t)GetProcAddress(hMod, "XInputGetBatteryInformation");
-        if (pXInputGetBatteryInformation != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetBatteryInformation, XInputGetBatteryInformation)) return false;
+        if (pXInputGetBatteryInformation != nullptr && !takeDetour(&(PVOID&)pXInputGetBatteryInformation, XInputGetBatteryInformation)) {
+            return false;
         }
 
         XInputGetKeystroke_t pXInputGetKeystroke = (XInputGetKeystroke_t)GetProcAddress(hMod, "XInputGetKeystroke");
-        if (pXInputGetKeystroke != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetKeystroke, XInputGetKeystroke)) return false;
+        if (pXInputGetKeystroke != nullptr && !takeDetour(&(PVOID&)pXInputGetKeystroke, XInputGetKeystroke)) {
+            return false;
         }
 
         XInputGetAudioDeviceIds_t pXInputGetAudioDeviceIds = (XInputGetAudioDeviceIds_t)GetProcAddress(hMod, "XInputGetAudioDeviceIds");
-        if (pXInputGetAudioDeviceIds != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetAudioDeviceIds, XInputGetAudioDeviceIds)) return false;
+        if (pXInputGetAudioDeviceIds != nullptr && !takeDetour(&(PVOID&)pXInputGetAudioDeviceIds, XInputGetAudioDeviceIds)) {
+            return false;
         }
 
         XInputGetDSoundAudioDeviceGuids_t pXInputGetDSoundAudioDeviceGuids = (XInputGetDSoundAudioDeviceGuids_t)GetProcAddress(hMod, "XInputGetDSoundAudioDeviceGuids");
-        if (pXInputGetDSoundAudioDeviceGuids != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetDSoundAudioDeviceGuids, XInputGetDSoundAudioDeviceGuids)) return false;
+        if (pXInputGetDSoundAudioDeviceGuids != nullptr && !takeDetour(&(PVOID&)pXInputGetDSoundAudioDeviceGuids, XInputGetDSoundAudioDeviceGuids)) {
+            return false;
         }
 
         XInputGetStateEx_t pXInputGetStateEx = (XInputGetStateEx_t)GetProcAddress(hMod, MAKEINTRESOURCEA(100));
-        if (pXInputGetStateEx != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetStateEx, XInputGetStateEx)) return false;
+        if (pXInputGetStateEx != nullptr && !takeDetour(&(PVOID&)pXInputGetStateEx, XInputGetStateEx)) {
+            return false;
         }
 
         XInputWaitForGuideButton_t pXInputWaitForGuideButton = (XInputWaitForGuideButton_t)GetProcAddress(hMod, MAKEINTRESOURCEA(101));
-        if (pXInputWaitForGuideButton != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputWaitForGuideButton, XInputWaitForGuideButton)) return false;
+        if (pXInputWaitForGuideButton != nullptr && !takeDetour(&(PVOID&)pXInputWaitForGuideButton, XInputWaitForGuideButton)) {
+            return false;
         }
 
         XInputCancelGuideButtonWait_t pXInputCancelGuideButtonWait = (XInputCancelGuideButtonWait_t)GetProcAddress(hMod, MAKEINTRESOURCEA(102));
-        if (pXInputCancelGuideButtonWait != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputCancelGuideButtonWait, XInputCancelGuideButtonWait)) return false;
+        if (pXInputCancelGuideButtonWait != nullptr && !takeDetour(&(PVOID&)pXInputCancelGuideButtonWait, XInputCancelGuideButtonWait)) {
+            return false;
         }
 
         XInputPowerOffController_t pXInputPowerOffController = (XInputPowerOffController_t)GetProcAddress(hMod, MAKEINTRESOURCEA(103));
-        if (pXInputPowerOffController != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputPowerOffController, XInputPowerOffController)) return false;
+        if (pXInputPowerOffController != nullptr && !takeDetour(&(PVOID&)pXInputPowerOffController, XInputPowerOffController)) {
+            return false;
         }
 
         XInputGetBaseBusInformation_t pXInputGetBaseBusInformation = (XInputGetBaseBusInformation_t)GetProcAddress(hMod, MAKEINTRESOURCEA(104));
-        if (pXInputGetBaseBusInformation != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetBaseBusInformation, XInputGetBaseBusInformation)) return false;
+        if (pXInputGetBaseBusInformation != nullptr && !takeDetour(&(PVOID&)pXInputGetBaseBusInformation, XInputGetBaseBusInformation)) {
+            return false;
         }
 
         XInputGetCapabilitiesEx_t pXInputGetCapabilitiesEx = (XInputGetCapabilitiesEx_t)GetProcAddress(hMod, MAKEINTRESOURCEA(108));
-        if (pXInputGetCapabilitiesEx != nullptr) {
-            if (!takeDetour(&(PVOID&)pXInputGetCapabilitiesEx, XInputGetCapabilitiesEx)) return false;
+        if (pXInputGetCapabilitiesEx != nullptr && !takeDetour(&(PVOID&)pXInputGetCapabilitiesEx, XInputGetCapabilitiesEx)) {
+            return false;
         }
     }
 
@@ -136,6 +136,31 @@ bool setDetoursForDInput8() {
 }
 #endif
 
+#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
+bool setDetoursForDInput() {
+    HMODULE hMod = LoadLibraryA("dinput.dll");
+    if (hMod == nullptr) return false;
+    SDL_Log("LoadLibraryA: dinput.dll");
+
+    DirectInputCreateA_t pDirectInputCreateA = (DirectInputCreateA_t)GetProcAddress(hMod, "DirectInputCreateA");
+    if (pDirectInputCreateA != nullptr && !takeDetour(&(PVOID&)pDirectInputCreateA, DirectInputCreateA)) {
+        return false;
+    }
+
+    DirectInputCreateW_t pDirectInputCreateW = (DirectInputCreateW_t)GetProcAddress(hMod, "DirectInputCreateW");
+    if (pDirectInputCreateW != nullptr && !takeDetour(&(PVOID&)pDirectInputCreateW, DirectInputCreateW)) {
+        return false;
+    }
+
+    DirectInputCreateEx_t pDirectInputCreateEx = (DirectInputCreateEx_t)GetProcAddress(hMod, "DirectInputCreateEx");
+    if (pDirectInputCreateEx != nullptr && !takeDetour(&(PVOID&)pDirectInputCreateEx, DirectInputCreateEx)) {
+        return false;
+    }
+
+    return true;
+}
+#endif
+
 #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
 bool setDetoursForWinmm() {
     HMODULE hMod = LoadLibraryA("winmm.dll");
@@ -143,44 +168,54 @@ bool setDetoursForWinmm() {
     SDL_Log("LoadLibraryA: winmm.dll");
 
     joyConfigChanged_t pjoyConfigChanged = (joyConfigChanged_t)GetProcAddress(hMod, "joyConfigChanged");
-    if (pjoyConfigChanged == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyConfigChanged, joyConfigChanged)) return false;
+    if (pjoyConfigChanged != nullptr && !takeDetour(&(PVOID&)pjoyConfigChanged, joyConfigChanged)) {
+        return false;
+    }
     
     joyGetDevCapsA_t pjoyGetDevCapsA = (joyGetDevCapsA_t)GetProcAddress(hMod, "joyGetDevCapsA");
-    if (pjoyGetDevCapsA == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyGetDevCapsA, joyGetDevCapsA)) return false;
+    if (pjoyGetDevCapsA != nullptr && !takeDetour(&(PVOID&)pjoyGetDevCapsA, joyGetDevCapsA)) {
+        return false;
+    }
     
     joyGetDevCapsW_t pjoyGetDevCapsW = (joyGetDevCapsW_t)GetProcAddress(hMod, "joyGetDevCapsW");
-    if (pjoyGetDevCapsW == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyGetDevCapsW, joyGetDevCapsW)) return false;
+    if (pjoyGetDevCapsW != nullptr && !takeDetour(&(PVOID&)pjoyGetDevCapsW, joyGetDevCapsW)) {
+        return false;
+    }
     
     joyGetNumDevs_t pjoyGetNumDevs = (joyGetNumDevs_t)GetProcAddress(hMod, "joyGetNumDevs");
-    if (pjoyGetNumDevs == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyGetNumDevs, joyGetNumDevs)) return false;
+    if (pjoyGetNumDevs != nullptr && !takeDetour(&(PVOID&)pjoyGetNumDevs, joyGetNumDevs)) {
+        return false;
+    }
     
     joyGetPos_t pjoyGetPos = (joyGetPos_t)GetProcAddress(hMod, "joyGetPos");
-    if (pjoyGetPos == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyGetPos, joyGetPos)) return false;
+    if (pjoyGetPos != nullptr && !takeDetour(&(PVOID&)pjoyGetPos, joyGetPos)) {
+        return false;
+    }
     
     joyGetPosEx_t pjoyGetPosEx = (joyGetPosEx_t)GetProcAddress(hMod, "joyGetPosEx");
-    if (pjoyGetPosEx == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyGetPosEx, joyGetPosEx)) return false;
+    if (pjoyGetPosEx != nullptr && !takeDetour(&(PVOID&)pjoyGetPosEx, joyGetPosEx)) {
+        return false;
+    }
     
     joyGetThreshold_t pjoyGetThreshold = (joyGetThreshold_t)GetProcAddress(hMod, "joyGetThreshold");
-    if (pjoyGetThreshold == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyGetThreshold, joyGetThreshold)) return false;
+    if (pjoyGetThreshold != nullptr && !takeDetour(&(PVOID&)pjoyGetThreshold, joyGetThreshold)) {
+        return false;
+    }
     
     joyReleaseCapture_t pjoyReleaseCapture = (joyReleaseCapture_t)GetProcAddress(hMod, "joyReleaseCapture");
-    if (pjoyReleaseCapture == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoyReleaseCapture, joyReleaseCapture)) return false;
+    if (pjoyReleaseCapture != nullptr && !takeDetour(&(PVOID&)pjoyReleaseCapture, joyReleaseCapture)) {
+        return false;
+    }
     
     joySetCapture_t pjoySetCapture = (joySetCapture_t)GetProcAddress(hMod, "joySetCapture");
-    if (pjoySetCapture == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoySetCapture, joySetCapture)) return false;
+    if (pjoySetCapture != nullptr && !takeDetour(&(PVOID&)pjoySetCapture, joySetCapture)) {
+        return false;
+    }
     
     joySetThreshold_t pjoySetThreshold = (joySetThreshold_t)GetProcAddress(hMod, "joySetThreshold");
-    if (pjoySetThreshold == nullptr) return false;
-    if (!takeDetour(&(PVOID&)pjoySetThreshold, joySetThreshold)) return false;
+    if (pjoySetThreshold != nullptr && !takeDetour(&(PVOID&)pjoySetThreshold, joySetThreshold)) {
+        return false;
+    }
     
     return true;
 }
@@ -200,6 +235,12 @@ void setDetours() {
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
         if (setDetoursForDInput8()) SDL_Log("Detour set for DInput8");
     }
+    #endif
+
+    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
+        if (Getenv(L"GAMEPAD_API_DINPUT") == L"HOOK") {
+            if (setDetoursForDInput()) SDL_Log("Detour set for DInput 1-7");
+        }
     #endif
     
     #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)

@@ -247,6 +247,13 @@ This forces the use of the DInput8 functions from the DLL when calling DInput8 f
 
 `DLL: InputFusion, Dinput8, XInput`
 
+#### `GAMEPAD_API_DINPUT=HOOK`
+
+Enable DInput 1-7 functions hooking / detouring.
+This forces the use of the DInput functions from the DLL when calling DInput functions.
+
+`DLL: InputFusion, Dinput`
+
 #### `GAMEPAD_API_WINMM=HOOK`
 
 Enable WinMM functions hooking / detouring.
@@ -292,8 +299,9 @@ Solution: `./vc/InputFusion.sln`
 
 The 4 projects inside the solution control the build output:
   - InputFusion -> `InputFusion.dll` (DLL injection)
-  - XInput -> `xinput.dll` (DLL sideloading / injection)
-  - DInput8 -> `dinput8.dll` (DLL sideloading / injection)
-  - WinMM -> `winmm.dll` (DLL sideloading / injection)
+  - XInput      -> `xinput.dll` (DLL sideloading / injection)
+  - DInput8     -> `dinput8.dll` (DLL sideloading / injection)
+  - DInput      -> `dinput.dll` (DLL sideloading / injection)
+  - WinMM       -> `winmm.dll` (DLL sideloading / injection)
   
 Output: `./build/${project}/output/${platform}/${config}`

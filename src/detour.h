@@ -16,13 +16,15 @@ found in the LICENSE file in the root directory of this source tree.
 #endif
 #if defined(INPUTFUSION_EXPORTS)
 #include "XInput/xinput.h"
-#include "DInput8/dinput8.h"
+#include "DInput/dinput.h"
 #include "WinMM/winmm.h"
 #elif defined(XINPUT_EXPORTS)
 #include "XInput/xinput.h"
 #include "DInput8/dinput8.h"
 #elif defined(DINPUT8_EXPORTS)
 #include "DInput8/dinput8.h"
+#elif defined(DINPUT_EXPORTS)
+#include "DInput/dinput.h"
 #elif defined(WINMM_EXPORTS)
 #include "WinMM/winmm.h"
 #endif
@@ -38,6 +40,9 @@ bool setDetoursForXInput();
 #endif
 #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForDInput8();
+#endif
+#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
+bool setDetoursForDInput();
 #endif
 #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
 bool setDetoursForWinmm();

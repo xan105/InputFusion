@@ -403,6 +403,9 @@ public:
     virtual STDMETHODIMP OpenConfigKey(DWORD unnamedParam1, PHKEY unnamedParam2);
 };
 
+typedef HRESULT(WINAPI* DirectInputCreateA_t)(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppvOut, LPUNKNOWN punkOuter);
+typedef HRESULT(WINAPI* DirectInputCreateW_t)(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppvOut, LPUNKNOWN punkOuter);
+typedef HRESULT(WINAPI* DirectInputCreateEx_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID* ppvOut, LPUNKNOWN punkOuter);
 
 #ifdef DINPUT_EXPORTS
 extern "C" {

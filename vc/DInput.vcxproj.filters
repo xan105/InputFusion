@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\DInput8">
+      <UniqueIdentifier>{ed412d40-2774-47e2-846e-0e5302ae4562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DInput">
+      <UniqueIdentifier>{8317c8ce-b390-4a87-8fb7-42c82907a0b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput8">
+      <UniqueIdentifier>{4120dd87-4a6b-4866-a666-d636bb1e0ebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput">
+      <UniqueIdentifier>{c8b8b076-6712-49e9-be81-98eb017ed6e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -36,10 +48,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DInput\dinput.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DInput</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DInput8\dinput8.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DInput8</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,61 +68,61 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\dinput8.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\src\DInput8\dinput8.cpp">
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInput2A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInput2W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInput7A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInput7W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputA.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputDevice2A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputDevice2W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputDevice7A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputDevice7W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputDeviceA.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputDeviceW.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp">
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputW.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

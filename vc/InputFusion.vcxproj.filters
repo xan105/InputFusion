@@ -13,6 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\XInput">
+      <UniqueIdentifier>{a11fe7f3-f022-4664-a01d-dede553f2445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DInput8">
+      <UniqueIdentifier>{615164a0-44ea-4bd4-b2fc-ef53c8e3393d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DInput">
+      <UniqueIdentifier>{acee3851-825a-4f9d-8a21-deaa9d99174b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WinMM">
+      <UniqueIdentifier>{1842b20a-5da0-484b-88f8-c3a258ecaaa1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput8">
+      <UniqueIdentifier>{7aa5482d-93dd-448a-b700-23062e7bcc8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput">
+      <UniqueIdentifier>{0cb8dcc0-397d-4167-a50d-74cf3b34ae8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\XInput">
+      <UniqueIdentifier>{0aa54db2-b008-4994-b3b0-560e73307cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WinMM">
+      <UniqueIdentifier>{27f17948-173c-456c-a8d8-8c2b703b96f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h">
@@ -30,14 +54,17 @@
     <ClInclude Include="..\src\detour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\DInput\dinput.h">
+      <Filter>Header Files\DInput</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\DInput8\dinput8.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DInput8</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WinMM\winmm.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\WinMM</Filter>
     </ClInclude>
     <ClInclude Include="..\src\XInput\xinput.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\XInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,29 +82,71 @@
     <ClCompile Include="..\src\detour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DInput\dinput.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\DInput8\dinput8.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput2A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput2W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput7A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput7W.cpp">
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputA.cpp">
+      <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\WinMM\winmm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\XInput\xinput.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceA.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceW.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputW.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WinMM\winmm.cpp">
+      <Filter>Source Files\WinMM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\XInput\xinput.cpp">
+      <Filter>Source Files\XInput</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\detour.h" />
     <ClInclude Include="..\src\DInput8\dinput8.h" />
+    <ClInclude Include="..\src\DInput\dinput.h" />
     <ClInclude Include="..\src\dllmain.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
@@ -39,6 +40,20 @@
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp" />
+    <ClCompile Include="..\src\DInput\dinput.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput2A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput2W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput7A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput7W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputA.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceA.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceW.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputW.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
     <ClCompile Include="..\src\util.cpp" />
     <ClCompile Include="..\src\WinMM\winmm.cpp" />

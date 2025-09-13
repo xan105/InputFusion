@@ -83,16 +83,16 @@ void SDL_eventLoop() {
                             if (guidStr.size() >= 4) {
                                 std::string suffix = guidStr.substr(guidStr.size() - 4);
                                 if (suffix == "7200") {
-                                    SDL_Log("%s is using RAW Input driver", name.c_str());
+                                    SDL_Log("%s is using RAW Input", name.c_str());
                                 }
                                 else if (suffix == "7701") {
-                                    SDL_Log("%s is using WGI driver", name.c_str());
+                                    SDL_Log("%s is using WGI", name.c_str());
                                 }
                                 else if (suffix == "6700") {
-                                    SDL_Log("%s is using GameInput driver", name.c_str());
+                                    SDL_Log("%s is using GameInput", name.c_str());
                                 }
                                 else if (guidStr.find("xinput") != std::string::npos) {
-                                    SDL_Log("%s is using XInput driver", name.c_str());
+                                    SDL_Log("%s is using XInput", name.c_str());
                                 }
                             }
 

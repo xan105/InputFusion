@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\DInput8">
+      <UniqueIdentifier>{ec2628a3-caf2-4dd9-b44a-25cdf53ce791}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput8">
+      <UniqueIdentifier>{e8462e2e-e528-45be-834f-e7fb66b566a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h">
@@ -34,7 +40,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DInput8\dinput8.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DInput8</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,23 +61,23 @@
     <ClCompile Include="..\src\XInput\xinput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DInput8\dinput8.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\dinput8.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

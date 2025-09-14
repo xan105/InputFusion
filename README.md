@@ -175,12 +175,15 @@ As DInput8.
 - WinMM:
 
 > [!NOTE] 
-> After considering the games from that era that could be played with a gamepad. I somewhat deviated from the "usual" mapping for this implementation.
+> After considering the games from that era that could be played with a gamepad. I somewhat deviated from the "usual" modern mapping for this implementation.
 
 The D-Pad and the left joystick both map the X/Y axis, usually used for movement.
 The right joystick maps to Z/R axes and to the POV when pressed + _direction_, usually used to move the camera point of view.
 The right and left trigger are mapped to buttons.
 Buttons order is tweaked to allow triggers in games supporting a limited amount of buttons and start/options to usually end up as the PAUSE button.
+
+> [!TIP]
+> If for some reasons you'd like the modern Xbox controller layout with WinMM, you can use the env. var. `GAMEPAD_API_WINMM_LAYOUT=XBOX` (See below).
 
 Input Re-mapping
 ================
@@ -258,6 +261,12 @@ This forces the use of the DInput functions from the DLL when calling DInput fun
 
 Enable WinMM functions hooking / detouring.
 This forces the use of the WinMM functions from the DLL when calling WinMM Joystick related functions.
+
+`DLL: InputFusion, WinMM`
+
+#### `GAMEPAD_API_WINMM_LAYOUT=XBOX`
+
+Use the modern Xbox controller layout with WinMM. Useful for modern games that decided to use a legacy API for a Xbox controller such as [Deadly Premonition](https://store.steampowered.com/app/247660/Deadly_Premonition_The_Directors_Cut/).
 
 `DLL: InputFusion, WinMM`
 

@@ -4,6 +4,7 @@ This source code is licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version
 found in the LICENSE file in the root directory of this source tree.
 */
 
+#pragma once
 #define WIN32_LEAN_AND_MEAN 
 #include <Windows.h>
 #include <SDL3/SDL.h>
@@ -14,21 +15,6 @@ found in the LICENSE file in the root directory of this source tree.
 #elif defined(_AMD64_)
 #pragma comment(lib, "../vendor/Detour/detours.x64.lib")
 #endif
-#if defined(INPUTFUSION_EXPORTS)
-#include "XInput/xinput.h"
-#include "DInput/dinput.h"
-#include "WinMM/winmm.h"
-#elif defined(XINPUT_EXPORTS)
-#include "XInput/xinput.h"
-#include "DInput8/dinput8.h"
-#elif defined(DINPUT8_EXPORTS)
-#include "DInput8/dinput8.h"
-#elif defined(DINPUT_EXPORTS)
-#include "DInput/dinput.h"
-#elif defined(WINMM_EXPORTS)
-#include "WinMM/winmm.h"
-#endif
-#include "util.h"
 
 typedef void (WINAPI* ExitProcess_t)(UINT uExitCode);
 

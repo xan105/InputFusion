@@ -306,7 +306,7 @@ Build
 
 Solution: `./vc/InputFusion.sln`
 
-The 4 projects inside the solution control the build output:
+The 5 projects inside the solution control the build output:
   - InputFusion -> `InputFusion.dll` (DLL injection)
   - XInput      -> `xinput.dll` (DLL sideloading / injection)
   - DInput8     -> `dinput8.dll` (DLL sideloading / injection)

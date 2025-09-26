@@ -18,9 +18,12 @@ jobs:
         with:
           vs-version: '17.0'   # VS 2022
           msbuild-architecture: x64
-          
+       
+      - name: Build SDL3
+        run: msbuild ".\vendor\SDL3\VisualC\SDL.sln" /t:SDL3:Rebuild /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+         
       - name: Build solution
-        run: msbuild "vc\InputFusion.sln" /t:InputFusion;XInput;DInput8;DInput;WinMM /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+        run: msbuild ".\vc\InputFusion.sln" /t:InputFusion:Rebuild;XInput:Rebuild;DInput8:Rebuild;DInput:Rebuild;WinMM:Rebuild /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
 
       - name: Create 7z Archive
         id: create-archive

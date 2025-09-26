@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        platform: [x64, Win32]
+        platform: [x64, x86]
     steps:
       - uses: actions/checkout@v4
       
@@ -20,10 +20,10 @@ jobs:
           msbuild-architecture: x64
        
       - name: Build SDL3
-        run: msbuild ".\vendor\SDL3\VisualC\SDL.sln" /t:SDL3:Rebuild /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+        run: msbuild ".\vendor\SDL3\VisualC\SDL.sln" /t:SDL3:Rebuild /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform == 'x86' && 'Win32' || matrix.platform }}
          
       - name: Build solution
-        run: msbuild ".\vc\InputFusion.sln" /t:InputFusion:Rebuild;XInput:Rebuild;DInput8:Rebuild;DInput:Rebuild;WinMM:Rebuild /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+        run: msbuild ".\vc\InputFusion.sln" /t:"InputFusion:Rebuild;XInput:Rebuild;DInput8:Rebuild;DInput:Rebuild;WinMM:Rebuild" /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
 
       - name: Create 7z Archive
         id: create-archive

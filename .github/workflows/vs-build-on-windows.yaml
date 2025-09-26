@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-release:
+  build:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -24,6 +24,28 @@ jobs:
          
       - name: Build solution
         run: msbuild ".\vc\InputFusion.sln" /t:"InputFusion:Rebuild;XInput:Rebuild;DInput8:Rebuild;DInput:Rebuild;WinMM:Rebuild" /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+        
+      - name: Upload build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build/**/*
+          compression-level: 0
+        
+  package:
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Install 7-Zip
+        run: choco install 7zip -y
 
       - name: Create 7z Archive
         id: create-archive

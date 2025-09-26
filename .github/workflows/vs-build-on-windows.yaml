@@ -1,0 +1,117 @@
+name: Build release on Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        platform: [x64, Win32]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '17.0'   # VS 2022
+          msbuild-architecture: x64
+          
+      - name: Build solution
+        run: msbuild "vc\InputFusion.sln" /t:InputFusion;XInput;DInput8;DInput;WinMM /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+
+      - name: Create 7z Archive
+        id: create-archive
+        shell: powershell
+        run: |
+          $name = "${{ github.repository }}" -split '/' | Select-Object -Last 1
+          $archivePath = ".\build\$name.7z"
+
+          $tmp = ".\build\release"
+          Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $tmp | Out-Null
+        
+          # InputFusion
+          New-Item -ItemType Directory -Path "$tmp\InputFusion" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\InputFusion\x64" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\InputFusion\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\InputFusion\x86" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\InputFusion\x86\Debug -- Enable console" | Out-Null
+          Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion.dll" "$tmp\InputFusion\x64" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion.dll" "$tmp\InputFusion\x64\InputFusion.asi" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\InputFusion\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\InputFusion\x64\Debug -- Enable console\InputFusion.asi" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86\InputFusion.asi" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug -- Enable console" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug -- Enable console\InputFusion.asi" -Force
+          
+          # XInput
+          New-Item -ItemType Directory -Path "$tmp\XInput" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\XInput\x64" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\XInput\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\XInput\x86" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\XInput\x86\Debug -- Enable console" | Out-Null
+          Copy-Item ".\build\XInput\output\x64\Release\xinput.dll" "$tmp\XInput\x64\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Release\xinput.dll" "$tmp\XInput\x64\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Release\xinput.dll" "$tmp\XInput\x64\xinput1_4.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Debug\xinput.dll" "$tmp\XInput\x64\Debug -- Enable console\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Debug\xinput.dll" "$tmp\XInput\x64\Debug -- Enable console\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Debug\xinput.dll" "$tmp\XInput\x64\Debug -- Enable console\xinput1_4.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Release\xinput.dll" "$tmp\XInput\x86\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Release\xinput.dll" "$tmp\XInput\x86\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Release\xinput.dll" "$tmp\XInput\x86\xinput1_4.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Debug\xinput.dll" "$tmp\XInput\x86\Debug -- Enable console\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Debug\xinput.dll" "$tmp\XInput\x86\Debug -- Enable console\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Debug\xinput.dll" "$tmp\XInput\x86\Debug -- Enable console\xinput1_4.dll" -Force
+          
+          # DInput 8
+          New-Item -ItemType Directory -Path "$tmp\DInput8" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput8\x64" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput8\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput8\x86" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput8\x86\Debug -- Enable console" | Out-Null
+          Copy-Item ".\build\DInput8\output\x64\Release\dinput8.dll" "$tmp\DInput8\x64" -Force
+          Copy-Item ".\build\DInput8\output\x64\Debug\dinput8.dll" "$tmp\DInput8\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\DInput8\output\Win32\Release\dinput8.dll" "$tmp\DInput8\x86" -Force
+          Copy-Item ".\build\DInput8\output\Win32\Debug\dinput8.dll" "$tmp\DInput8\x86\Debug -- Enable console" -Force
+          
+          # DInput 1-7
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x64" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x86" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x86\Debug -- Enable console" | Out-Null
+          Copy-Item ".\build\DInput\output\x64\Release\dinput.dll" "$tmp\DInput 1-7\x64" -Force
+          Copy-Item ".\build\DInput\output\x64\Debug\dinput.dll" "$tmp\DInput 1-7\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\DInput\output\Win32\Release\dinput.dll" "$tmp\DInput 1-7\x86" -Force
+          Copy-Item ".\build\DInput\output\Win32\Debug\dinput.dll" "$tmp\DInput 1-7\x86\Debug -- Enable console" -Force
+          
+          # WinMM
+          New-Item -ItemType Directory -Path "$tmp\WinMM" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\WinMM\x64" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\WinMM\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\WinMM\x86" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\WinMM\x86\Debug -- Enable console" | Out-Null
+          Copy-Item ".\build\WinMM\output\x64\Release\winmm.dll" "$tmp\WinMM\x64" -Force
+          Copy-Item ".\build\WinMM\output\x64\Debug\winmm.dll" "$tmp\WinMM\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\WinMM\output\Win32\Release\winmm.dll" "$tmp\WinMM\x86" -Force
+          Copy-Item ".\build\WinMM\output\Win32\Debug\winmm.dll" "$tmp\WinMM\x86\Debug -- Enable console" -Force
+          
+          # Misc
+          Copy-Item ".\README.md" $tmp -Force
+          Copy-Item ".\LICENSE" $tmp -Force
+
+          & "C:\Program Files\7-Zip\7z.exe" a $archivePath "$tmp\*"
+
+          Remove-Item $tmp -Recurse -Force
+
+          Write-Output "filepath=$archivePath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ steps.create-archive.outputs.filepath }}
+          compression-level: 0

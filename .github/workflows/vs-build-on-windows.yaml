@@ -28,8 +28,8 @@ jobs:
       - name: Upload build outputs
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: build/**/*
+          name: build-${{ matrix.configuration }}-${{ matrix.platform }}
+          path: build/**/output/**/*.dll
           compression-level: 0
         
   package:
@@ -41,7 +41,8 @@ jobs:
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build
+          pattern: build-*
+          merge-multiple: true
           path: build
 
       - name: Install 7-Zip

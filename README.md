@@ -314,3 +314,9 @@ The 5 projects inside the solution control the build output:
   - WinMM       -> `winmm.dll` (DLL sideloading / injection)
   
 Output: `./build/${project}/output/${platform}/${config}`
+
+## Github Actions
+
+`./.github/workflows/vs-build-on-windows.yaml`
+
+Build all targets (debug and release) and create a release.

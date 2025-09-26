@@ -136,8 +136,9 @@ jobs:
 
           Write-Output "filepath=$archivePath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8
 
-      - name: Upload build artifact
+      - name: Upload release
         uses: actions/upload-artifact@v4
         with:
+          name: release
           path: ${{ steps.create-archive.outputs.filepath }}
           compression-level: 0

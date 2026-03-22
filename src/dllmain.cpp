@@ -33,24 +33,27 @@ void closeGamepads() {
     SDL_Log("Closed gamepads");
 }
 
-void SDL_eventLoop() {
+void SDL_setDefaultGamepadAPIs(){
 
-    hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-   
-    //SDL Gamepad APIs
-    SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0"); //Prevent SDL using our implementation of DInput (when hooking)
-    SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0"); //Prevent SDL using our implementation of XInput (when hooking)
-    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "0"); //Prevent SDL using our implementation of GameInput (when hooking)
-
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0"); //0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
-        SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0"); //raw input pull data from WGI/XInput providing better support for Xbox controllers. //0 => Disable for now cf: https://github.com/xan105/InputFusion/issues/12
-        SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); //Xbox controllers raw input (SDL is not running in the main thread)
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); //Enable PS3 via its driver
+    SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "1");    // Dinput8
+    SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "1");          // Xinput
+    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");            // Windows.Gaming.Input (WinRT)
+    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");      // GameInput
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");         // HID
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); // Enable PS3 via its driver
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0"); //"1" => Breaks DInput for others app until controller reboot | enable later
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW
+                                                        // 0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
+        SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0"); // Raw input pulls data from WGI/XInput providing better support for Xbox controllers
+                                                                       // 0 => Disable for now cf: https://github.com/xan105/InputFusion/issues/12
+        SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); // Xbox controllers raw input (SDL is not running in the main thread)
+}
+
+void SDL_eventLoop() {
+
+    hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
@@ -174,6 +177,7 @@ DWORD WINAPI Main(LPVOID lpReserved) {
         enableConsole();
     #endif
     
+    SDL_setDefaultGamepadAPIs();
     setDetours();
     SDL_eventLoop();
     return 0;

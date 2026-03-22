@@ -240,27 +240,52 @@ void setDetours() {
     
     if (setDetoursExitProcess()) SDL_Log("Detour set for exit handler");
     
+    /*#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
+    if (Getenv(L"GAMEPAD_API_GAMEINPUT") == L"HOOK") {
+        if (setDetoursForGameInput()) {
+            SDL_Log("Detour set for GameInput");
+            if (SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
+                SDL_Log("\tGameInput usage within SDL has been disabled to prevent conflict due to API hooking (detour)!");
+            }
+        }
+    }
+    #endif*/
+    
     #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
-        if (setDetoursForXInput()) SDL_Log("Detour set for XInput");
+        if (setDetoursForXInput()) {
+            SDL_Log("Detour set for XInput");
+            if (SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
+                SDL_Log("\tXInput usage within SDL has been disabled to prevent conflict due to API hooking (detour)!");
+            }
+        }
     }
     #endif
 
     #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
-        if (setDetoursForDInput8()) SDL_Log("Detour set for DInput8");
+        if (setDetoursForDInput8()) {
+            SDL_Log("Detour set for DInput8");
+            if (SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
+                SDL_Log("\tDirectInput usage within SDL has been disabled to prevent conflict due to API hooking (detour)!");
+            }
+        }
     }
     #endif
 
     #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
         if (Getenv(L"GAMEPAD_API_DINPUT") == L"HOOK") {
-            if (setDetoursForDInput()) SDL_Log("Detour set for DInput 1-7");
+            if (setDetoursForDInput()) {
+                SDL_Log("Detour set for DInput 1-7");
+            }
         }
     #endif
     
     #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
     if (Getenv(L"GAMEPAD_API_WINMM") == L"HOOK") {
-        if (setDetoursForWinmm()) SDL_Log("Detour set for WinMM");
+        if (setDetoursForWinmm()) {
+            SDL_Log("Detour set for WinMM");
+        }
     }
     #endif
 }

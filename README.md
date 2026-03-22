@@ -241,12 +241,16 @@ Currently only available for PS4/PS5 controller in wireless.
 Enable XInput functions hooking / detouring.<br />
 This forces the use of the XInput functions from the DLL when calling XInput functions.
 
+⚠️ This will also disable XInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_XINPUT_ENABLED=0).
+
 `DLL: InputFusion, XInput`
 
 #### `GAMEPAD_API_DINPUT8=HOOK`
 
 Enable DInput8 functions hooking / detouring.
 This forces the use of the DInput8 functions from the DLL when calling DInput8 functions.
+
+⚠️ This will also disable DirectInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_DIRECTINPUT=0).
 
 `DLL: InputFusion, Dinput8, XInput`
 

@@ -12,7 +12,6 @@ found in the LICENSE file in the root directory of this source tree.
 #include "WinMM/winmm.h"
 #elif defined(XINPUT_EXPORTS)
 #include "XInput/xinput.h"
-#include "DInput8/dinput8.h"
 #elif defined(DINPUT8_EXPORTS)
 #include "DInput8/dinput8.h"
 #elif defined(DINPUT_EXPORTS)
@@ -139,7 +138,7 @@ bool setDetoursForXInput() {
 }
 #endif
 
-#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
+#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
 bool setDetoursForDInput8() {
     HMODULE hMod = LoadLibraryA("dinput8.dll");
     if (hMod == nullptr) return false;
@@ -262,7 +261,7 @@ void setDetours() {
     }
     #endif
 
-    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
+    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
         if (setDetoursForDInput8()) {
             SDL_Log("Detour set for DInput8");

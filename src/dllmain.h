@@ -11,8 +11,9 @@ found in the LICENSE file in the root directory of this source tree.
 #include <atomic>
 
 void setDefaultGamepadAPIs();
-void closeGamepads();
 bool init();
+void quit();
+void closeGamepads();
 void eventLoop();
 DWORD WINAPI Main(LPVOID lpReserved);
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);

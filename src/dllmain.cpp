@@ -8,11 +8,10 @@ found in the LICENSE file in the root directory of this source tree.
 #include "detour.h"
 #include "util.h"
 
-std::atomic<bool> running(true);
-HANDLE hSDL_Quit = nullptr;
+std::atomic<bool> SDL_Event_Loop(true);
+HANDLE SDL_Quit_Event = nullptr;
 
 void setDefaultGamepadAPIs() {
-
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0");    // Dinput8
     SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");          // Xinput      
     SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");            // Windows.Gaming.Input (WinRT)
@@ -50,7 +49,7 @@ bool init() {
     SDL_Log("InputFusion is running as WinMM dll");
     #endif
 
-    hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+    SDL_Quit_Event = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
@@ -74,14 +73,12 @@ bool init() {
 }
 
 void quit() {
-
     SDL_Log("SDL_Quit");
     SDL_Quit();
-    if (hSDL_Quit) SetEvent(hSDL_Quit);
+    if (SDL_Quit_Event) SetEvent(SDL_Quit_Event);
 }
 
 void closeGamepads() {
-
     int count;
 
     SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
@@ -103,11 +100,10 @@ void closeGamepads() {
 }
 
 void eventLoop() {
-
     bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
 
     SDL_Event event;
-    while (running) {
+    while (SDL_Event_Loop) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_EVENT_GAMEPAD_ADDED: {
@@ -197,7 +193,7 @@ void eventLoop() {
                 }
                 case SDL_EVENT_QUIT: {
                     SDL_Log("SDL_EVENT_QUIT");
-                    running = false;
+                    SDL_Event_Loop = false;
                     break;
                 }
             }

@@ -20,18 +20,18 @@ found in the LICENSE file in the root directory of this source tree.
 #include "WinMM/winmm.h"
 #endif
 
-extern std::atomic<bool> running;
-extern HANDLE hSDL_Quit;
+extern std::atomic<bool> SDL_Event_Loop;
+extern HANDLE SDL_Quit_Event;
 ExitProcess_t pExitProcess = nullptr;
 
 void WINAPI Detour_ExitProcess(UINT uExitCode) {
     SDL_Log("ExitProcess(%u)", uExitCode);
 
-    running = false; //Exit SDL_eventLoop()
-    if (hSDL_Quit) {
-        WaitForSingleObject(hSDL_Quit, 1000);
-        CloseHandle(hSDL_Quit);
-        hSDL_Quit = nullptr;
+    SDL_Event_Loop = false;
+    if (SDL_Quit_Event) {
+        WaitForSingleObject(SDL_Quit_Event, 1000);
+        CloseHandle(SDL_Quit_Event);
+        SDL_Quit_Event = nullptr;
     }
     return pExitProcess(uExitCode);
 }

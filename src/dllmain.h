@@ -10,7 +10,9 @@ found in the LICENSE file in the root directory of this source tree.
 #include <SDL3/SDL.h>
 #include <atomic>
 
+void setDefaultGamepadAPIs();
 void closeGamepads();
-void SDL_eventLoop();
+bool init();
+void eventLoop();
 DWORD WINAPI Main(LPVOID lpReserved);
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);

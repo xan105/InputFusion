@@ -11,10 +11,79 @@ found in the LICENSE file in the root directory of this source tree.
 std::atomic<bool> running(true);
 HANDLE hSDL_Quit = nullptr;
 
+void setDefaultGamepadAPIs() {
+
+    SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0");    // Dinput8
+    SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");          // Xinput      
+    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");            // Windows.Gaming.Input (WinRT)
+    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");      // GameInput
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");         // HID
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");                 // Enable PS3 via its driver
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0");           //"1" => Breaks DInput for others app until controller reboot | enable later
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW (Xbox controllers)
+                                                        // 0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers
+                                                                    // 0 => Disable for now cf: https://github.com/xan105/InputFusion/issues/12
+    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");                     // Xbox controllers raw input (SDL is not running in the main thread)
+
+    // https://github.com/libsdl-org/SDL/pull/14353
+    // Should be merged in SDL3 3.6
+    // SDL_SetHint(SDL_HINT_JOYSTICK_DSU, "1");         // DualShock UDP (DS4Windows, BetterJoy, etc.)
+}
+
+bool init() {
+    #if defined(XINPUT_EXPORTS)
+    SDL_Log("InputFusion is running as XInput dll");
+    if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
+        SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
+    }
+    #elif defined(DINPUT8_EXPORTS)
+    SDL_Log("InputFusion is running as DInput8 dll");
+    if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
+        SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
+    }
+    #elif defined(DINPUT_EXPORTS)
+    SDL_Log("InputFusion is running as DInput dll");
+    #elif defined(WINMM_EXPORTS)
+    SDL_Log("InputFusion is running as WinMM dll");
+    #endif
+
+    hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+
+    if (!SDL_Init(SDL_INIT_GAMEPAD)) {
+        SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
+        return false;
+    }
+    SDL_Log("SDL_Init");
+
+    const int version = SDL_GetVersion();
+    SDL_Log("SDL version %d.%d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
+
+    SDL_Log("SDL controller handling:");
+    SDL_Log("- DirectInput: %s", SDL_GetHint(SDL_HINT_JOYSTICK_DIRECTINPUT));
+    SDL_Log("- XInput: %s", SDL_GetHint(SDL_HINT_XINPUT_ENABLED));
+    SDL_Log("- WGI: %s", SDL_GetHint(SDL_HINT_JOYSTICK_WGI));
+    SDL_Log("- GameInput: %s", SDL_GetHint(SDL_HINT_JOYSTICK_GAMEINPUT));
+    SDL_Log("- HID: %s", SDL_GetHint(SDL_HINT_JOYSTICK_HIDAPI));
+    SDL_Log("- RAWINPUT: %s", SDL_GetHint(SDL_HINT_JOYSTICK_RAWINPUT));
+    //SDL_Log("- DSU: %s", SDL_GetHint(SDL_HINT_JOYSTICK_DSU));
+
+    return true;
+}
+
+void quit() {
+
+    SDL_Log("SDL_Quit");
+    SDL_Quit();
+    if (hSDL_Quit) SetEvent(hSDL_Quit);
+}
+
 void closeGamepads() {
 
     int count;
-    
+
     SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
     if (gamepads == nullptr) return;
 
@@ -27,45 +96,16 @@ void closeGamepads() {
             SDL_SetGamepadLED(gamepad, 10, 20, 20); //Not the exact default color (no player) but close enough
         }
         SDL_Log("Closing gamepad: %s", SDL_GetGamepadName(gamepad));
-        SDL_CloseGamepad(gamepad);   
+        SDL_CloseGamepad(gamepad);
     }
     SDL_free(gamepads);
     SDL_Log("Closed gamepads");
 }
 
-void SDL_setDefaultGamepadAPIs(){
-
-    SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "1");    // Dinput8
-    SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "1");          // Xinput
-    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");            // Windows.Gaming.Input (WinRT)
-    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");      // GameInput
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");         // HID
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1"); // Enable PS3 via its driver
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0"); //"1" => Breaks DInput for others app until controller reboot | enable later
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW
-                                                        // 0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
-        SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0"); // Raw input pulls data from WGI/XInput providing better support for Xbox controllers
-                                                                       // 0 => Disable for now cf: https://github.com/xan105/InputFusion/issues/12
-        SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"); // Xbox controllers raw input (SDL is not running in the main thread)
-}
-
-void SDL_eventLoop() {
-
-    hSDL_Quit = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-
-    if (!SDL_Init(SDL_INIT_GAMEPAD)) {
-        SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
-        SetEvent(hSDL_Quit);
-        return;
-    }
-    SDL_Log("SDL_INIT");
-    
-    const int version = SDL_GetVersion();
-    SDL_Log("SDL version %d.%d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
+void eventLoop() {
 
     bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
+
     SDL_Event event;
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -118,11 +158,10 @@ void SDL_eventLoop() {
                     break;
                 }
                 case SDL_EVENT_JOYSTICK_BATTERY_UPDATED: {
-                    if (!LEDAsBatteryLvl) break;
                     SDL_Log("SDL_EVENT_JOYSTICK_BATTERY_UPDATED");
-
+                    if (!LEDAsBatteryLvl) break;
+                    
                     SDL_GamepadType type = SDL_GetGamepadTypeForID(event.jbattery.which);
-
                     if (type == SDL_GAMEPAD_TYPE_PS4 || type == SDL_GAMEPAD_TYPE_PS5) {
 
                         if (event.jbattery.state == SDL_POWERSTATE_ON_BATTERY) {
@@ -165,21 +204,20 @@ void SDL_eventLoop() {
         }
         SDL_Delay(10); // Prevent this loop from consuming too much CPU
     }
-
-    closeGamepads();
-    SDL_Log("BYE BYE");
-    SDL_Quit();
-    SetEvent(hSDL_Quit);
 }
 
 DWORD WINAPI Main(LPVOID lpReserved) {
     #ifdef _DEBUG
-        enableConsole();
+    enableConsole();
     #endif
-    
-    SDL_setDefaultGamepadAPIs();
+
+    setDefaultGamepadAPIs();
     setDetours();
-    SDL_eventLoop();
+    if (init()) {
+        eventLoop();
+        closeGamepads();
+    }
+    quit();
     return 0;
 }
 

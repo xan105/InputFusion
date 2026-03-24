@@ -28,8 +28,11 @@ void WINAPI Detour_ExitProcess(UINT uExitCode) {
     SDL_Log("ExitProcess(%u)", uExitCode);
 
     running = false; //Exit SDL_eventLoop()
-    WaitForSingleObject(hSDL_Quit, 1000);
-    CloseHandle(hSDL_Quit);
+    if (hSDL_Quit) {
+        WaitForSingleObject(hSDL_Quit, 1000);
+        CloseHandle(hSDL_Quit);
+        hSDL_Quit = nullptr;
+    }
     return pExitProcess(uExitCode);
 }
 
@@ -243,8 +246,8 @@ void setDetours() {
     if (Getenv(L"GAMEPAD_API_GAMEINPUT") == L"HOOK") {
         if (setDetoursForGameInput()) {
             SDL_Log("Detour set for GameInput");
-            if (SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
-                SDL_Log("\tGameInput usage within SDL has been disabled to prevent conflict due to API hooking (detour)!");
+            if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
+                SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
             }
         }
     }
@@ -254,8 +257,8 @@ void setDetours() {
     if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
         if (setDetoursForXInput()) {
             SDL_Log("Detour set for XInput");
-            if (SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
-                SDL_Log("\tXInput usage within SDL has been disabled to prevent conflict due to API hooking (detour)!");
+            if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
+                SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
             }
         }
     }
@@ -265,8 +268,8 @@ void setDetours() {
     if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
         if (setDetoursForDInput8()) {
             SDL_Log("Detour set for DInput8");
-            if (SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
-                SDL_Log("\tDirectInput usage within SDL has been disabled to prevent conflict due to API hooking (detour)!");
+            if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
+                SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
             }
         }
     }

@@ -252,7 +252,7 @@ This forces the use of the DInput8 functions from the DLL when calling DInput8 f
 
 ⚠️ This will also disable DirectInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_DIRECTINPUT=0).
 
-`DLL: InputFusion, Dinput8, XInput`
+`DLL: InputFusion, Dinput8`
 
 #### `GAMEPAD_API_DINPUT=HOOK`
 

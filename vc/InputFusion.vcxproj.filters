@@ -66,6 +66,9 @@
     <ClInclude Include="..\src\XInput\xinput.h">
       <Filter>Header Files\XInput</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\flags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -147,6 +150,9 @@
     </ClCompile>
     <ClCompile Include="..\src\XInput\xinput.cpp">
       <Filter>Source Files\XInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\flags.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "detour.h"
 #include "util.h"
+#include "flags.h"
 #if defined(INPUTFUSION_EXPORTS)
 #include "XInput/xinput.h"
 #include "DInput/dinput.h"
@@ -243,51 +244,41 @@ void setDetours() {
     if (setDetoursExitProcess()) SDL_Log("Detour set for exit handler");
     
     /*#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
-    if (Getenv(L"GAMEPAD_API_GAMEINPUT") == L"HOOK") {
-        if (setDetoursForGameInput()) {
-            SDL_Log("Detour set for GameInput");
-            if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
-                SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
-            }
+    if (Flags().gameinput_detour && setDetoursForGameInput()) {
+        DL_Log("Detour set for GameInput");
+        if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
+            SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
         }
     }
     #endif*/
     
     #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
-    if (Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK") {
-        if (setDetoursForXInput()) {
-            SDL_Log("Detour set for XInput");
-            if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
-                SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
-            }
+    if (Flags().xinput_detour && setDetoursForXInput()) {
+        SDL_Log("Detour set for XInput");
+        if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
+            SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
         }
     }
     #endif
 
     #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
-    if (Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK") {
-        if (setDetoursForDInput8()) {
-            SDL_Log("Detour set for DInput8");
-            if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
-                SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
-            }
+    if (Flags().dinput8_detour && setDetoursForDInput8()) {
+        SDL_Log("Detour set for DInput8");
+        if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
+            SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
         }
     }
     #endif
 
     #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
-        if (Getenv(L"GAMEPAD_API_DINPUT") == L"HOOK") {
-            if (setDetoursForDInput()) {
-                SDL_Log("Detour set for DInput 1-7");
-            }
-        }
+    if (Flags().dinput_detour && setDetoursForDInput()) {
+        SDL_Log("Detour set for DInput 1-7");
+    }
     #endif
     
     #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
-    if (Getenv(L"GAMEPAD_API_WINMM") == L"HOOK") {
-        if (setDetoursForWinmm()) {
-            SDL_Log("Detour set for WinMM");
-        }
+    if (Flags().winmm_detour && setDetoursForWinmm()) {
+        SDL_Log("Detour set for WinMM");
     }
     #endif
 }

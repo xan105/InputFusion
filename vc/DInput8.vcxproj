@@ -22,6 +22,7 @@
     <ClInclude Include="..\src\detour.h" />
     <ClInclude Include="..\src\DInput8\dinput8.h" />
     <ClInclude Include="..\src\dllmain.h" />
+    <ClInclude Include="..\src\flags.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
+    <ClCompile Include="..\src\flags.cpp" />
     <ClCompile Include="..\src\util.cpp" />
   </ItemGroup>
   <ItemGroup>

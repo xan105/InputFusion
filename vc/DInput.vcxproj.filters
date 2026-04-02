@@ -53,6 +53,9 @@
     <ClInclude Include="..\src\DInput8\dinput8.h">
       <Filter>Header Files\DInput8</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\flags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\detour.cpp">
@@ -123,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInputW.cpp">
       <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\flags.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

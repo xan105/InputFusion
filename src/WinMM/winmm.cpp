@@ -6,6 +6,7 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "winmm.h"
 #include "../util.h"
+#include "../flags.h"
 
 namespace LAYOUT {
   namespace RETRO
@@ -281,8 +282,6 @@ namespace LAYOUT {
   }
 }
 
-bool layout_retro = Getenv(L"GAMEPAD_API_WINMM_LAYOUT") == L"XBOX" ? false : true;
-
 JOYSTICK Joysticks[MAXJOY] = {};
 
 UINT absDiff(UINT a, UINT b) {
@@ -402,8 +401,7 @@ extern "C" {
         wcscpy_s(pjc->szRegKey, _countof(pjc->szRegKey), L"DINPUT.DLL");
         if (uJoyID == ~(UINT_PTR)0) return JOYERR_NOERROR; //is -1 ?
 
-        SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-        if (!(Flags & SDL_INIT_GAMEPAD)) {
+        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             return MMSYSERR_NODRIVER;
         }
 
@@ -430,13 +428,14 @@ extern "C" {
         pjc->wPid = SDL_GetGamepadProduct(gamepad) | 0x028E;
         wcscpy_s(pjc->szPname, _countof(pjc->szPname), L"Microsoft PC-joystick driver");
         wcscpy_s(pjc->szOEMVxD, _countof(pjc->szOEMVxD), L"");
-        
-        if (layout_retro){
-            LAYOUT::RETRO::SetCapabilities(pjc);
-        } else {
+
+        if (Flags().winmm_layout_xbox) {
             LAYOUT::XBOX::SetCapabilities(pjc);
         }
-        
+        else {
+            LAYOUT::RETRO::SetCapabilities(pjc);
+        }
+
         return JOYERR_NOERROR;
     }
 
@@ -474,8 +473,7 @@ extern "C" {
         if (pjiEx == nullptr) return MMSYSERR_INVALPARAM;
         if (pjiEx->dwSize != sizeof(JOYINFOEX)) return MMSYSERR_INVALPARAM;
 
-        SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-        if (!(Flags & SDL_INIT_GAMEPAD)) {
+        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             return MMSYSERR_NODRIVER;
         }
 
@@ -486,10 +484,11 @@ extern "C" {
 
         SDL_UpdateGamepads();
 
-        if (layout_retro) {
-            LAYOUT::RETRO::TranslateInput(gamepad, pjiEx);
-        } else {
+        if (Flags().winmm_layout_xbox) {
             LAYOUT::XBOX::TranslateInput(gamepad, pjiEx);
+        }
+        else {
+            LAYOUT::RETRO::TranslateInput(gamepad, pjiEx);
         }
 
         return JOYERR_NOERROR;
@@ -542,8 +541,7 @@ extern "C" {
 
         if (Joysticks[uJoyID].capture || !IsWindow(hwnd)) return JOYERR_NOCANDO;
 
-        SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-        if (!(Flags & SDL_INIT_GAMEPAD)) {
+        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             return MMSYSERR_NODRIVER;
         }
 

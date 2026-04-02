@@ -7,6 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "dllmain.h"
 #include "detour.h"
 #include "util.h"
+#include "flags.h"
 
 std::atomic<bool> SDL_Event_Loop(true);
 HANDLE SDL_Quit_Event = nullptr;
@@ -20,7 +21,7 @@ void setDefaultGamepadAPIs() {
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");                 // Enable PS3 via its driver
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0");           //"1" => Breaks DInput for others app until controller reboot | enable later
+    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0");           //"1" => Breaks DInput for others app until controller reboot
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW (Xbox controllers)
                                                         // 0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers
@@ -59,15 +60,21 @@ bool init() {
 
     const int version = SDL_GetVersion();
     SDL_Log("SDL version %d.%d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
-
-    SDL_Log("SDL controller handling:");
-    SDL_Log("- DirectInput: %s", SDL_GetHint(SDL_HINT_JOYSTICK_DIRECTINPUT));
-    SDL_Log("- XInput: %s", SDL_GetHint(SDL_HINT_XINPUT_ENABLED));
-    SDL_Log("- WGI: %s", SDL_GetHint(SDL_HINT_JOYSTICK_WGI));
-    SDL_Log("- GameInput: %s", SDL_GetHint(SDL_HINT_JOYSTICK_GAMEINPUT));
-    SDL_Log("- HID: %s", SDL_GetHint(SDL_HINT_JOYSTICK_HIDAPI));
-    SDL_Log("- RAWINPUT: %s", SDL_GetHint(SDL_HINT_JOYSTICK_RAWINPUT));
-    //SDL_Log("- DSU: %s", SDL_GetHint(SDL_HINT_JOYSTICK_DSU));
+    SDL_Log("SDL controller handling:\n"
+            "- DirectInput: %s\n"
+            "- XInput: %s\n"
+            "- WGI: %s\n"
+            "- GameInput: %s\n"
+            "- HID: %s\n"
+            "- RAWINPUT: %s",
+            //"- DSU: %s"
+    SDL_GetHint(SDL_HINT_JOYSTICK_DIRECTINPUT),
+    SDL_GetHint(SDL_HINT_XINPUT_ENABLED),
+    SDL_GetHint(SDL_HINT_JOYSTICK_WGI),
+    SDL_GetHint(SDL_HINT_JOYSTICK_GAMEINPUT),
+    SDL_GetHint(SDL_HINT_JOYSTICK_HIDAPI),
+    SDL_GetHint(SDL_HINT_JOYSTICK_RAWINPUT));
+    //SDL_GetHint(SDL_HINT_JOYSTICK_DSU)
 
     return true;
 }
@@ -100,8 +107,6 @@ void closeGamepads() {
 }
 
 void eventLoop() {
-    bool LEDAsBatteryLvl = Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
-
     SDL_Event event;
     while (SDL_Event_Loop) {
         while (SDL_PollEvent(&event)) {
@@ -155,7 +160,7 @@ void eventLoop() {
                 }
                 case SDL_EVENT_JOYSTICK_BATTERY_UPDATED: {
                     SDL_Log("SDL_EVENT_JOYSTICK_BATTERY_UPDATED");
-                    if (!LEDAsBatteryLvl) break;
+                    if (!Flags().ledbatterylvl) break;
                     
                     SDL_GamepadType type = SDL_GetGamepadTypeForID(event.jbattery.which);
                     if (type == SDL_GAMEPAD_TYPE_PS4 || type == SDL_GAMEPAD_TYPE_PS5) {
@@ -202,9 +207,21 @@ void eventLoop() {
     }
 }
 
+void Logger(void *userdata, int category, SDL_LogPriority priority, const char *message) {
+    constexpr const char* fmt = "%s\n";
+    SDL_IOStream *io = (SDL_IOStream *)userdata;
+    if (io) {
+      SDL_IOprintf(io, fmt, message);
+      SDL_FlushIO(io);
+    }
+    printf(fmt, message);
+}
+
 DWORD WINAPI Main(LPVOID lpReserved) {
     #ifdef _DEBUG
     enableConsole();
+    SDL_IOStream *logFile = SDL_IOFromFile("InputFusion.log", "w");
+    SDL_SetLogOutputFunction(Logger, logFile);
     #endif
 
     setDefaultGamepadAPIs();
@@ -214,6 +231,10 @@ DWORD WINAPI Main(LPVOID lpReserved) {
         closeGamepads();
     }
     quit();
+    
+    #ifdef _DEBUG
+    if (logFile) SDL_CloseIO(logFile);
+    #endif
     return 0;
 }
 

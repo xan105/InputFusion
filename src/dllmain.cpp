@@ -21,7 +21,7 @@ void setDefaultGamepadAPIs() {
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");                 // Enable PS3 via its driver
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0");           //"1" => Breaks DInput for others app until controller reboot
+    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");           //"1" => Breaks DInput for others app until controller reboot
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW (Xbox controllers)
                                                         // 0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers

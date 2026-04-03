@@ -62,69 +62,69 @@ jobs:
           # InputFusion
           New-Item -ItemType Directory -Path "$tmp\InputFusion" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\InputFusion\x64" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\InputFusion\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\InputFusion\x64\Debug" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\InputFusion\x86" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\InputFusion\x86\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\InputFusion\x86\Debug" | Out-Null
           Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion.dll" "$tmp\InputFusion\x64" -Force
           Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion.dll" "$tmp\InputFusion\x64\InputFusion.asi" -Force
-          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\InputFusion\x64\Debug -- Enable console" -Force
-          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\InputFusion\x64\Debug -- Enable console\InputFusion.asi" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\InputFusion\x64\Debug" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\InputFusion\x64\Debug\InputFusion.asi" -Force
           Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86" -Force
           Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86\InputFusion.asi" -Force
-          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug -- Enable console" -Force
-          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug -- Enable console\InputFusion.asi" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug\InputFusion.asi" -Force
           
           # XInput
           New-Item -ItemType Directory -Path "$tmp\XInput" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\XInput\x64" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\XInput\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\XInput\x64\Debug" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\XInput\x86" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\XInput\x86\Debug -- Enable console" | Out-Null
-          Copy-Item ".\build\XInput\output\x64\Release\xinput.dll" "$tmp\XInput\x64\xinput9_1_0.dll" -Force
-          Copy-Item ".\build\XInput\output\x64\Release\xinput.dll" "$tmp\XInput\x64\xinput1_3.dll" -Force
-          Copy-Item ".\build\XInput\output\x64\Release\xinput.dll" "$tmp\XInput\x64\xinput1_4.dll" -Force
-          Copy-Item ".\build\XInput\output\x64\Debug\xinput.dll" "$tmp\XInput\x64\Debug -- Enable console\xinput9_1_0.dll" -Force
-          Copy-Item ".\build\XInput\output\x64\Debug\xinput.dll" "$tmp\XInput\x64\Debug -- Enable console\xinput1_3.dll" -Force
-          Copy-Item ".\build\XInput\output\x64\Debug\xinput.dll" "$tmp\XInput\x64\Debug -- Enable console\xinput1_4.dll" -Force
-          Copy-Item ".\build\XInput\output\Win32\Release\xinput.dll" "$tmp\XInput\x86\xinput9_1_0.dll" -Force
-          Copy-Item ".\build\XInput\output\Win32\Release\xinput.dll" "$tmp\XInput\x86\xinput1_3.dll" -Force
-          Copy-Item ".\build\XInput\output\Win32\Release\xinput.dll" "$tmp\XInput\x86\xinput1_4.dll" -Force
-          Copy-Item ".\build\XInput\output\Win32\Debug\xinput.dll" "$tmp\XInput\x86\Debug -- Enable console\xinput9_1_0.dll" -Force
-          Copy-Item ".\build\XInput\output\Win32\Debug\xinput.dll" "$tmp\XInput\x86\Debug -- Enable console\xinput1_3.dll" -Force
-          Copy-Item ".\build\XInput\output\Win32\Debug\xinput.dll" "$tmp\XInput\x86\Debug -- Enable console\xinput1_4.dll" -Force
+          New-Item -ItemType Directory -Path "$tmp\XInput\x86\Debug" | Out-Null
+          Copy-Item ".\build\XInput\output\x64\Release\xinput1_4.dll" "$tmp\XInput\x64\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Release\xinput1_4.dll" "$tmp\XInput\x64\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Release\xinput1_4.dll" "$tmp\XInput\x64\xinput1_4.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Debug\xinput1_4.dll" "$tmp\XInput\x64\Debug\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Debug\xinput1_4.dll" "$tmp\XInput\x64\Debug\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\x64\Debug\xinput1_4.dll" "$tmp\XInput\x64\Debug\xinput1_4.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Release\xinput1_4.dll" "$tmp\XInput\x86\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Release\xinput1_4.dll" "$tmp\XInput\x86\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Release\xinput1_4.dll" "$tmp\XInput\x86\xinput1_4.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Debug\xinput1_4.dll" "$tmp\XInput\x86\Debug\xinput9_1_0.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Debug\xinput1_4.dll" "$tmp\XInput\x86\Debug\xinput1_3.dll" -Force
+          Copy-Item ".\build\XInput\output\Win32\Debug\xinput1_4.dll" "$tmp\XInput\x86\Debug\xinput1_4.dll" -Force
           
           # DInput 8
           New-Item -ItemType Directory -Path "$tmp\DInput8" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\DInput8\x64" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\DInput8\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput8\x64\Debug" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\DInput8\x86" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\DInput8\x86\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput8\x86\Debug" | Out-Null
           Copy-Item ".\build\DInput8\output\x64\Release\dinput8.dll" "$tmp\DInput8\x64" -Force
-          Copy-Item ".\build\DInput8\output\x64\Debug\dinput8.dll" "$tmp\DInput8\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\DInput8\output\x64\Debug\dinput8.dll" "$tmp\DInput8\x64\Debug" -Force
           Copy-Item ".\build\DInput8\output\Win32\Release\dinput8.dll" "$tmp\DInput8\x86" -Force
-          Copy-Item ".\build\DInput8\output\Win32\Debug\dinput8.dll" "$tmp\DInput8\x86\Debug -- Enable console" -Force
+          Copy-Item ".\build\DInput8\output\Win32\Debug\dinput8.dll" "$tmp\DInput8\x86\Debug" -Force
           
           # DInput 1-7
           New-Item -ItemType Directory -Path "$tmp\DInput 1-7" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x64" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x64\Debug" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x86" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x86\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\DInput 1-7\x86\Debug" | Out-Null
           Copy-Item ".\build\DInput\output\x64\Release\dinput.dll" "$tmp\DInput 1-7\x64" -Force
-          Copy-Item ".\build\DInput\output\x64\Debug\dinput.dll" "$tmp\DInput 1-7\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\DInput\output\x64\Debug\dinput.dll" "$tmp\DInput 1-7\x64\Debug" -Force
           Copy-Item ".\build\DInput\output\Win32\Release\dinput.dll" "$tmp\DInput 1-7\x86" -Force
-          Copy-Item ".\build\DInput\output\Win32\Debug\dinput.dll" "$tmp\DInput 1-7\x86\Debug -- Enable console" -Force
+          Copy-Item ".\build\DInput\output\Win32\Debug\dinput.dll" "$tmp\DInput 1-7\x86\Debug" -Force
           
           # WinMM
           New-Item -ItemType Directory -Path "$tmp\WinMM" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\WinMM\x64" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\WinMM\x64\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\WinMM\x64\Debug" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\WinMM\x86" | Out-Null
-          New-Item -ItemType Directory -Path "$tmp\WinMM\x86\Debug -- Enable console" | Out-Null
+          New-Item -ItemType Directory -Path "$tmp\WinMM\x86\Debug" | Out-Null
           Copy-Item ".\build\WinMM\output\x64\Release\winmm.dll" "$tmp\WinMM\x64" -Force
-          Copy-Item ".\build\WinMM\output\x64\Debug\winmm.dll" "$tmp\WinMM\x64\Debug -- Enable console" -Force
+          Copy-Item ".\build\WinMM\output\x64\Debug\winmm.dll" "$tmp\WinMM\x64\Debug" -Force
           Copy-Item ".\build\WinMM\output\Win32\Release\winmm.dll" "$tmp\WinMM\x86" -Force
-          Copy-Item ".\build\WinMM\output\Win32\Debug\winmm.dll" "$tmp\WinMM\x86\Debug -- Enable console" -Force
+          Copy-Item ".\build\WinMM\output\Win32\Debug\winmm.dll" "$tmp\WinMM\x86\Debug" -Force
           
           # Misc
           Copy-Item ".\README.md" $tmp -Force

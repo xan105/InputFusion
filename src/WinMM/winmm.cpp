@@ -210,6 +210,7 @@ namespace LAYOUT {
         // SWAPPING R/U AXES ON PURPOSE FOR "Deadly Premonition The Director's Cut" (Steam/247660)
         // Unless there is another modern game that decided to use legacy api for a Xbox controller!
         // In that case should revisite this decision
+        // NB: Peter Jackson's King Kong in GAMEPAD_API_WINMM_LAYOUT=XBOX has also the correct camera axes.
         if (pjiEx->dwFlags & JOY_RETURNR) {
             //int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
             int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
@@ -428,8 +429,15 @@ extern "C" {
         pjc->wVmax = 0xffff;
         pjc->wPeriodMin = JOY_PERIOD_MIN;
         pjc->wPeriodMax = JOY_PERIOD_MAX;
-        pjc->wMid = 0x045E;
-        pjc->wPid = 0x028E;
+        if (Flags().winmm_layout_xbox) {
+            pjc->wMid = 0x045E;
+            pjc->wPid = 0x028E;
+        }
+        else {
+            // Some games may change their axes reading depending on vendor id (ex: Peter Jackson's King Kong)
+            pjc->wMid = 0x0000;
+            pjc->wPid = 0x0000;
+        }
         wcscpy_s(pjc->szPname, _countof(pjc->szPname), L"Microsoft PC-joystick driver");
         wcscpy_s(pjc->szOEMVxD, _countof(pjc->szOEMVxD), L"");
 

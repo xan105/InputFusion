@@ -22,17 +22,17 @@ found in the LICENSE file in the root directory of this source tree.
 #endif
 
 extern std::atomic<bool> SDL_Event_Loop;
-extern HANDLE SDL_Quit_Event;
+extern HANDLE SDL_Quit_Wait;
 ExitProcess_t pExitProcess = nullptr;
 
 void WINAPI Detour_ExitProcess(UINT uExitCode) {
     SDL_Log("ExitProcess(%u)", uExitCode);
 
     SDL_Event_Loop = false;
-    if (SDL_Quit_Event) {
-        WaitForSingleObject(SDL_Quit_Event, 1000);
-        CloseHandle(SDL_Quit_Event);
-        SDL_Quit_Event = nullptr;
+    if (SDL_Quit_Wait) {
+        WaitForSingleObject(SDL_Quit_Wait, 1000);
+        CloseHandle(SDL_Quit_Wait);
+        SDL_Quit_Wait = nullptr;
     }
     return pExitProcess(uExitCode);
 }

@@ -10,6 +10,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include <SDL3/SDL.h>
 #include <unordered_map>
 #include <algorithm>
+#include <atomic>
 
 #define XINPUT_GAMEPAD_THUMB_MAX            32767
 #define XINPUT_GAMEPAD_THUMB_MIN            -32768

@@ -245,6 +245,13 @@ This forces the use of the XInput functions from the DLL when calling XInput fun
 
 `DLL: InputFusion, XInput`
 
+#### `GAMEPAD_API_XINPUT_DEVICE_CONNECTED=ALWAYS`
+
+All XInput slots will report as connected, returning dummy data when necessary.  
+This helps with games that do not properly handle gamepad disconnection (hot reload), as they may not retry after receiving **ERROR_DEVICE_NOT_CONNECTED**.
+
+`DLL: InputFusion, XInput`
+
 #### `GAMEPAD_API_DINPUT8=HOOK`
 
 Enable DInput8 functions hooking / detouring.

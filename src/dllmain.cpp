@@ -8,9 +8,11 @@ found in the LICENSE file in the root directory of this source tree.
 #include "detour.h"
 #include "util.h"
 #include "flags.h"
+#include "version.h"
 
 std::atomic<bool> SDL_Event_Loop(true);
-HANDLE SDL_Quit_Event = nullptr;
+HANDLE SDL_Init_Wait = nullptr;
+HANDLE SDL_Quit_Wait = nullptr;
 
 void setDefaultGamepadAPIs() {
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0");    // Dinput8
@@ -34,6 +36,8 @@ void setDefaultGamepadAPIs() {
 }
 
 bool init() {
+    SDL_Log("InputFusion version %s", VER_FILEVERSION_STR);
+
     #if defined(XINPUT_EXPORTS)
     SDL_Log("InputFusion is running as XInput dll");
     if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
@@ -50,10 +54,9 @@ bool init() {
     SDL_Log("InputFusion is running as WinMM dll");
     #endif
 
-    SDL_Quit_Event = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
+        if (SDL_Init_Wait) SetEvent(SDL_Init_Wait);
         return false;
     }
     SDL_Log("SDL_Init");
@@ -76,13 +79,18 @@ bool init() {
     SDL_GetHint(SDL_HINT_JOYSTICK_RAWINPUT));
     //SDL_GetHint(SDL_HINT_JOYSTICK_DSU)
 
+    if (SDL_Init_Wait) SetEvent(SDL_Init_Wait);
     return true;
 }
 
 void quit() {
     SDL_Log("SDL_Quit");
     SDL_Quit();
-    if (SDL_Quit_Event) SetEvent(SDL_Quit_Event);
+    if (SDL_Quit_Wait) SetEvent(SDL_Quit_Wait);
+    if (SDL_Init_Wait) {
+        CloseHandle(SDL_Init_Wait);
+        SDL_Init_Wait = nullptr;
+    }
 }
 
 void closeGamepads() {
@@ -243,6 +251,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     {
         case DLL_PROCESS_ATTACH: {
             DisableThreadLibraryCalls(hModule);
+            SDL_Init_Wait = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+            SDL_Quit_Wait = CreateEvent(nullptr, TRUE, FALSE, nullptr);
             HANDLE hThread = CreateThread(nullptr, 0, Main, hModule, 0, nullptr);
             if (hThread) {
                 CloseHandle(hThread);

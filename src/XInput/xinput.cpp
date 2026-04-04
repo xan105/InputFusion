@@ -67,7 +67,7 @@ extern "C" {
             if (SDL_Init_Wait) {
                 SDL_Log("XInputGetStateEx(%u, %p) > Waiting...", dwUserIndex, pState);
                 WaitForSingleObject(SDL_Init_Wait, INFINITE);
-                SDL_Delay(10);
+                SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputGetStateEx(%u, %p) > ...Resuming", dwUserIndex, pState);
             }
         }
@@ -155,7 +155,7 @@ extern "C" {
             if (SDL_Init_Wait) {
                 SDL_Log("XInputSetStateEx(%u, %p) > Waiting...", dwUserIndex, pVibration);
                 WaitForSingleObject(SDL_Init_Wait, INFINITE);
-                SDL_Delay(10);
+                SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputSetStateEx(%u, %p) > ...Resuming", dwUserIndex, pVibration);
             }
         }
@@ -211,7 +211,7 @@ extern "C" {
             if (SDL_Init_Wait) {
                 SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > Waiting...", dwUserIndex, dwFlags, pCapabilities);
                 WaitForSingleObject(SDL_Init_Wait, INFINITE);
-                SDL_Delay(10);
+                SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ...Resuming", dwUserIndex, dwFlags, pCapabilities);
             }
         }
@@ -296,7 +296,7 @@ extern "C" {
             if (SDL_Init_Wait) {
                 SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > Waiting...", dwUserIndex, devType, pBatteryInformation);
                 WaitForSingleObject(SDL_Init_Wait, INFINITE);
-                SDL_Delay(10);
+                SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ...Resuming", dwUserIndex, devType, pBatteryInformation);
             }
         }

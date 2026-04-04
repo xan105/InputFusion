@@ -236,6 +236,15 @@ Currently only available for PS4/PS5 controller in wireless.
 
 `DLL: Any`
 
+#### `GAMEPAD_API_GAMEINPUT=HOOK`
+
+Enable GameInput functions hooking / detouring.<br />
+This forces the use of the GameInput functions from the DLL when calling GameInput functions.
+
+⚠️ This will also disable GameInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_GAMEINPUT=0).
+
+`DLL: InputFusion, GameInput`
+
 #### `GAMEPAD_API_XINPUT=HOOK`
 
 Enable XInput functions hooking / detouring.<br />
@@ -317,8 +326,9 @@ Build
 
 Solution: `./vc/InputFusion.sln`
 
-The 5 projects inside the solution control the build output:
+The 6 projects inside the solution control the build output:
   - InputFusion -> `InputFusion.dll` (DLL injection)
+  - GameInput   -> `gameinput.dll` (DLL sideloading / injection)
   - XInput      -> `xinput.dll` (DLL sideloading / injection)
   - DInput8     -> `dinput8.dll` (DLL sideloading / injection)
   - DInput      -> `dinput.dll` (DLL sideloading / injection)

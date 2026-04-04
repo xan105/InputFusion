@@ -8,9 +8,12 @@ found in the LICENSE file in the root directory of this source tree.
 #include "util.h"
 #include "flags.h"
 #if defined(INPUTFUSION_EXPORTS)
+#include "GameInput/gameinput.h"
 #include "XInput/xinput.h"
 #include "DInput/dinput.h"
 #include "WinMM/winmm.h"
+#elif defined(GAMEINPUT_EXPORTS)
+#include "GameInput/gameinput.h"
 #elif defined(XINPUT_EXPORTS)
 #include "XInput/xinput.h"
 #elif defined(DINPUT8_EXPORTS)
@@ -53,6 +56,18 @@ bool setDetoursExitProcess() {
     if (pExitProcess == nullptr) return false;
     return takeDetour(&(PVOID&)pExitProcess, Detour_ExitProcess);
 }
+
+#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
+bool setDetoursForGameInput() {
+    HMODULE hMod = LoadLibraryA("gameinput.dll"); //GameInputRedist.dll (?)
+    if (hMod == nullptr) return false;
+    SDL_Log("LoadLibraryA: gameinput.dll");
+
+    GameInputCreate_t pGameInputCreate = (GameInputCreate_t)GetProcAddress(hMod, "GameInputCreate");
+    if (pGameInputCreate == nullptr) return false;
+    return takeDetour(&(PVOID&)pGameInputCreate, GameInputCreate);
+}
+#endif
 
 #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForXInput() {
@@ -241,16 +256,18 @@ bool setDetoursForWinmm() {
 
 void setDetours() {
     
-    if (setDetoursExitProcess()) SDL_Log("Detour set for exit handler");
+    if (setDetoursExitProcess()) {
+        SDL_Log("Detour set for exit handler");
+    }
     
-    /*#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
+    #if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
     if (Flags().gameinput_detour && setDetoursForGameInput()) {
-        DL_Log("Detour set for GameInput");
+        SDL_Log("Detour set for GameInput");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
         }
     }
-    #endif*/
+    #endif
     
     #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Flags().xinput_detour && setDetoursForXInput()) {

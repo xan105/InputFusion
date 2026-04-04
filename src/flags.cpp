@@ -13,6 +13,7 @@ const Flags_t& Flags() {
         f.ledbatterylvl               =   Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
         f.winmm_layout_xbox           =   Getenv(L"GAMEPAD_API_WINMM_LAYOUT") == L"XBOX";
         f.xinput_always_connected     =   Getenv(L"GAMEPAD_API_XINPUT_DEVICE_CONNECTED") == L"ALWAYS";
+        f.gameinput_detour            =   Getenv(L"GAMEPAD_API_GAMEINPUT") == L"HOOK";
         f.xinput_detour               =   Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK";
         f.dinput8_detour              =   Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK";
         f.dinput_detour               =   Getenv(L"GAMEPAD_API_DINPUT") == L"HOOK";

@@ -21,6 +21,9 @@ typedef void (WINAPI* ExitProcess_t)(UINT uExitCode);
 void WINAPI Detour_ExitProcess(UINT uExitCode);
 bool takeDetour(PVOID* ppPointer, PVOID pDetour);
 bool setDetoursExitProcess();
+#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
+bool setDetoursForGameInput();
+#endif
 #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForXInput();
 #endif

@@ -806,6 +806,8 @@ public:
     virtual STDMETHODIMP_(bool) UnregisterCallback(GameInputCallbackToken callbackToken);
 };
 
+typedef HRESULT(WINAPI* GameInputCreate_t)(IGameInput** gameInput);
+
 // Exports
 
 #ifdef GAMEINPUT_EXPORTS

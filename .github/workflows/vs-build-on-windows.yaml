@@ -26,7 +26,7 @@ jobs:
         run: msbuild ".\vc\InputFusion.sln" /t:"InputFusion:Rebuild;GameInput:Rebuild;XInput:Rebuild;DInput8:Rebuild;DInput:Rebuild;WinMM:Rebuild" /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
         
       - name: Upload build outputs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-${{ matrix.configuration }}-${{ matrix.platform }}
           path: build/**/output/**/*.dll

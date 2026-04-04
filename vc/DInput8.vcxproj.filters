@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\DInput8">
+      <UniqueIdentifier>{850ed44e-b6ab-4763-90ac-c015fb747479}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h">
@@ -55,23 +58,23 @@
     <ClCompile Include="..\src\DInput8\dinput8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\flags.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
+      <Filter>Source Files\DInput8</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

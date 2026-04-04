@@ -19,12 +19,6 @@
     <Filter Include="Source Files\DInput">
       <UniqueIdentifier>{8317c8ce-b390-4a87-8fb7-42c82907a0b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\DInput8">
-      <UniqueIdentifier>{4120dd87-4a6b-4866-a666-d636bb1e0ebd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\DInput">
-      <UniqueIdentifier>{c8b8b076-6712-49e9-be81-98eb017ed6e3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -47,13 +41,13 @@
     <ClInclude Include="..\src\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\flags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\DInput\dinput.h">
-      <Filter>Header Files\DInput</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DInput8\dinput8.h">
-      <Filter>Header Files\DInput8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -83,9 +77,6 @@
       <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
-      <Filter>Source Files\DInput8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\DInput8\dinput8.cpp">
       <Filter>Source Files\DInput8</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\IDirectInput2A.cpp">
@@ -128,6 +119,9 @@
       <Filter>Source Files\DInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\flags.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\dinput8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

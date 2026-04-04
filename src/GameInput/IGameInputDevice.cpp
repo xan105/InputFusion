@@ -53,8 +53,8 @@ STDMETHODIMP IGameInputDevice::CreateForceFeedbackEffect(uint32_t motorIndex, co
 }
 
 STDMETHODIMP IGameInputDevice::GetDeviceInfo(const GameInputDeviceInfo** info) {
-  SDL_Log("IGameInputDevice::GetDeviceInfo()");
-  return E_NOTIMPL;
+    SDL_Log("IGameInputDevice::GetDeviceInfo()");
+    return E_NOTIMPL;
 }
 
 STDMETHODIMP_(GameInputDeviceStatus) IGameInputDevice::GetDeviceStatus() {

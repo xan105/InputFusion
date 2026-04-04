@@ -20,15 +20,13 @@ void setDefaultGamepadAPIs() {
     SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");            // Windows.Gaming.Input (WinRT)
     SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");      // GameInput
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");         // HID
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");                 // Enable PS3 via its driver
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");           //"1" => Breaks DInput for others app until controller reboot
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW (Xbox controllers)
-                                                        // 0 => Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers
-                                                                    // 0 => Disable for now cf: https://github.com/xan105/InputFusion/issues/12
-    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");                     // Xbox controllers raw input (SDL is not running in the main thread)
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW (Xbox controllers) | Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
+        SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "1");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers                                                               
+        SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");                     // Xbox controllers raw input (SDL is not running in the main thread)
 
     // https://github.com/libsdl-org/SDL/pull/14353
     // Should be merged in SDL3 3.6
@@ -59,15 +57,28 @@ bool init() {
     SDL_Log("InputFusion is running as WinMM dll");
     #endif
 
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, VER_PRODUCTNAME_STR);
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, VER_FILEVERSION_STR);
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, VER_COMPANYNAME_STR);
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, VER_LEGALCOPYRIGHT_STR);
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, VER_COMPANYDOMAIN_STR);
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, "com.xan105.inputfusion");
+
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         SDL_LogError(SDL_LOG_CATEGORY_INPUT, "SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
-        if (SDL_Init_Wait) SetEvent(SDL_Init_Wait);
+        if (SDL_Init_Wait) {
+            SetEvent(SDL_Init_Wait);
+        }
         return false;
     }
     SDL_Log("SDL_Init");
 
     const int version = SDL_GetVersion();
-    SDL_Log("SDL version %d.%d.%d", SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
+    SDL_Log("SDL version %d.%d.%d", 
+    SDL_VERSIONNUM_MAJOR(version), 
+    SDL_VERSIONNUM_MINOR(version), 
+    SDL_VERSIONNUM_MICRO(version));
+
     SDL_Log("SDL controller handling:\n"
             "- DirectInput: %s\n"
             "- XInput: %s\n"
@@ -84,14 +95,18 @@ bool init() {
     SDL_GetHint(SDL_HINT_JOYSTICK_RAWINPUT));
     //SDL_GetHint(SDL_HINT_JOYSTICK_DSU)
 
-    if (SDL_Init_Wait) SetEvent(SDL_Init_Wait);
+    if (SDL_Init_Wait) {
+        SetEvent(SDL_Init_Wait);
+    }
     return true;
 }
 
 void quit() {
     SDL_Log("SDL_Quit");
     SDL_Quit();
-    if (SDL_Quit_Wait) SetEvent(SDL_Quit_Wait);
+    if (SDL_Quit_Wait) {
+        SetEvent(SDL_Quit_Wait);
+    }
     if (SDL_Init_Wait) {
         CloseHandle(SDL_Init_Wait);
         SDL_Init_Wait = nullptr;
@@ -235,7 +250,7 @@ DWORD WINAPI Main(LPVOID lpReserved) {
     enableConsole();
     SDL_IOStream *logFile = SDL_IOFromFile("InputFusion.log", "w");
     SDL_SetLogOutputFunction(Logger, logFile);
-    SDL_SetLogPriorities(SDL_LOG_PRIORITY_DEBUG);
+    SDL_SetLogPriority(SDL_LOG_CATEGORY_INPUT, SDL_LOG_PRIORITY_DEBUG);
     #else
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_ERROR);
     #endif
@@ -249,7 +264,9 @@ DWORD WINAPI Main(LPVOID lpReserved) {
     quit();
     
     #ifdef _DEBUG
-    if (logFile) SDL_CloseIO(logFile);
+    if (logFile) {
+        SDL_CloseIO(logFile);
+    }
     #endif
     return 0;
 }

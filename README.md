@@ -329,7 +329,7 @@ Solution: `./vc/InputFusion.sln`
 The 6 projects inside the solution control the build output:
   - InputFusion -> `InputFusion.dll` (DLL injection)
   - GameInput   -> `gameinput.dll` (DLL sideloading / injection)
-  - XInput      -> `xinput.dll` (DLL sideloading / injection)
+  - XInput      -> `xinput1_4.dll` (DLL sideloading / injection)
   - DInput8     -> `dinput8.dll` (DLL sideloading / injection)
   - DInput      -> `dinput.dll` (DLL sideloading / injection)
   - WinMM       -> `winmm.dll` (DLL sideloading / injection)

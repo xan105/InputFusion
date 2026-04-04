@@ -60,6 +60,8 @@ STDMETHODIMP_(ULONG) IDirectInput8W::Release() {
 STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* lplpDirectInputDevice, LPUNKNOWN pUnkOuter) {
   SDL_Log("IDirectInput8W::CreateDevice() <%s>", GUIDToString(rguid).c_str());
   
+  if (rguid == GUID_NULL) return DIERR_NOINTERFACE;
+  
   if (rguid == GUID_SysKeyboard || rguid == GUID_SysMouse) {
       SDL_Log("FIXME: KBM SUPPORT");
       return DIERR_NOINTERFACE;
@@ -88,16 +90,16 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 
           //To ID the gamepad later on when creating a device, I'm encoding the corresponding playerIndex into the fake guid instance
           lpddi.guidInstance = {
-            MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 (VID + PID)
-            0x0000,																					              // Data2 (reserved)
-            0x0000,																					              // Data3 (reserved)
+            MAKELONG(XBOX360_VID, XBOX360_PID),								// Data1 (VID + PID)
+            0x0000,															// Data2 (reserved)
+            0x0000,															// Data3 (reserved)
             { 0x00, (BYTE)i, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	        // Data4 (ASCII "PLAYER")
           };
           lpddi.guidProduct = {
-            MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 VID + PID
-            0x0000,																					              // Data2 (reserved)
-            0x0000,																					              // Data3 (reserved)
-            { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }						// Data4 (ASCII "PIDVID")
+            MAKELONG(XBOX360_VID, XBOX360_PID),								// Data1 VID + PID
+            0x0000,															// Data2 (reserved)
+            0x0000,															// Data3 (reserved)
+            { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }				// Data4 (ASCII "PIDVID")
           };
 
           lpddi.dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID); //0x00010215
@@ -107,7 +109,7 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
           lpddi.wUsagePage = 0x01;
           lpddi.wUsage = 0x05;
           
-          SDL_Log("IDirectInput8W::EnumDevices() > Created %s", XBOX360_INSTANCE_NAMEW);
+          SDL_Log("IDirectInput8W::EnumDevices() > Created %s", SDL_iconv_wchar_utf8(XBOX360_INSTANCE_NAMEW));
 
           if (lpCallback(&lpddi, pvRef) == DIENUM_STOP){ break; }
   }
@@ -140,8 +142,23 @@ STDMETHODIMP IDirectInput8W::Initialize(HINSTANCE hinst, DWORD dwVersion) {
 }
 
 STDMETHODIMP IDirectInput8W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LPGUID pguidInstance) {
-  SDL_Log("IDirectInput8W::FindDevice()");
-  return DI_OK;
+  SDL_Log("IDirectInput8W::FindDevice() <%s>", GUIDToString(rguidClass).c_str());
+
+  if (pguidInstance == nullptr) return E_POINTER;
+  if (rguidClass == GUID_Joystick)
+  {
+    // Return first controller (player 0)
+    // See IDirectInput8W::EnumDevices()
+    *pguidInstance = {
+      MAKELONG(XBOX360_VID, XBOX360_PID),                 // Data1 (VID + PID)
+      0x0000,                                             // Data2 (reserved)
+      0x0000,                                             // Data3 (reserved)
+      { 0x00, 0x00, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }  // Data4 (ASCII "PLAYER")
+    };
+    return DI_OK;
+  }
+
+  return DIERR_NOTFOUND;
 }
 
 STDMETHODIMP IDirectInput8W::EnumDevicesBySemantics(LPCWSTR ptszUserName, LPDIACTIONFORMATW lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBW lpCallback, LPVOID pvRef, DWORD dwFlags) {

@@ -60,6 +60,8 @@ STDMETHODIMP_(ULONG) IDirectInput8A::Release() {
 STDMETHODIMP IDirectInput8A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8A* lplpDirectInputDevice, LPUNKNOWN pUnkOuter) {
   SDL_Log("IDirectInput8A::CreateDevice() <%s>", GUIDToString(rguid).c_str());
 
+  if (rguid == GUID_NULL) return DIERR_NOINTERFACE;
+
   if (rguid == GUID_SysKeyboard || rguid == GUID_SysMouse) {
       SDL_Log("FIXME: KBM SUPPORT");
       return DIERR_NOINTERFACE;
@@ -141,7 +143,22 @@ STDMETHODIMP IDirectInput8A::Initialize(HINSTANCE hinst, DWORD dwVersion) {
 
 STDMETHODIMP IDirectInput8A::FindDevice(REFGUID rguidClass, LPCSTR ptszName, LPGUID pguidInstance) {
   SDL_Log("IDirectInput8A::FindDevice()");
-  return DI_OK;
+  
+  if (pguidInstance == nullptr) return E_POINTER;
+  if (rguidClass == GUID_Joystick)
+  {
+    // Return first controller (player 0)
+    // See IDirectInput8W::EnumDevices()
+    *pguidInstance = {
+      MAKELONG(XBOX360_VID, XBOX360_PID),                 // Data1 (VID + PID)
+      0x0000,                                             // Data2 (reserved)
+      0x0000,                                             // Data3 (reserved)
+      { 0x00, 0x00, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }  // Data4 (ASCII "PLAYER")
+    };
+    return DI_OK;
+  }
+
+  return DIERR_NOTFOUND;
 }
 
 STDMETHODIMP IDirectInput8A::EnumDevicesBySemantics(LPCSTR ptszUserName, LPDIACTIONFORMATA lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBA lpCallback, LPVOID pvRef, DWORD dwFlags) {

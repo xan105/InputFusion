@@ -357,7 +357,11 @@ extern "C" {
     MMRESULT WINAPI joyGetDevCapsA(UINT_PTR uJoyID, LPJOYCAPSA pjc, UINT cbjc) {
         SDL_Log("joyGetDevCapsA(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
 
-        if (uJoyID > MAXJOY || pjc == nullptr || cbjc != sizeof(JOYCAPSA)) {
+        if (uJoyID > MAXJOY) {
+            SDL_Log("joyGetDevCapsA(%u, %p, %u) > JOYERR_PARMS", (unsigned)uJoyID, pjc, cbjc);
+            return JOYERR_PARMS;
+        }
+        if (pjc == nullptr || cbjc != sizeof(JOYCAPSA)) {
             SDL_Log("joyGetDevCapsA(%u, %p, %u) > MMSYSERR_INVALPARAM", (unsigned)uJoyID, pjc, cbjc);
             return MMSYSERR_INVALPARAM;
         }
@@ -403,7 +407,11 @@ extern "C" {
     MMRESULT WINAPI joyGetDevCapsW(UINT_PTR uJoyID, LPJOYCAPSW pjc, UINT cbjc) {
         SDL_Log("joyGetDevCapsW(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
 
-        if (uJoyID > MAXJOY || pjc == nullptr || cbjc != sizeof(JOYCAPSW)) {
+        if (uJoyID > MAXJOY) {
+            SDL_Log("joyGetDevCapsW(%u, %p, %u) > JOYERR_PARMS", (unsigned)uJoyID, pjc, cbjc);
+            return JOYERR_PARMS;
+        } 
+        if (pjc == nullptr || cbjc != sizeof(JOYCAPSW)) {
             SDL_Log("joyGetDevCapsW(%u, %p, %u) > MMSYSERR_INVALPARAM", (unsigned)uJoyID, pjc, cbjc);
             return MMSYSERR_INVALPARAM;
         }
@@ -460,7 +468,11 @@ extern "C" {
     MMRESULT WINAPI joyGetPos(UINT uJoyID, LPJOYINFO pji) {
         SDL_Log("joyGetPos(%u, %p)", uJoyID, pji);
 
-        if (uJoyID >= MAXJOY || pji == nullptr) {
+        if (uJoyID >= MAXJOY) {
+            SDL_Log("joyGetPos(%u, %p) > JOYERR_PARMS", uJoyID, pji);
+            return JOYERR_PARMS;
+        }   
+        if (pji == nullptr) {
             SDL_Log("joyGetPos(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, pji);
             return MMSYSERR_INVALPARAM;
         }
@@ -484,7 +496,11 @@ extern "C" {
     MMRESULT WINAPI joyGetPosEx(UINT uJoyID, LPJOYINFOEX pjiEx) {
         SDL_Log("joyGetPosEx(%u, %p)", uJoyID, pjiEx);
 
-        if (uJoyID >= MAXJOY || pjiEx == nullptr || pjiEx->dwSize != sizeof(JOYINFOEX)) {
+        if (uJoyID >= MAXJOY) {
+            SDL_Log("joyGetPosEx(%u, %p) > JOYERR_PARMS", uJoyID, pjiEx);
+            return JOYERR_PARMS;
+        } 
+        if (pjiEx == nullptr || pjiEx->dwSize != sizeof(JOYINFOEX)) {
             SDL_Log("joyGetPosEx(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, pjiEx);
             return MMSYSERR_INVALPARAM;
         }
@@ -521,7 +537,11 @@ extern "C" {
     MMRESULT WINAPI joyGetThreshold(UINT uJoyID, LPUINT puThreshold) {
         SDL_Log("joyGetThreshold(%u, %p)", uJoyID, puThreshold);
 
-        if (uJoyID >= MAXJOY || puThreshold == nullptr) {
+        if (uJoyID >= MAXJOY) {
+            SDL_Log("joyGetThreshold(%u, %p) > JOYERR_PARMS", uJoyID, puThreshold);
+            return JOYERR_PARMS;
+        }    
+        if (puThreshold == nullptr) {
             SDL_Log("joyGetThreshold(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, puThreshold);
             return MMSYSERR_INVALPARAM;
         }
@@ -569,9 +589,13 @@ extern "C" {
     MMRESULT WINAPI joySetCapture(HWND hwnd, UINT uJoyID, UINT uPeriod, BOOL fChanged) {
         SDL_Log("joySetCapture(%p, %u, %u, %d)", hwnd, uJoyID, uPeriod, fChanged);
 
-        if (uJoyID >= MAXJOY || hwnd == nullptr) {
+        if (uJoyID >= MAXJOY) {
             SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_PARMS", hwnd, uJoyID, uPeriod, fChanged);
             return JOYERR_PARMS;
+        } 
+        if (hwnd == nullptr) {
+            SDL_Log("joySetCapture(%p, %u, %u, %d) > MMSYSERR_INVALPARAM", hwnd, uJoyID, uPeriod, fChanged);
+            return MMSYSERR_INVALPARAM;
         }
         if (Joysticks[uJoyID].capture || !IsWindow(hwnd)) {
             SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_NOCANDO", hwnd, uJoyID, uPeriod, fChanged);

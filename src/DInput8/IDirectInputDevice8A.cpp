@@ -9,6 +9,8 @@ found in the LICENSE file in the root directory of this source tree.
 #include <algorithm>
 #include "../util.h"
 
+extern HANDLE SDL_Init_Wait;
+
 const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
   {SDL_GAMEPAD_BUTTON_SOUTH, 0},
   {SDL_GAMEPAD_BUTTON_EAST, 1},
@@ -297,34 +299,38 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     return DI_OK;
   }
   
-  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %d or %d", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
+  SDL_Log("IDirectInputDevice8A::GetDeviceState() > Size: %u | expected %zu or %zu", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
   
   if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
+    SDL_Log("IDirectInputDevice8A::GetDeviceState() > Unknown data format!");
     return DIERR_INVALIDPARAM;
   }
   if (cbData == sizeof(DIJOYSTATE)) {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
+    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE");
   }
   else if (cbData == sizeof(DIJOYSTATE2)) {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
+    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE2");
   }
   
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
-  
-  ZeroMemory(lpvData, cbData);
 
-  SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-  if (!(Flags & SDL_INIT_GAMEPAD)) {
-      return DI_OK;
+  if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
+      SDL_Log("SDL is not ready!");
+      if (SDL_Init_Wait) {
+          SDL_Log("IDirectInputDevice8A::GetDeviceState() > Waiting...");
+          WaitForSingleObject(SDL_Init_Wait, INFINITE);
+          SDL_Delay(10); // SDL event loop
+          SDL_Log("IDirectInputDevice8A::GetDeviceState() > ...Resuming");
+      }
   }
 
   SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(this->playerIndex);
   if (gamepad == nullptr) {
-      return DI_OK;
+      return DIERR_NOTACQUIRED;
   }
 
   SDL_UpdateGamepads();
+  ZeroMemory(lpvData, cbData);
 
   for (const auto& [sdl_button, index] : BUTTONS) {
     if (SDL_GetGamepadButton(gamepad, sdl_button)) {
@@ -337,7 +343,7 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     }
   }
 
-  DWORD pov = 0xFFFF; //Centered (no direction pressed)
+  DWORD pov = 0xFFFF; //0xFFFF; //Centered (no direction pressed) 
   bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
   bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
   bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
@@ -482,17 +488,17 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceInfo(LPDIDEVICEINSTANCEA pdidi) {
   if (pdidi->dwSize != sizeof(DIDEVICEINSTANCEA)) return DIERR_INVALIDPARAM;
   
   pdidi->guidInstance = {
-    MAKELONG(XBOX360_VID, XBOX360_PID),														            // Data1 (VID + PID)
-    0x0000,																					                          // Data2 (reserved)
-    0x0000,																					                          // Data3 (reserved)
+    MAKELONG(XBOX360_VID, XBOX360_PID),											// Data1 (VID + PID)
+    0x0000,																		// Data2 (reserved)
+    0x0000,																		// Data3 (reserved)
     { 0x00, (BYTE)this->playerIndex, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52 }	    // Data4 (ASCII "PLAYER")
   };
   
   pdidi->guidProduct = {
-    MAKELONG(XBOX360_VID, XBOX360_PID),														// Data1 VID + PID
-    0x0000,																					              // Data2 (reserved)
-    0x0000,																					              // Data3 (reserved)
-    { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }						// Data4 (ASCII "PIDVID")
+    MAKELONG(XBOX360_VID, XBOX360_PID),										    // Data1 VID + PID
+    0x0000,																	    // Data2 (reserved)
+    0x0000,																	    // Data3 (reserved)
+    { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }						    // Data4 (ASCII "PIDVID")
   };
   
   pdidi->dwDevType = (MAKEWORD(DI8DEVTYPE_GAMEPAD, DI8DEVTYPEGAMEPAD_STANDARD) | DIDEVTYPE_HID); //0x00010215

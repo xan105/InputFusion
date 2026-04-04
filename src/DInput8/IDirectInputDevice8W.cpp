@@ -9,6 +9,8 @@ found in the LICENSE file in the root directory of this source tree.
 #include <algorithm>
 #include "../util.h"
 
+extern HANDLE SDL_Init_Wait;
+
 const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
   {SDL_GAMEPAD_BUTTON_SOUTH, 0},
   {SDL_GAMEPAD_BUTTON_EAST, 1},
@@ -297,7 +299,7 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     return DI_OK;
   }
   
-  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %d or %d", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
+  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %zu or %zu", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
   
   if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
     SDL_Log("IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
@@ -312,11 +314,14 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
 
-  ZeroMemory(lpvData, cbData);
-
-  SDL_InitFlags Flags = SDL_WasInit(SDL_INIT_GAMEPAD);
-  if (!(Flags & SDL_INIT_GAMEPAD)) {
-    return E_PENDING;
+  if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
+      SDL_Log("SDL is not ready!");
+      if (SDL_Init_Wait) {
+          SDL_Log("IDirectInputDevice8W::GetDeviceState() > Waiting...");
+          WaitForSingleObject(SDL_Init_Wait, INFINITE);
+          SDL_Delay(10); // SDL event loop
+          SDL_Log("IDirectInputDevice8W::GetDeviceState() > ...Resuming");
+      }
   }
 
   SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(this->playerIndex);
@@ -325,6 +330,7 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   }
   
   SDL_UpdateGamepads();
+  ZeroMemory(lpvData, cbData);
 
   for (const auto& [sdl_button, index] : BUTTONS) {
     if (SDL_GetGamepadButton(gamepad, sdl_button)) {

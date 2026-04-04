@@ -38,7 +38,12 @@ void setDefaultGamepadAPIs() {
 bool init() {
     SDL_Log("InputFusion version %s", VER_FILEVERSION_STR);
 
-    #if defined(XINPUT_EXPORTS)
+    #if defined(GAMEINPUT_EXPORTS)
+    SDL_Log("InputFusion is running as GameInput dll");
+    if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
+        SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
+    }
+    #elif defined(XINPUT_EXPORTS)
     SDL_Log("InputFusion is running as XInput dll");
     if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
         SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
@@ -55,7 +60,7 @@ bool init() {
     #endif
 
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
-        SDL_Log("SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "SDL_INIT_GAMEPAD > ERROR: %s", SDL_GetError());
         if (SDL_Init_Wait) SetEvent(SDL_Init_Wait);
         return false;
     }
@@ -230,6 +235,9 @@ DWORD WINAPI Main(LPVOID lpReserved) {
     enableConsole();
     SDL_IOStream *logFile = SDL_IOFromFile("InputFusion.log", "w");
     SDL_SetLogOutputFunction(Logger, logFile);
+    SDL_SetLogPriorities(SDL_LOG_PRIORITY_DEBUG);
+    #else
+    SDL_SetLogPriorities(SDL_LOG_PRIORITY_ERROR);
     #endif
 
     setDefaultGamepadAPIs();

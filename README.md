@@ -17,13 +17,13 @@ If you are a game developper and you'd like your game to support a variety of ga
 Gamepad APIs support
 ====================
 
-- ~~GameInput~~
-- XInput
-- DInput8
-- DInput(1-7)
-- WinMM
-
-NB: DInput and DInput8 are still a work in progress. Depending on the game, "your mileage may vary", as they say.
+| API         | Status                  |
+|-------------|-------------------------|
+| GameInput   | 👷 Under development   |
+| XInput      | ✔️ Working             |
+| DInput8     | ⚠️ Work in progress    |
+| DInput(1-7) | ⚠️ Work in progress    |
+| WinMM       | ✔️ Working             |
   
 ## Out of scope (for now)
 

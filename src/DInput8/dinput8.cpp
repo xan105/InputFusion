@@ -45,26 +45,22 @@ extern "C" {
 }
 #endif
 
-#if defined(DINPUT8_EXPORTS) || defined(DINPUT_EXPORTS)
+#ifdef DINPUT8_EXPORTS
 extern "C" {
-#endif
+    HRESULT WINAPI DllCanUnloadNow() {
+        return S_OK;
+    }
 
-HRESULT WINAPI DllCanUnloadNow() {
-    return S_OK;
-}
+    HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
+        return CLASS_E_CLASSNOTAVAILABLE;
+    }
 
-HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
-    return CLASS_E_CLASSNOTAVAILABLE;
-}
+    HRESULT WINAPI DllRegisterServer() {
+        return NULL;
+    }
 
-HRESULT WINAPI DllRegisterServer() {
-    return NULL;
-}
-
-HRESULT WINAPI DllUnregisterServer() {
-    return S_OK;
-}
-
-#if defined(DINPUT8_EXPORTS) || defined(DINPUT_EXPORTS)
+    HRESULT WINAPI DllUnregisterServer() {
+        return S_OK;
+    }
 }
 #endif

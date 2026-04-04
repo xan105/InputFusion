@@ -417,3 +417,12 @@ extern "C" {
 #ifdef DINPUT_EXPORTS
 }
 #endif
+
+#ifdef DINPUT_EXPORTS
+extern "C" {
+    HRESULT WINAPI DllCanUnloadNow();
+    HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
+    HRESULT WINAPI DllRegisterServer();
+    HRESULT WINAPI DllUnregisterServer();
+}
+#endif

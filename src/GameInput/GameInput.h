@@ -818,8 +818,13 @@ extern "C" {
     void WINAPI GameInputKeyboardLayoutCallback(GameInputCallbackToken callbackToken, void* context, IGameInputDevice* device, uint64_t timestamp, uint32_t currentLayout, uint32_t previousLayout);
     void WINAPI GameInputReadingCallback(GameInputCallbackToken callbackToken, void* context, IGameInputReading* reading);
     void WINAPI GameInputSystemButtonCallback(GameInputCallbackToken callbackToken, void* context, IGameInputDevice* device, uint64_t timestamp, GameInputSystemButtons currentButtons, GameInputSystemButtons previousButtons);
-    HRESULT WINAPI DllCanUnloadNow();
-    HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
 #ifdef GAMEINPUT_EXPORTS
+}
+#endif
+
+#ifdef GAMEINPUT_EXPORTS
+extern "C" {
+    HRESULT WINAPI DllCanUnloadNow();
+    HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID * ppv);
 }
 #endif

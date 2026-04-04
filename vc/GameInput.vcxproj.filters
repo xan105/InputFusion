@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\GameInput\GameInput.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\GameInput\IGameInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,15 +42,15 @@
     <ClCompile Include="..\src\flags.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\GameInput\gameinput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\detour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\dllmain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\GameInput\GameInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\util.h">
@@ -68,15 +65,18 @@
     <ClInclude Include="..\src\flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\GameInput\GameInput.def">
-      <Filter>Source Files</Filter>
-    </None>
+    <ClInclude Include="..\src\GameInput\gameinput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\GameInput\gameinput.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

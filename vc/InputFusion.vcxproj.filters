@@ -37,6 +37,12 @@
     <Filter Include="Header Files\WinMM">
       <UniqueIdentifier>{27f17948-173c-456c-a8d8-8c2b703b96f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GameInput">
+      <UniqueIdentifier>{518b98cd-026d-4db3-9c51-3b2594a5b2ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameInput">
+      <UniqueIdentifier>{c88ca67d-f677-4060-8202-a67ccf1a52d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h">
@@ -68,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="..\src\flags.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GameInput\gameinput.h">
+      <Filter>Header Files\GameInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +162,24 @@
     </ClCompile>
     <ClCompile Include="..\src\flags.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\IGameInput.cpp">
+      <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\IGameInputDevice.cpp">
+      <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\IGameInputDispatcher.cpp">
+      <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\IGameInputForceFeedbackEffect.cpp">
+      <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\IGameInputReading.cpp">
+      <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\gameinput.cpp">
+      <Filter>Source Files\GameInput</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

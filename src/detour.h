@@ -27,7 +27,7 @@ bool setDetoursForGameInput();
 #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
 bool setDetoursForXInput();
 #endif
-#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS) || defined(XINPUT_EXPORTS)
+#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
 bool setDetoursForDInput8();
 #endif
 #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)

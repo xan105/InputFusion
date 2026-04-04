@@ -1,4 +1,4 @@
-LIBRARY "GameInput.dll"
+LIBRARY "gameinput.dll"
 EXPORTS
 GameInputCreate                   @1
 GameInputDeviceCallback

@@ -1,4 +1,4 @@
-LIBRARY "xinput.dll"
+LIBRARY "xinput1_4.dll"
 EXPORTS
 DllMain                         @1
 XInputGetState                  @2

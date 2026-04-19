@@ -99,57 +99,57 @@ Alternatively, here are some of my own:
 - [xan105/Mini-Launcher](https://github.com/xan105/Mini-Launcher):
 
   > CLI launcher with DLL Injection, Lua Scripting, Splash screen, and other goodies.
+  
+  <details><summary>Example (xan105/Mini-Launcher)</summary>
+
+  ```json
+  {
+    "bin": "Binaries/NMS.exe",
+    "env": {
+      "GAMEPAD_API_XINPUT": "HOOK"
+    },
+    "addons": [
+      { "path": "Binaries/InputFusion.asi", "required": true }
+    ]
+  }
+  ```
+  </details>
 
 - [xan105/node-remote-thread](https://github.com/xan105/node-remote-thread):
 
   > Node.js NAPI Native addon for Windows DLL injection with support for Wow64 and Unicode path.
+  
+  <details><summary>Example (xan105/node-remote-thread)</summary>
+
+  ```js
+  import { env } from "node:process";
+  import { spawn } from "node:child_process";
+  import { dirname } from "node:path";
+  import { createRemoteThread } from "@xan105/remote-thread";
+
+  const EXECUTABLE = "G:\\METAPHOR\\METAPHOR.exe";
+  const ADDON = "G:\\METAPHOR\\InputFusion.dll";
+  const ARGS = [];
+
+  const binary = spawn(EXECUTABLE, ARGS, {
+    cwd: dirname(EXECUTABLE),
+    stdio:[ "ignore", "ignore", "ignore" ], 
+    detached: true,
+    env: {
+      ...env,
+      "GAMEPAD_API_XINPUT": "HOOK"
+    }
+  });
+
+  binary.once("spawn", () => {
+    binary.unref();
+    createRemoteThread(binary.pid, ADDON);
+  });
+  ```
+  </details>
 
 > [!TIP]
 > Consider changing the file extension from `.dll` to `.asi` to help prevent false positive with Windows Defender.
-
-<details><summary>Example (xan105/Mini-Launcher)</summary>
-
-```json
-{
-  "bin": "Binaries/NMS.exe",
-  "env": {
-    "GAMEPAD_API_XINPUT": "HOOK"
-  },
-  "addons": [
-    { "path": "Binaries/InputFusion.asi", "required": true }
-  ]
-}
-```
-</details>
-
-<details><summary>Example (xan105/node-remote-thread)</summary>
-
-```js
-import { env } from "node:process";
-import { spawn } from "node:child_process";
-import { dirname } from "node:path";
-import { createRemoteThread } from "@xan105/remote-thread";
-
-const EXECUTABLE = "G:\\METAPHOR\\METAPHOR.exe";
-const ADDON = "G:\\METAPHOR\\InputFusion.dll";
-const ARGS = [];
-
-const binary = spawn(EXECUTABLE, ARGS, {
-  cwd: dirname(EXECUTABLE),
-  stdio:[ "ignore", "ignore", "ignore" ], 
-  detached: true,
-  env: {
-    ...env,
-    "GAMEPAD_API_XINPUT": "HOOK"
-  }
-});
-
-binary.once("spawn", () => {
-  binary.unref();
-  createRemoteThread(binary.pid, ADDON);
-});
-```
-</details>
 
 Gamepad Layout
 ==============

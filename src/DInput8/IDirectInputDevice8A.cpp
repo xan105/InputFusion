@@ -22,7 +22,7 @@ const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
   {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
   {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
   {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
-  {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6}
+  {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
 };
 
 const std::vector<SDL_GamepadAxis> AXIS = {

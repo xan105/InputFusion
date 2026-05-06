@@ -25,7 +25,7 @@ namespace LAYOUT {
             {SDL_GAMEPAD_BUTTON_START, 9},
             {SDL_GAMEPAD_BUTTON_LEFT_STICK, 10},
             {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 11},
-            {SDL_GAMEPAD_BUTTON_TOUCHPAD, 8}
+            {SDL_GAMEPAD_BUTTON_TOUCHPAD, 8} // PS4/PS5 touchpad button
     };
 
     const std::unordered_map<SDL_GamepadAxis, DWORD> TRIGGERS = {
@@ -190,7 +190,7 @@ namespace LAYOUT {
             {SDL_GAMEPAD_BUTTON_START, 7},
             {SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
             {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
-            {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6}
+            {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
     };
     
     void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx){

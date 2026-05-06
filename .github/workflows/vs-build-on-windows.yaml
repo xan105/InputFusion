@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     strategy:
       matrix:
         configuration: [Debug, Release]
@@ -16,7 +16,7 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
         with:
-          vs-version: '17.0'   # VS 2022
+          vs-version: "18.0"   # VS 2026
           msbuild-architecture: x64
        
       - name: Build SDL3

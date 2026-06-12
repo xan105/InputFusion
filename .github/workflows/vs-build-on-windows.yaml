@@ -33,7 +33,7 @@ jobs:
           compression-level: 0
         
   package:
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     needs: build
     steps:
       - uses: actions/checkout@v6

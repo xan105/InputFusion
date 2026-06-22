@@ -318,7 +318,7 @@ Caveats
 Build
 =====
 
-🆚 **Visual Studio 2022**
+🆚 **Visual Studio 2026**
 
 📦 Vendor dependencies:
   - [Microsoft Detours library](https://github.com/microsoft/Detours)

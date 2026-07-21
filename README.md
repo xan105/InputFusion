@@ -309,7 +309,8 @@ A quick google search will find you plenty on GitHub. Otherwise may I suggest on
 Caveats
 =======
 
-- SDL might still be initializing when the game does it's first Gamepad API call (on startup).
+- ~~SDL might still be initializing when the game does it's first Gamepad API call (on startup).~~<br />
+  _This shouldn't be a problem since v0.4.0 of this project._
 
 - Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.

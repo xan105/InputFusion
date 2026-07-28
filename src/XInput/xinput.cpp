@@ -170,9 +170,11 @@ extern "C" {
             return ERROR_DEVICE_NOT_CONNECTED;
         }
 
-        SDL_RumbleGamepad(gamepad, pVibration->wLeftMotorSpeed, pVibration->wRightMotorSpeed, 0);
-        SDL_RumbleGamepadTriggers(gamepad, pVibration->wLeftTriggerSpeed, pVibration->wRightTriggerSpeed, 0);
-        SDL_UpdateGamepads();
+        if (Flags().rumble) {
+            SDL_RumbleGamepad(gamepad, pVibration->wLeftMotorSpeed, pVibration->wRightMotorSpeed, 0);
+            SDL_RumbleGamepadTriggers(gamepad, pVibration->wLeftTriggerSpeed, pVibration->wRightTriggerSpeed, 0);
+            SDL_UpdateGamepads();
+        }
 
         SDL_Log("XInputSetStateEx(%u, %p) > ERROR_SUCCESS", dwUserIndex, pVibration);
         return ERROR_SUCCESS;

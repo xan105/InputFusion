@@ -236,6 +236,12 @@ Currently only available for PS4/PS5 controller in wireless.
 
 `DLL: Any`
 
+#### `GAMEPAD_RUMBLE=NONE`
+
+Disable motor vibration. This includes _"Impulse Triggers"_ on newer Xbox controllers.
+
+`DLL: Any`
+
 #### `GAMEPAD_API_GAMEINPUT=HOOK`
 
 Enable GameInput functions hooking / detouring.<br />

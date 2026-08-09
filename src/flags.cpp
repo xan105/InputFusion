@@ -11,7 +11,7 @@ const Flags_t& Flags() {
     static Flags_t flags = [] {
         Flags_t flag{};
         flag.ledbatterylvl               =   Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
-        flag.rumble                      =   Getenv(L"GAMEPAD_RUMBLE") == L"NONE";
+        flag.norumble                    =   Getenv(L"GAMEPAD_RUMBLE") == L"DISABLE";
         flag.winmm_layout_xbox           =   Getenv(L"GAMEPAD_API_WINMM_LAYOUT") == L"XBOX";
         flag.xinput_always_connected     =   Getenv(L"GAMEPAD_API_XINPUT_DEVICE_CONNECTED") == L"ALWAYS";
         flag.gameinput_detour            =   Getenv(L"GAMEPAD_API_GAMEINPUT") == L"HOOK";

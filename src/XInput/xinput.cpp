@@ -170,7 +170,7 @@ extern "C" {
             return ERROR_DEVICE_NOT_CONNECTED;
         }
 
-        if (Flags().rumble) {
+        if (!Flags().norumble) {
             SDL_RumbleGamepad(gamepad, pVibration->wLeftMotorSpeed, pVibration->wRightMotorSpeed, 0);
             SDL_RumbleGamepadTriggers(gamepad, pVibration->wLeftTriggerSpeed, pVibration->wRightTriggerSpeed, 0);
             SDL_UpdateGamepads();

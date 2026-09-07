@@ -1411,6 +1411,13 @@ SDL_GPUTransferBuffer *SDL_CreateGPUTransferBuffer(
         return NULL;
     }
 
+    if (device->debug_mode) {
+        if (createinfo->usage != SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD &&
+            createinfo->usage != SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD) {
+            SDL_assert_release(!"Invalid transfer buffer usage!");
+        }
+    }
+
     const char *debugName = SDL_GetStringProperty(createinfo->props, SDL_PROP_GPU_TRANSFERBUFFER_CREATE_NAME_STRING, NULL);
 
     return device->CreateTransferBuffer(
@@ -2083,6 +2090,10 @@ void SDL_BindGPUVertexSamplers(
         }
     }
 
+    if (num_bindings == 0) {
+        return;
+    }
+
     RENDERPASS_DEVICE->BindVertexSamplers(
         RENDERPASS_COMMAND_BUFFER,
         first_slot,
@@ -2188,6 +2199,10 @@ void SDL_BindGPUFragmentSamplers(
         for (Uint32 i = 0; i < num_bindings; i += 1) {
             ((RenderPass *)render_pass)->fragment_sampler_bound[first_slot + i] = true;
         }
+    }
+
+    if (num_bindings == 0) {
+        return;
     }
 
     RENDERPASS_DEVICE->BindFragmentSamplers(

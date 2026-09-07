@@ -200,7 +200,7 @@ jobs:
         run: |
           ${{ matrix.platform.source-cmd }}
           ${{ matrix.platform.cmake-config-emulator }} cmake -S . -B build -G "${{ matrix.platform.cmake-generator }}" \
-            -Wdeprecated -Wdev -Werror \
+            -Wdeprecated -Wdev -Werror=dev -Werror=deprecated \
             ${{ matrix.platform.cmake-toolchain-file != '' && format('-DCMAKE_TOOLCHAIN_FILE={0}', matrix.platform.cmake-toolchain-file) || '' }} \
             -DSDL_WERROR=${{ matrix.platform.werror }} \
             -DSDL_EXAMPLES=${{ matrix.platform.build-tests }} \
@@ -319,7 +319,7 @@ jobs:
       - name: 'Build (cross-platform-actions, BSD)'
         id: cpactions
         if: ${{ matrix.platform.cpactions }}
-        uses: cross-platform-actions/action@v0.32.0
+        uses: cross-platform-actions/action@v1
         with:
           operating_system: '${{ matrix.platform.cpactions-os }}'
           architecture: '${{ matrix.platform.cpactions-arch }}'

@@ -396,6 +396,19 @@ sub wikify {
     return $retval;
 }
 
+sub gen_manpage_url {
+    my $url = shift;
+    my $desc = shift;
+
+    # We have to unmangle some mangling we just did.  :/
+    $url =~ s/\\\[char46\]/./g;
+
+    # can't have newlines in this.
+    $desc =~ s/\n/ /g;
+
+    return "\n.URL \"$url\" \"$desc\"\n";
+}
+
 
 my $dewikify_mode = 'md';
 my $dewikify_manpage_code_indent = 1;
@@ -459,7 +472,7 @@ sub dewikify_chunk {
             }
 
             # links
-            $str =~ s/\[(https?\:\/\/.*?)\s+(.*?)\]/\n.URL "$1" "$2"\n/g;
+            $str =~ s/\[(https?\:\/\/.*?)\s+(.*?)\]\s*/gen_manpage_url($1, $2)/ge;
 
             # <code></code> is also popular.  :/
             $str =~ s/\s*\<code>(.*?)<\/code>\s*/\n.BR $1\n/gms;
@@ -496,7 +509,7 @@ sub dewikify_chunk {
             }
 
             # links
-            $str =~ s/\[(.*?)]\((https?\:\/\/.*?)\)/\n.URL "$2" "$1"\n/g;
+            $str =~ s/\[([^\]]*?)]\((https?\:\/\/.*?)\)\s*/gen_manpage_url($2, $1)/ge;
 
             # <code></code> is also popular.  :/
             $str =~ s/\s*(\S*?)\`([^\n]*?)\`(\S*)\s*/\n.BR "" "$1" "$2" "$3"\n/gms;
@@ -1773,20 +1786,20 @@ while (my $d = readdir(DH)) {
             } elsif (/\A\= (.*?) \=\Z/) {
                 $firstline = 0;
                 $current_section = ($1 eq $sym) ? '[Brief]' : $1;
-                die("Doubly-defined section '$current_section' in '$dent'!\n") if defined $sections{$current_section};
+                die("Doubly-defined section '$current_section' in '$wikipath/$dent'!\n") if defined $sections{$current_section};
                 push @section_order, $current_section;
                 $sections{$current_section} = '';
             } elsif (/\A\=\= (.*?) \=\=\Z/) {
                 $firstline = 0;
                 $current_section = ($1 eq $sym) ? '[Brief]' : $1;
-                die("Doubly-defined section '$current_section' in '$dent'!\n") if defined $sections{$current_section};
+                die("Doubly-defined section '$current_section' in '$wikipath/$dent'!\n") if defined $sections{$current_section};
                 push @section_order, $current_section;
                 $sections{$current_section} = '';
                 next;
             } elsif (/\A\-\-\-\-\Z/) {
                 $firstline = 0;
                 $current_section = '[footer]';
-                die("Doubly-defined section '$current_section' in '$dent'!\n") if defined $sections{$current_section};
+                die("Doubly-defined section '$current_section' in '$wikipath/$dent'!\n") if defined $sections{$current_section};
                 push @section_order, $current_section;
                 $sections{$current_section} = '';
                 next;
@@ -1798,14 +1811,14 @@ while (my $d = readdir(DH)) {
             } elsif (/\A\#+ (.*?)\Z/) {
                 $firstline = 0;
                 $current_section = ($1 eq $sym) ? '[Brief]' : $1;
-                die("Doubly-defined section '$current_section' in '$dent'!\n") if defined $sections{$current_section};
+                die("Doubly-defined section '$current_section' in '$wikipath/$dent'!\n") if defined $sections{$current_section};
                 push @section_order, $current_section;
                 $sections{$current_section} = '';
                 next;
             } elsif (/\A\-\-\-\-\Z/) {
                 $firstline = 0;
                 $current_section = '[footer]';
-                die("Doubly-defined section '$current_section' in '$dent'!\n") if defined $sections{$current_section};
+                die("Doubly-defined section '$current_section' in '$wikipath/$dent'!\n") if defined $sections{$current_section};
                 push @section_order, $current_section;
                 $sections{$current_section} = '';
                 next;

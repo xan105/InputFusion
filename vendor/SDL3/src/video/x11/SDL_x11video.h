@@ -70,7 +70,6 @@ struct SDL_VideoData
     struct {
         Atom WM_PROTOCOLS;
         Atom WM_DELETE_WINDOW;
-        Atom WM_TAKE_FOCUS;
         Atom WM_NAME;
         Atom WM_TRANSIENT_FOR;
         Atom _NET_WM_STATE;
@@ -190,7 +189,7 @@ struct SDL_VideoData
 #endif
 
     // Used to interact with the on-screen keyboard
-    bool is_steam_deck;
+    bool use_steam_screen_keyboard;
 
     bool is_xwayland;
 };

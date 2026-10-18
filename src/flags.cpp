@@ -12,8 +12,10 @@ const Flags_t& Flags() {
         Flags_t flag{};
         flag.ledbatterylvl               =   Getenv(L"GAMEPAD_LED") == L"BATTERYLVL";
         flag.norumble                    =   Getenv(L"GAMEPAD_RUMBLE") == L"DISABLE";
+        flag.delegate = true; //Getenv(L"GAMEPAD_API_DELEGATE") == L"ENABLE";
         flag.winmm_layout_xbox           =   Getenv(L"GAMEPAD_API_WINMM_LAYOUT") == L"XBOX";
         flag.xinput_always_connected     =   Getenv(L"GAMEPAD_API_XINPUT_DEVICE_CONNECTED") == L"ALWAYS";
+        flag.dinput_nodevices            =   Getenv(L"GAMEPAD_API_DINPUT8_NODEVICES") == L"ENABLE";
         flag.gameinput_detour            =   Getenv(L"GAMEPAD_API_GAMEINPUT") == L"HOOK";
         flag.xinput_detour               =   Getenv(L"GAMEPAD_API_XINPUT") == L"HOOK";
         flag.dinput8_detour              =   Getenv(L"GAMEPAD_API_DINPUT8") == L"HOOK";

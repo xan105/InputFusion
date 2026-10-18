@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dllmain.h"
+#include "delegate.h"
 #include "detour.h"
 #include "util.h"
 #include "flags.h"
@@ -15,22 +16,28 @@ HANDLE SDL_Init_Wait = nullptr;
 HANDLE SDL_Quit_Wait = nullptr;
 
 void setDefaultGamepadAPIs() {
-    SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0");    // Dinput8
-    SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");          // Xinput      
-    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");            // Windows.Gaming.Input (WinRT)
-    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");      // GameInput
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");         // HID
+    SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "0");                    // Dinput8
+    SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");                          // Xinput             
+    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");                            // Windows.Gaming.Input (WinRT)
+    SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");                      // GameInput
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");                         // HID
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");       // RAW (Xbox controllers) | Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");                       // RAW (Xbox controllers) | Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
         SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "1");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers                                                               
         SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");                     // Xbox controllers raw input (SDL is not running in the main thread)
 
     // https://github.com/libsdl-org/SDL/pull/14353
     // Should be merged in SDL3 3.6
-    // SDL_SetHint(SDL_HINT_JOYSTICK_DSU, "1");         // DualShock UDP (DS4Windows, BetterJoy, etc.)
+    // SDL_SetHint(SDL_HINT_JOYSTICK_DSU, "1");                         // DualShock UDP (DS4Windows, BetterJoy, etc.)
+
+    if (Flags().delegate) {
+        SDL_Log("Allowing legacy Input APIs usage within SDL");
+        SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, "1");                // Dinput8
+        SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "1");                      // Xinput
+    }
 }
 
 bool init() {
@@ -38,17 +45,17 @@ bool init() {
 
     #if defined(GAMEINPUT_EXPORTS)
     SDL_Log("InputFusion is running as GameInput dll");
-    if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
+    if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
         SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
     }
     #elif defined(XINPUT_EXPORTS)
     SDL_Log("InputFusion is running as XInput dll");
-    if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
+    if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
         SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
     }
     #elif defined(DINPUT8_EXPORTS)
     SDL_Log("InputFusion is running as DInput8 dll");
-    if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
+    if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
         SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
     }
     #elif defined(DINPUT_EXPORTS)
@@ -173,6 +180,15 @@ void eventLoop() {
                         char* mapping = SDL_GetGamepadMapping(gamepad);
                         SDL_Log("Gamepad Mapping: \"%s\"", mapping);
                         SDL_free(mapping);
+                        
+                        // Workaround for https://github.com/libsdl-org/SDL/issues/16261)
+                        SDL_GamepadType type = SDL_GetGamepadType(gamepad);
+                        if (type == SDL_GAMEPAD_TYPE_PS4) {
+                          int index = SDL_GetGamepadPlayerIndex(gamepad);
+                          if (index == 0) {
+                            SDL_SetGamepadLED(gamepad, 0, 0, 64); // Blue
+                          }
+                        }
                     }
                     break;
                 }
@@ -255,6 +271,7 @@ DWORD WINAPI Main(LPVOID lpReserved) {
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_ERROR);
     #endif
 
+    delegateSDLInputCalls();
     setDefaultGamepadAPIs();
     setDetours();
     if (init()) {

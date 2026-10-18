@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\delegate.h" />
     <ClInclude Include="..\src\detour.h" />
     <ClInclude Include="..\src\dllmain.h" />
     <ClInclude Include="..\src\flags.h" />
@@ -31,6 +32,7 @@
     <ResourceCompile Include="..\src\InputFusion.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\delegate.cpp" />
     <ClCompile Include="..\src\detour.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
     <ClCompile Include="..\src\flags.cpp" />

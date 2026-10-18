@@ -263,7 +263,7 @@ void setDetours() {
     #if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
     if (Flags().gameinput_detour && setDetoursForGameInput()) {
         SDL_Log("Detour set for GameInput");
-        if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
+        if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
         }
     }
@@ -272,7 +272,7 @@ void setDetours() {
     #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Flags().xinput_detour && setDetoursForXInput()) {
         SDL_Log("Detour set for XInput");
-        if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
+        if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
         }
     }
@@ -281,7 +281,7 @@ void setDetours() {
     #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
     if (Flags().dinput8_detour && setDetoursForDInput8()) {
         SDL_Log("Detour set for DInput8");
-        if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
+        if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
         }
     }

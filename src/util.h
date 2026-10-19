@@ -11,6 +11,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include <sstream>
 #include <iomanip>
 
-std::wstring Getenv(LPCWSTR name);
 void enableConsole();
+std::wstring Getenv(LPCWSTR name);
+std::wstring GetSelfDir();
 std::string GUIDToString(REFIID riid);

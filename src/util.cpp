@@ -19,6 +19,28 @@ std::wstring Getenv(LPCWSTR name) {
     }
 }
 
+std::wstring GetSelfDir() {
+    HMODULE hModule = nullptr;
+    if (!GetModuleHandleExW(
+        GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        reinterpret_cast<LPCWSTR>(&GetSelfDir),
+        &hModule))
+    {
+        return L"";
+    }
+
+    WCHAR buffer[MAX_PATH] = { 0 };
+    GetModuleFileNameW(hModule, buffer, MAX_PATH);
+
+    std::wstring path(buffer);
+    std::wstring::size_type pos = path.find_last_of(L"\\/");
+    if (pos != std::wstring::npos) {
+        path = path.substr(0, pos + 1);  // Keep trailing slash for easy path concat
+    }
+    return path;
+}
+
 void enableConsole() {
 
     if (AllocConsole()) {

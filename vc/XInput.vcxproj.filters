@@ -63,9 +63,6 @@
     <ClInclude Include="..\src\flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\delegate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\DInput\dinput.h">
       <Filter>Header Files\DInput</Filter>
     </ClInclude>
@@ -80,6 +77,9 @@
     </ClInclude>
     <ClInclude Include="..\src\XInput\xinput.h">
       <Filter>Header Files\XInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\delegate.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

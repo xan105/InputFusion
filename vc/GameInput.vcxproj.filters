@@ -13,8 +13,35 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\DInput">
+      <UniqueIdentifier>{7e4ce7a6-d6b2-4a1a-8616-27fa95c11df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DInput8">
+      <UniqueIdentifier>{04f1f236-fa55-4880-83c7-0667547da2b5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\GameInput">
-      <UniqueIdentifier>{b9540359-c33f-41fd-b6c7-735aabdd447d}</UniqueIdentifier>
+      <UniqueIdentifier>{d2f0e1b3-ce55-41ae-9f49-d3817d60797a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WinMM">
+      <UniqueIdentifier>{c2712030-2c7e-428c-a320-6291737b693b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\XInput">
+      <UniqueIdentifier>{d329beb0-a624-4818-8aec-fe138be48834}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput">
+      <UniqueIdentifier>{8e016fad-b5f7-45b8-b9b9-480f4f1ae06b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DInput8">
+      <UniqueIdentifier>{2a46ae5d-35e1-4ec2-bc90-99af3080355d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameInput">
+      <UniqueIdentifier>{f274e9ea-eca9-40fc-8ee7-fe7c53001450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WinMM">
+      <UniqueIdentifier>{27ff840f-fd35-4d81-b18c-6eaf89759a0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\XInput">
+      <UniqueIdentifier>{31b5bc5f-b736-43fb-a8f7-06cfedfc6cce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,8 +57,71 @@
     <ClCompile Include="..\src\flags.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\GameInput\gameinput.cpp">
+    <ClCompile Include="..\src\delegate.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\dinput.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput2A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput2W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput7A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInput7W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputA.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7A.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7W.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceA.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceW.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput\IDirectInputW.cpp">
+      <Filter>Source Files\DInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\dinput8.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp">
+      <Filter>Source Files\DInput8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameInput\gameinput.cpp">
+      <Filter>Source Files\GameInput</Filter>
     </ClCompile>
     <ClCompile Include="..\src\GameInput\IGameInput.cpp">
       <Filter>Source Files\GameInput</Filter>
@@ -47,6 +137,12 @@
     </ClCompile>
     <ClCompile Include="..\src\GameInput\IGameInputReading.cpp">
       <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WinMM\winmm.cpp">
+      <Filter>Source Files\WinMM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\XInput\xinput.cpp">
+      <Filter>Source Files\XInput</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,8 +164,23 @@
     <ClInclude Include="..\src\flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\GameInput\gameinput.h">
+    <ClInclude Include="..\src\delegate.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DInput\dinput.h">
+      <Filter>Header Files\DInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DInput8\dinput8.h">
+      <Filter>Header Files\DInput8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GameInput\gameinput.h">
+      <Filter>Header Files\GameInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WinMM\winmm.h">
+      <Filter>Header Files\WinMM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\XInput\xinput.h">
+      <Filter>Header Files\XInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -79,7 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\GameInput\gameinput.def">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\GameInput</Filter>
     </None>
   </ItemGroup>
 </Project>

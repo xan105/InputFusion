@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -121,7 +121,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -141,7 +141,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_DEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -160,7 +160,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;NDEBUG;DINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -185,11 +185,15 @@
     <ClInclude Include="..\src\DInput\dinput.h" />
     <ClInclude Include="..\src\dllmain.h" />
     <ClInclude Include="..\src\flags.h" />
+    <ClInclude Include="..\src\GameInput\gameinput.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />
+    <ClInclude Include="..\src\WinMM\winmm.h" />
+    <ClInclude Include="..\src\XInput\xinput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\delegate.cpp" />
     <ClCompile Include="..\src\detour.cpp" />
     <ClCompile Include="..\src\DInput8\dinput8.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp" />
@@ -213,7 +217,15 @@
     <ClCompile Include="..\src\DInput\IDirectInputW.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
     <ClCompile Include="..\src\flags.cpp" />
+    <ClCompile Include="..\src\GameInput\gameinput.cpp" />
+    <ClCompile Include="..\src\GameInput\IGameInput.cpp" />
+    <ClCompile Include="..\src\GameInput\IGameInputDevice.cpp" />
+    <ClCompile Include="..\src\GameInput\IGameInputDispatcher.cpp" />
+    <ClCompile Include="..\src\GameInput\IGameInputForceFeedbackEffect.cpp" />
+    <ClCompile Include="..\src\GameInput\IGameInputReading.cpp" />
     <ClCompile Include="..\src\util.cpp" />
+    <ClCompile Include="..\src\WinMM\winmm.cpp" />
+    <ClCompile Include="..\src\XInput\xinput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\DInput\dinput.def" />

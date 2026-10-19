@@ -18,22 +18,13 @@ found in the LICENSE file in the root directory of this source tree.
 
 typedef void (WINAPI* ExitProcess_t)(UINT uExitCode);
 
-void WINAPI Detour_ExitProcess(UINT uExitCode);
-bool takeDetour(PVOID* ppPointer, PVOID pDetour);
-bool setDetoursExitProcess();
-#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
-bool setDetoursForGameInput();
-#endif
-#if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
-bool setDetoursForXInput();
-#endif
-#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
-bool setDetoursForDInput8();
-#endif
-#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
-bool setDetoursForDInput();
-#endif
-#if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
-bool setDetoursForWinmm();
-#endif
+static void WINAPI Detour_ExitProcess(UINT uExitCode);
+static bool takeDetour(PVOID* ppPointer, PVOID pDetour);
+static bool setDetoursExitProcess();
+static bool setDetoursForGameInput();
+static bool setDetoursForXInput();
+static bool setDetoursForDInput8();
+static bool setDetoursForDInput();
+static bool setDetoursForWinmm();
+
 void setDetours();

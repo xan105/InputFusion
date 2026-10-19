@@ -234,67 +234,53 @@ When enabled the LED light of the controller is used to show the battery level o
   
 Currently only available for PS4/PS5 controller in wireless.
 
-`DLL: Any`
-
 #### `GAMEPAD_RUMBLE=NONE`
 
 Disable motor vibration. This includes _"Impulse Triggers"_ on newer Xbox controllers.
-
-`DLL: Any`
 
 #### `GAMEPAD_API_GAMEINPUT=HOOK`
 
 Enable GameInput functions hooking / detouring.<br />
 This forces the use of the GameInput functions from the DLL when calling GameInput functions.
 
-⚠️ This will also disable GameInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_GAMEINPUT=0).
-
-`DLL: InputFusion, GameInput`
+⚠️ This will also disable GameInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_GAMEINPUT=0). Unless you are using the delegate option.
 
 #### `GAMEPAD_API_XINPUT=HOOK`
 
 Enable XInput functions hooking / detouring.<br />
 This forces the use of the XInput functions from the DLL when calling XInput functions.
 
-⚠️ This will also disable XInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_XINPUT_ENABLED=0).
-
-`DLL: InputFusion, XInput`
+⚠️ This will also disable XInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_XINPUT_ENABLED=0). Unless you are using the delegate option.
 
 #### `GAMEPAD_API_XINPUT_DEVICE_CONNECTED=ALWAYS`
 
 All XInput slots will report as connected, returning dummy data when necessary.  
 This helps with games that do not properly handle gamepad disconnection (hot reload), as they may not retry after receiving **ERROR_DEVICE_NOT_CONNECTED**.
 
-`DLL: InputFusion, XInput`
-
 #### `GAMEPAD_API_DINPUT8=HOOK`
 
 Enable DInput8 functions hooking / detouring.
 This forces the use of the DInput8 functions from the DLL when calling DInput8 functions.
 
-⚠️ This will also disable DirectInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_DIRECTINPUT=0).
+⚠️ This will also disable DirectInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_DIRECTINPUT=0). Unless you are using the delegate option.
 
-`DLL: InputFusion, Dinput8`
+#### `GAMEPAD_API_DINPUT8_NODEVICES=ENABLE`
+
+Do not return any devices when enumerating devices with DInput8. Can be useful when dealing with "dual input api games".
 
 #### `GAMEPAD_API_DINPUT=HOOK`
 
 Enable DInput 1-7 functions hooking / detouring.
 This forces the use of the DInput functions from the DLL when calling DInput functions.
 
-`DLL: InputFusion, Dinput`
-
 #### `GAMEPAD_API_WINMM=HOOK`
 
 Enable WinMM functions hooking / detouring.
 This forces the use of the WinMM functions from the DLL when calling WinMM Joystick related functions.
 
-`DLL: InputFusion, WinMM`
-
 #### `GAMEPAD_API_WINMM_LAYOUT=XBOX`
 
 Use the modern Xbox controller layout with WinMM. Useful for modern games that decided to use a legacy API for a Xbox controller such as [Deadly Premonition](https://store.steampowered.com/app/247660/Deadly_Premonition_The_Directors_Cut/).
-
-`DLL: InputFusion, WinMM`
 
 Linux (Wine/Proton)
 ===================

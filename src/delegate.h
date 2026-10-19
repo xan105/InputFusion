@@ -11,13 +11,12 @@ found in the LICENSE file in the root directory of this source tree.
 #include <mutex>
 #include <SDL3/SDL.h>
 
-HMODULE LoadSystemLibraryW(const wchar_t* moduleName);
-std::string GetModuleFileNameUTF8(HMODULE hMod);
+static std::string GetModuleFileNameUTF8(HMODULE hMod);
+static HMODULE LoadSystemLibraryW(const wchar_t* moduleName);
 static HMODULE GetSelfModule();
+static void delegateGameInput();
+static void delegateXInput();
+static void delegateDInput8();
+
 bool IsSDL3(void* returnAddress);
-
-#if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
-void delegateXInput();
-#endif
-
 void delegateSDLInputCalls();

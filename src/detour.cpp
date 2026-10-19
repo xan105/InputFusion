@@ -7,28 +7,16 @@ found in the LICENSE file in the root directory of this source tree.
 #include "detour.h"
 #include "util.h"
 #include "flags.h"
-#if defined(INPUTFUSION_EXPORTS)
 #include "GameInput/gameinput.h"
 #include "XInput/xinput.h"
 #include "DInput/dinput.h"
 #include "WinMM/winmm.h"
-#elif defined(GAMEINPUT_EXPORTS)
-#include "GameInput/gameinput.h"
-#elif defined(XINPUT_EXPORTS)
-#include "XInput/xinput.h"
-#elif defined(DINPUT8_EXPORTS)
-#include "DInput8/dinput8.h"
-#elif defined(DINPUT_EXPORTS)
-#include "DInput/dinput.h"
-#elif defined(WINMM_EXPORTS)
-#include "WinMM/winmm.h"
-#endif
 
 extern std::atomic<bool> SDL_Event_Loop;
 extern HANDLE SDL_Quit_Wait;
 ExitProcess_t pExitProcess = nullptr;
 
-void WINAPI Detour_ExitProcess(UINT uExitCode) {
+static void WINAPI Detour_ExitProcess(UINT uExitCode) {
     SDL_Log("ExitProcess(%u)", uExitCode);
 
     SDL_Event_Loop = false;
@@ -40,14 +28,14 @@ void WINAPI Detour_ExitProcess(UINT uExitCode) {
     return pExitProcess(uExitCode);
 }
 
-bool takeDetour(PVOID* ppPointer, PVOID pDetour) {
+static bool takeDetour(PVOID* ppPointer, PVOID pDetour) {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     DetourAttach(ppPointer, pDetour);
     return DetourTransactionCommit() == NO_ERROR;
 }
 
-bool setDetoursExitProcess() {
+static bool setDetoursExitProcess() {
     HMODULE hMod = LoadLibraryA("KERNEL32.dll");
     if (hMod == nullptr) return false;
     SDL_Log("LoadLibraryA: KERNEL32.dll");
@@ -57,9 +45,8 @@ bool setDetoursExitProcess() {
     return takeDetour(&(PVOID&)pExitProcess, Detour_ExitProcess);
 }
 
-#if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
-bool setDetoursForGameInput() {
-    HMODULE hMod = LoadLibraryA("gameinput.dll"); //GameInputRedist.dll (?)
+static bool setDetoursForGameInput() {
+    HMODULE hMod = LoadLibraryA("gameinput.dll"); // GameInputRedist.dll (?)
     if (hMod == nullptr) return false;
     SDL_Log("LoadLibraryA: gameinput.dll");
 
@@ -67,10 +54,8 @@ bool setDetoursForGameInput() {
     if (pGameInputCreate == nullptr) return false;
     return takeDetour(&(PVOID&)pGameInputCreate, GameInputCreate);
 }
-#endif
 
-#if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
-bool setDetoursForXInput() {
+static bool setDetoursForXInput() {
     std::vector<std::string> versions = {
         "XInput1_4.dll",
         "xinput1_3.dll",
@@ -155,10 +140,8 @@ bool setDetoursForXInput() {
 
     return true;
 }
-#endif
 
-#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
-bool setDetoursForDInput8() {
+static bool setDetoursForDInput8() {
     HMODULE hMod = LoadLibraryA("dinput8.dll");
     if (hMod == nullptr) return false;
     SDL_Log("LoadLibraryA: dinput8.dll");
@@ -167,10 +150,8 @@ bool setDetoursForDInput8() {
     if (pDirectInput8Create == nullptr) return false;
     return takeDetour(&(PVOID&)pDirectInput8Create, DirectInput8Create);
 }
-#endif
 
-#if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
-bool setDetoursForDInput() {
+static bool setDetoursForDInput() {
     HMODULE hMod = LoadLibraryA("dinput.dll");
     if (hMod == nullptr) return false;
     SDL_Log("LoadLibraryA: dinput.dll");
@@ -192,10 +173,8 @@ bool setDetoursForDInput() {
 
     return true;
 }
-#endif
 
-#if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
-bool setDetoursForWinmm() {
+static bool setDetoursForWinmm() {
     HMODULE hMod = LoadLibraryA("winmm.dll");
     if (hMod == nullptr) return false;
     SDL_Log("LoadLibraryA: winmm.dll");
@@ -252,7 +231,6 @@ bool setDetoursForWinmm() {
     
     return true;
 }
-#endif
 
 void setDetours() {
     
@@ -260,42 +238,32 @@ void setDetours() {
         SDL_Log("Detour set for exit handler");
     }
     
-    #if defined(INPUTFUSION_EXPORTS) || defined(GAMEINPUT_EXPORTS)
     if (Flags().gameinput_detour && setDetoursForGameInput()) {
         SDL_Log("Detour set for GameInput");
         if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
         }
     }
-    #endif
     
-    #if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
     if (Flags().xinput_detour && setDetoursForXInput()) {
         SDL_Log("Detour set for XInput");
         if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
         }
     }
-    #endif
 
-    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT8_EXPORTS)
     if (Flags().dinput8_detour && setDetoursForDInput8()) {
         SDL_Log("Detour set for DInput8");
         if (!Flags().delegate && SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
         }
     }
-    #endif
 
-    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS)
     if (Flags().dinput_detour && setDetoursForDInput()) {
         SDL_Log("Detour set for DInput 1-7");
     }
-    #endif
     
-    #if defined(INPUTFUSION_EXPORTS) || defined(WINMM_EXPORTS)
     if (Flags().winmm_detour && setDetoursForWinmm()) {
         SDL_Log("Detour set for WinMM");
     }
-    #endif
 }

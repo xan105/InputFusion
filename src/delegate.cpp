@@ -6,75 +6,26 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "delegate.h"
 #include "flags.h"
-
-#if defined(INPUTFUSION_EXPORTS)
 #include "GameInput/gameinput.h"
 #include "XInput/xinput.h"
-#include "DInput/dinput.h"
-#include "WinMM/winmm.h"
-#elif defined(GAMEINPUT_EXPORTS)
-#include "GameInput/gameinput.h"
-#elif defined(XINPUT_EXPORTS)
-#include "XInput/xinput.h"
-#elif defined(DINPUT8_EXPORTS)
 #include "DInput8/dinput8.h"
-#elif defined(DINPUT_EXPORTS)
-#include "DInput/dinput.h"
-#elif defined(WINMM_EXPORTS)
-#include "WinMM/winmm.h"
-#endif
 
-HMODULE LoadSystemLibraryW(const wchar_t* moduleName)
-{
-    if (!moduleName || !*moduleName) {
-      return nullptr;
-    }
+XInputEnable_t                      Win32_XInputEnable                      = nullptr;
+XInputGetState_t                    Win32_XInputGetState                    = nullptr;
+XInputSetState_t                    Win32_XInputSetState                    = nullptr;
+XInputGetCapabilities_t             Win32_XInputGetCapabilities             = nullptr;
+XInputGetBatteryInformation_t       Win32_XInputGetBatteryInformation       = nullptr;
+XInputGetKeystroke_t                Win32_XInputGetKeystroke                = nullptr;
+XInputGetAudioDeviceIds_t           Win32_XInputGetAudioDeviceIds           = nullptr;
+XInputGetDSoundAudioDeviceGuids_t   Win32_XInputGetDSoundAudioDeviceGuids   = nullptr;
+XInputGetStateEx_t                  Win32_XInputGetStateEx                  = nullptr;
+XInputWaitForGuideButton_t          Win32_XInputWaitForGuideButton          = nullptr;
+XInputCancelGuideButtonWait_t       Win32_XInputCancelGuideButtonWait       = nullptr;
+XInputPowerOffController_t          Win32_XInputPowerOffController          = nullptr;
+XInputGetBaseBusInformation_t       Win32_XInputGetBaseBusInformation       = nullptr;
+XInputGetCapabilitiesEx_t           Win32_XInputGetCapabilitiesEx           = nullptr;
 
-    wchar_t systemPath[MAX_PATH] = {};
-    UINT length = GetSystemDirectoryW(systemPath, MAX_PATH);
-
-    if (length == 0 || length >= MAX_PATH) {
-      return nullptr;
-    }
-
-    std::wstring modulePath(systemPath, length);
-    modulePath += L'\\';
-    modulePath += moduleName;
-
-    HMODULE hMod = LoadLibraryExW(
-        modulePath.c_str(),          // Absolute path to load the DLL under its fully qualified module name,
-                                     // rather than loading it by basename alone, this should result in a different
-                                     // module identity/name representation in the process module list.
-                                     // NB: Loading by basename alone would be sufficient in most circumstances, 
-                                     // but certain edge cases across all supported configurations require this trick. 
-                                     // This provides a more consistent behavior across all supported configurations.
-        nullptr,
-        LOAD_LIBRARY_SEARCH_SYSTEM32 // Restrict DLL dependency searches to the System32 directory
-    );
-
-    return hMod;
-}
-
-std::string GetModuleFileNameUTF8(HMODULE hMod) {
-    WCHAR szPath[MAX_PATH];
-    DWORD len = GetModuleFileNameW(hMod, szPath, MAX_PATH);
-    if (len == 0 || len >= MAX_PATH) { 
-        return {};
-    }
-
-    int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, szPath, static_cast<int>(len), nullptr, 0, nullptr, nullptr);
-    if (size == 0){ 
-        return {};
-    }
-
-    std::string path(size, '\0');
-    if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, szPath, static_cast<int>(len), path.data(), size, nullptr, nullptr) == 0) {
-        return {};
-    }
-    return path;
-}
-
-/*  
+/*
     The following is an heuristic approach to try to determine if SDL3 is the caller.
     The idea is to determine whether a return address belongs to this module (DLL).
     This includes SDL3 which is statically linked into it.
@@ -108,24 +59,68 @@ bool IsSDL3(void* returnAddress) {
     return module == GetSelfModule();
 }
 
-#if defined(INPUTFUSION_EXPORTS) || defined(XINPUT_EXPORTS)
+static HMODULE LoadSystemLibraryW(const wchar_t* moduleName)
+{
+    if (!moduleName || !*moduleName) {
+        return nullptr;
+    }
 
-XInputEnable_t                      Win32_XInputEnable                      = nullptr;
-XInputGetState_t                    Win32_XInputGetState                    = nullptr;
-XInputSetState_t                    Win32_XInputSetState                    = nullptr;
-XInputGetCapabilities_t             Win32_XInputGetCapabilities             = nullptr;
-XInputGetBatteryInformation_t       Win32_XInputGetBatteryInformation       = nullptr;
-XInputGetKeystroke_t                Win32_XInputGetKeystroke                = nullptr;
-XInputGetAudioDeviceIds_t           Win32_XInputGetAudioDeviceIds           = nullptr;
-XInputGetDSoundAudioDeviceGuids_t   Win32_XInputGetDSoundAudioDeviceGuids   = nullptr;
-XInputGetStateEx_t                  Win32_XInputGetStateEx                  = nullptr;
-XInputWaitForGuideButton_t          Win32_XInputWaitForGuideButton          = nullptr;
-XInputCancelGuideButtonWait_t       Win32_XInputCancelGuideButtonWait       = nullptr;
-XInputPowerOffController_t          Win32_XInputPowerOffController          = nullptr;
-XInputGetBaseBusInformation_t       Win32_XInputGetBaseBusInformation       = nullptr;
-XInputGetCapabilitiesEx_t           Win32_XInputGetCapabilitiesEx           = nullptr;
+    wchar_t systemPath[MAX_PATH] = {};
+    UINT length = GetSystemDirectoryW(systemPath, MAX_PATH);
 
-void delegateXInput()
+    if (length == 0 || length >= MAX_PATH) {
+        return nullptr;
+    }
+
+    std::wstring modulePath(systemPath, length);
+    modulePath += L'\\';
+    modulePath += moduleName;
+
+    HMODULE hMod = LoadLibraryExW(
+        modulePath.c_str(),          // Absolute path to load the DLL under its fully qualified module name,
+        // rather than loading it by basename alone, this should result in a different
+        // module identity/name representation in the process module list.
+        // NB: Loading by basename alone would be sufficient in most circumstances, 
+        // but certain edge cases across all supported configurations require this trick. 
+        // This provides a more consistent behavior across all supported configurations.
+        nullptr,
+        LOAD_LIBRARY_SEARCH_SYSTEM32 // Restrict DLL dependency searches to the System32 directory
+    );
+
+    return hMod;
+}
+
+static std::string GetModuleFileNameUTF8(HMODULE hMod) {
+    WCHAR szPath[MAX_PATH];
+    DWORD len = GetModuleFileNameW(hMod, szPath, MAX_PATH);
+    if (len == 0 || len >= MAX_PATH) {
+        return {};
+    }
+
+    int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, szPath, static_cast<int>(len), nullptr, 0, nullptr, nullptr);
+    if (size == 0) {
+        return {};
+    }
+
+    std::string path(size, '\0');
+    if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, szPath, static_cast<int>(len), path.data(), size, nullptr, nullptr) == 0) {
+        return {};
+    }
+    return path;
+}
+
+static void delegateGameInput()
+{
+    HMODULE hMod = LoadSystemLibraryW(L"gameinput.dll"); // GameInputRedist.dll (?)
+    if (hMod == nullptr) return;
+
+    //TODO
+
+    std::string szPathUTF8 = GetModuleFileNameUTF8(hMod);
+    SDL_Log("Delegating SDL3 GameInput API calls to [\"%s\"]", szPathUTF8.c_str());
+}
+
+static void delegateXInput()
 {
     HMODULE hMod = LoadSystemLibraryW(L"XInput1_4.dll");
     if (hMod == nullptr) return;
@@ -148,7 +143,17 @@ void delegateXInput()
     std::string szPathUTF8 = GetModuleFileNameUTF8(hMod);
     SDL_Log("Delegating SDL3 XInput API calls to [\"%s\"]", szPathUTF8.c_str());
 }
-#endif
+
+static void delegateDInput8()
+{
+    HMODULE hMod = LoadSystemLibraryW(L"dinput8.dll");
+    if (hMod == nullptr) return;
+
+    //TODO
+
+    std::string szPathUTF8 = GetModuleFileNameUTF8(hMod);
+    SDL_Log("Delegating SDL3 DInput8 API calls to [\"%s\"]", szPathUTF8.c_str());
+}
 
 void delegateSDLInputCalls() {
     if (!Flags().delegate) {
@@ -158,11 +163,43 @@ void delegateSDLInputCalls() {
     
     #if defined(XINPUT_EXPORTS)
     delegateXInput();
+    if (Flags().gameinput_detour) {
+        delegateGameInput();
+    }
+    if (Flags().dinput8_detour) {
+        delegateDInput8();
+    }
     #endif 
 
-    #if defined(INPUTFUSION_EXPORTS)
+    #if defined(GAMEINPUT_EXPORTS)
+    delegateGameInput();
     if (Flags().xinput_detour) {
-      delegateXInput();
+        delegateXInput();
+    }
+    if (Flags().dinput8_detour) {
+        delegateDInput8();
+    }
+    #endif 
+
+    #if defined(DINPUT8_EXPORTS)
+    delegateDInput8();
+    if (Flags().gameinput_detour) {
+        delegateGameInput();
+    }
+    if (Flags().xinput_detour) {
+        delegateXInput();
+    }
+    #endif 
+
+    #if defined(INPUTFUSION_EXPORTS) || defined(DINPUT_EXPORTS) || defined(WINMM_EXPORTS)
+    if (Flags().gameinput_detour) {
+        delegateGameInput();
+    }
+    if (Flags().xinput_detour) {
+        delegateXInput();
+    }
+    if (Flags().dinput8_detour) {
+        delegateDInput8();
     }
     #endif 
 }

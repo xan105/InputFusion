@@ -6,6 +6,7 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "delegate.h"
 #include "flags.h"
+#include "util.h"
 #include "GameInput/gameinput.h"
 #include "XInput/xinput.h"
 #include "DInput8/dinput8.h"
@@ -90,25 +91,6 @@ static HMODULE LoadSystemLibraryW(const wchar_t* moduleName)
     return hMod;
 }
 
-static std::string GetModuleFileNameUTF8(HMODULE hMod) {
-    WCHAR szPath[MAX_PATH];
-    DWORD len = GetModuleFileNameW(hMod, szPath, MAX_PATH);
-    if (len == 0 || len >= MAX_PATH) {
-        return {};
-    }
-
-    int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, szPath, static_cast<int>(len), nullptr, 0, nullptr, nullptr);
-    if (size == 0) {
-        return {};
-    }
-
-    std::string path(size, '\0');
-    if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, szPath, static_cast<int>(len), path.data(), size, nullptr, nullptr) == 0) {
-        return {};
-    }
-    return path;
-}
-
 static void delegateGameInput()
 {
     HMODULE hMod = LoadSystemLibraryW(L"gameinput.dll"); // GameInputRedist.dll (?)
@@ -116,8 +98,8 @@ static void delegateGameInput()
 
     //TODO
 
-    std::string szPathUTF8 = GetModuleFileNameUTF8(hMod);
-    SDL_Log("Delegating SDL3 GameInput API calls to [\"%s\"]", szPathUTF8.c_str());
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("Delegating SDL3 GameInput API calls to [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 }
 
 static void delegateXInput()
@@ -140,8 +122,8 @@ static void delegateXInput()
     Win32_XInputGetBaseBusInformation       = (XInputGetBaseBusInformation_t)GetProcAddress(hMod, MAKEINTRESOURCEA(104));
     Win32_XInputGetCapabilitiesEx           = (XInputGetCapabilitiesEx_t)GetProcAddress(hMod, MAKEINTRESOURCEA(108));
         
-    std::string szPathUTF8 = GetModuleFileNameUTF8(hMod);
-    SDL_Log("Delegating SDL3 XInput API calls to [\"%s\"]", szPathUTF8.c_str());
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("Delegating SDL3 XInput API calls to [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 }
 
 static void delegateDInput8()
@@ -151,8 +133,8 @@ static void delegateDInput8()
 
     //TODO
 
-    std::string szPathUTF8 = GetModuleFileNameUTF8(hMod);
-    SDL_Log("Delegating SDL3 DInput8 API calls to [\"%s\"]", szPathUTF8.c_str());
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("Delegating SDL3 DInput8 API calls to [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 }
 
 void delegateSDLInputCalls() {

@@ -36,9 +36,9 @@ static bool takeDetour(PVOID* ppPointer, PVOID pDetour) {
 }
 
 static bool setDetoursExitProcess() {
-    HMODULE hMod = LoadLibraryA("KERNEL32.dll");
+    HMODULE hMod = LoadLibraryW(L"KERNEL32.dll");
     if (hMod == nullptr) return false;
-    SDL_Log("LoadLibraryA: KERNEL32.dll");
+    SDL_Log("LoadLibraryW: KERNEL32.dll");
 
     pExitProcess = (ExitProcess_t)GetProcAddress(hMod, "ExitProcess");
     if (pExitProcess == nullptr) return false;
@@ -46,9 +46,10 @@ static bool setDetoursExitProcess() {
 }
 
 static bool setDetoursForGameInput() {
-    HMODULE hMod = LoadLibraryA("gameinput.dll"); // GameInputRedist.dll (?)
+    HMODULE hMod = LoadLibraryW(L"gameinput.dll"); // GameInputRedist.dll (?)
     if (hMod == nullptr) return false;
-    SDL_Log("LoadLibraryA: gameinput.dll");
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("LoadLibraryW: gameinput.dll [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 
     GameInputCreate_t pGameInputCreate = (GameInputCreate_t)GetProcAddress(hMod, "GameInputCreate");
     if (pGameInputCreate == nullptr) return false;
@@ -56,16 +57,17 @@ static bool setDetoursForGameInput() {
 }
 
 static bool setDetoursForXInput() {
-    std::vector<std::string> versions = {
-        "XInput1_4.dll",
-        "xinput1_3.dll",
-        "XInput9_1_0.dll"
+    std::vector<std::wstring> versions = {
+        L"XInput1_4.dll",
+        L"xinput1_3.dll",
+        L"XInput9_1_0.dll"
     };
 
-    for (const std::string& version : versions) {
-        HMODULE hMod = LoadLibraryA(version.c_str());
+    for (const std::wstring& version : versions) {
+        HMODULE hMod = LoadLibraryW(version.c_str());
         if (hMod == nullptr) return false;
-        SDL_Log("LoadLibraryA: %s", version.c_str());
+        std::wstring szPath = GetModuleFileNameWString(hMod);
+        SDL_Log("LoadLibraryW: %s [\"%s\"]", SDL_iconv_wchar_utf8(version.c_str()), SDL_iconv_wchar_utf8(szPath.c_str()));
 
         XInputEnable_t pXInputEnable = (XInputEnable_t)GetProcAddress(hMod, "XInputEnable");
         if (pXInputEnable != nullptr && !takeDetour(&(PVOID&)pXInputEnable, XInputEnable)) {
@@ -142,9 +144,10 @@ static bool setDetoursForXInput() {
 }
 
 static bool setDetoursForDInput8() {
-    HMODULE hMod = LoadLibraryA("dinput8.dll");
+    HMODULE hMod = LoadLibraryW(L"dinput8.dll");
     if (hMod == nullptr) return false;
-    SDL_Log("LoadLibraryA: dinput8.dll");
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("LoadLibraryW: dinput8.dll [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 
     DirectInput8Create_t pDirectInput8Create = (DirectInput8Create_t)GetProcAddress(hMod, "DirectInput8Create");
     if (pDirectInput8Create == nullptr) return false;
@@ -152,9 +155,10 @@ static bool setDetoursForDInput8() {
 }
 
 static bool setDetoursForDInput() {
-    HMODULE hMod = LoadLibraryA("dinput.dll");
+    HMODULE hMod = LoadLibraryW(L"dinput.dll");
     if (hMod == nullptr) return false;
-    SDL_Log("LoadLibraryA: dinput.dll");
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("LoadLibraryW: dinput.dll [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 
     DirectInputCreateA_t pDirectInputCreateA = (DirectInputCreateA_t)GetProcAddress(hMod, "DirectInputCreateA");
     if (pDirectInputCreateA != nullptr && !takeDetour(&(PVOID&)pDirectInputCreateA, DirectInputCreateA)) {
@@ -175,9 +179,10 @@ static bool setDetoursForDInput() {
 }
 
 static bool setDetoursForWinmm() {
-    HMODULE hMod = LoadLibraryA("winmm.dll");
+    HMODULE hMod = LoadLibraryW(L"winmm.dll");
     if (hMod == nullptr) return false;
-    SDL_Log("LoadLibraryA: winmm.dll");
+    std::wstring szPath = GetModuleFileNameWString(hMod);
+    SDL_Log("LoadLibraryW: winmm.dll [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
 
     joyConfigChanged_t pjoyConfigChanged = (joyConfigChanged_t)GetProcAddress(hMod, "joyConfigChanged");
     if (pjoyConfigChanged != nullptr && !takeDetour(&(PVOID&)pjoyConfigChanged, joyConfigChanged)) {

@@ -15,3 +15,4 @@ void enableConsole();
 std::wstring Getenv(LPCWSTR name);
 std::wstring GetSelfDir();
 std::string GUIDToString(REFIID riid);
+std::wstring GetModuleFileNameWString(HMODULE hMod);

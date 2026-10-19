@@ -81,3 +81,12 @@ std::string GUIDToString(REFIID riid) {
 
     return oss.str();
 }
+
+std::wstring GetModuleFileNameWString(HMODULE hMod) {
+    WCHAR szPath[MAX_PATH];
+    DWORD len = GetModuleFileNameW(hMod, szPath, MAX_PATH);
+    if (len == 0 || len >= MAX_PATH) {
+        return {};
+    }
+    return std::wstring(szPath, len);
+}

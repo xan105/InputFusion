@@ -27,6 +27,8 @@ const Flags_t& Flags() {
         if (config_file.empty()) config_file = GetSelfDir() + default_file;
 
         if (ini.LoadFile(config_file.c_str()) == SI_OK) {
+            SDL_Log("Parsed config file [\"%s\"]", SDL_iconv_wchar_utf8(config_file.c_str()));
+
             flag.ledbatterylvl              = ini.GetBoolValue(L"SDL",      L"GAMEPAD_LED_BATTERY_LVL",     false);
             flag.norumble                   = ini.GetBoolValue(L"SDL",      L"DISABLE_GAMEPAD_RUMBLE",      false);
             flag.delegate                   = ini.GetBoolValue(L"SDL",      L"DELEGATE",                    false);

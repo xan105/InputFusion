@@ -53,6 +53,7 @@ const Flags_t& Flags() {
         SetFlagFromEnv(flag.dinput8_detour,             L"GAMEPAD_API_DINPUT8",                 L"HOOK");
         SetFlagFromEnv(flag.dinput_detour,              L"GAMEPAD_API_DINPUT",                  L"HOOK");
         SetFlagFromEnv(flag.winmm_detour,               L"GAMEPAD_API_WINMM",                   L"HOOK");
+        SDL_Log("Parsed env. var.");
 
         SDL_Log("Flags:\n"
             "- ledbatterylvl: %d\n"

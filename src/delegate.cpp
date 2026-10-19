@@ -26,6 +26,9 @@ XInputPowerOffController_t          Win32_XInputPowerOffController          = nu
 XInputGetBaseBusInformation_t       Win32_XInputGetBaseBusInformation       = nullptr;
 XInputGetCapabilitiesEx_t           Win32_XInputGetCapabilitiesEx           = nullptr;
 
+GameInputCreate_t                   Win32_GameInputCreate                   = nullptr;
+DirectInput8Create_t                Win32_DirectInput8Create                = nullptr;
+
 /*
     The following is an heuristic approach to try to determine if SDL3 is the caller.
     The idea is to determine whether a return address belongs to this module (DLL).
@@ -78,14 +81,14 @@ static HMODULE LoadSystemLibraryW(const wchar_t* moduleName)
     modulePath += moduleName;
 
     HMODULE hMod = LoadLibraryExW(
-        modulePath.c_str(),          // Absolute path to load the DLL under its fully qualified module name,
-        // rather than loading it by basename alone, this should result in a different
-        // module identity/name representation in the process module list.
-        // NB: Loading by basename alone would be sufficient in most circumstances, 
-        // but certain edge cases across all supported configurations require this trick. 
-        // This provides a more consistent behavior across all supported configurations.
+        modulePath.c_str(),             // Absolute path to load the DLL under its fully qualified module name,
+                                        // rather than loading it by basename alone, this should result in a different
+                                        // module identity/name representation in the process module list.
+                                        // NB: Loading by basename alone would be sufficient in most circumstances, 
+                                        // but certain edge cases across all supported configurations require this trick. 
+                                        // This provides a more consistent behavior across all supported configurations.
         nullptr,
-        LOAD_LIBRARY_SEARCH_SYSTEM32 // Restrict DLL dependency searches to the System32 directory
+        LOAD_LIBRARY_SEARCH_SYSTEM32    // Restrict DLL dependency searches to the System32 directory
     );
 
     return hMod;
@@ -96,7 +99,7 @@ static void delegateGameInput()
     HMODULE hMod = LoadSystemLibraryW(L"gameinput.dll"); // GameInputRedist.dll (?)
     if (hMod == nullptr) return;
 
-    //TODO
+    Win32_GameInputCreate = (GameInputCreate_t)GetProcAddress(hMod, "GameInputCreate");
 
     std::wstring szPath = GetModuleFileNameWString(hMod);
     SDL_Log("Delegating SDL3 GameInput API calls to [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));
@@ -131,7 +134,7 @@ static void delegateDInput8()
     HMODULE hMod = LoadSystemLibraryW(L"dinput8.dll");
     if (hMod == nullptr) return;
 
-    //TODO
+    Win32_DirectInput8Create = (DirectInput8Create_t)GetProcAddress(hMod, "DirectInput8Create");
 
     std::wstring szPath = GetModuleFileNameWString(hMod);
     SDL_Log("Delegating SDL3 DInput8 API calls to [\"%s\"]", SDL_iconv_wchar_utf8(szPath.c_str()));

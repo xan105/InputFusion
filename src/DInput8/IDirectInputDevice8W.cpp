@@ -11,7 +11,7 @@ found in the LICENSE file in the root directory of this source tree.
 
 extern HANDLE SDL_Init_Wait;
 
-const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+static const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
   {SDL_GAMEPAD_BUTTON_SOUTH, 0},
   {SDL_GAMEPAD_BUTTON_EAST, 1},
   {SDL_GAMEPAD_BUTTON_WEST, 2},
@@ -25,7 +25,7 @@ const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
   {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
 };
 
-const std::vector<SDL_GamepadAxis> AXIS = {
+static const std::vector<SDL_GamepadAxis> AXIS = {
   SDL_GAMEPAD_AXIS_LEFTX,
   SDL_GAMEPAD_AXIS_LEFTY,
   SDL_GAMEPAD_AXIS_RIGHTX,

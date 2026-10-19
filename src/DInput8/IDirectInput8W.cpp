@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput8.h"
+#include "../flags.h"
 #include "../util.h"
 
 IDirectInput8W::IDirectInput8W() : m_refCount(1) {
@@ -80,6 +81,8 @@ STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* 
 STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
   SDL_Log("IDirectInput8W::EnumDevices()");
 
+  if (Flags().dinput_nodevices) return DI_OK;
+  
   //These are placeholder gamepads so we can connect/disconnect while playing
   //Problem: A lot of games completely crash when they are more than one controller 😩 (FIXME)
   for (int i = 0; i < DIRECTINPUT_USER_MAX_COUNT; i++) {

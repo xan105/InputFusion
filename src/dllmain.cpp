@@ -186,7 +186,7 @@ void eventLoop() {
                         if (type == SDL_GAMEPAD_TYPE_PS4) {
                           int index = SDL_GetGamepadPlayerIndex(gamepad);
                           if (index == 0) {
-                            SDL_SetGamepadLED(gamepad, 0, 0, 64); // Blue
+                            SDL_SetGamepadLED(gamepad, 0, 0, 64); // Blue (First Player)
                           }
                         }
                     }

@@ -5,42 +5,59 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "dinput8.h"
+#include "../flags.h"
+#include "../delegate.h"
+
+extern DirectInput8Create_t Win32_DirectInput8Create;
+
+namespace InputFusion {
+    HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter) {
+        SDL_Log("DirectInput8Create()");
+
+        if (hinst == nullptr || ppvOut == nullptr)
+            return DIERR_INVALIDPARAM;
+
+        if (dwVersion < DIRECTINPUT_VERSION)
+            return DIERR_OLDDIRECTINPUTVERSION;
+
+        if (IsEqualGUID(riidltf, IID_IDirectInput8A)) {
+            IDirectInput8A* pDInput = new(std::nothrow) IDirectInput8A;
+            if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
+            *ppvOut = static_cast<IDirectInput8A*>(pDInput);
+
+            HRESULT hr = pDInput->Initialize(NULL, DIRECTINPUT_VERSION);
+            if (FAILED(hr)) { return hr; }
+
+            return DI_OK;
+        }
+        else if (IsEqualGUID(riidltf, IID_IDirectInput8W)) {
+            IDirectInput8W* pDInput = new(std::nothrow) IDirectInput8W;
+            if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
+            *ppvOut = static_cast<IDirectInput8W*>(pDInput);
+
+            HRESULT hr = pDInput->Initialize(NULL, DIRECTINPUT_VERSION);
+            if (FAILED(hr)) { return hr; }
+
+            return DI_OK;
+        }
+
+        return DIERR_INVALIDPARAM;
+    }
+}
 
 #ifdef DINPUT8_EXPORTS
 extern "C" {
 #endif
-  HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter){
-    SDL_Log("DirectInput8Create()");
-
-    if(hinst == nullptr || ppvOut == nullptr)
-      return DIERR_INVALIDPARAM;
-    
-    if (dwVersion < DIRECTINPUT_VERSION)
-      return DIERR_OLDDIRECTINPUTVERSION;
-
-    if(IsEqualGUID(riidltf, IID_IDirectInput8A)){
-      IDirectInput8A* pDInput = new(std::nothrow) IDirectInput8A;
-      if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
-      *ppvOut = static_cast<IDirectInput8A*>(pDInput);
-
-      HRESULT hr = pDInput->Initialize(NULL, DIRECTINPUT_VERSION);
-      if (FAILED(hr)) { return hr; }
-
-      return DI_OK;
+    HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter) {
+        if (Flags().delegate &&
+            IsSDL3(_ReturnAddress()) &&
+            Win32_DirectInput8Create != nullptr)
+        {
+            SDL_Log("DirectInput8Create() > Delegate to Win32");
+            return Win32_DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+        }
+        return InputFusion::DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
     }
-    else if(IsEqualGUID(riidltf, IID_IDirectInput8W)){
-      IDirectInput8W* pDInput = new(std::nothrow) IDirectInput8W;
-      if (pDInput == nullptr) return DIERR_OUTOFMEMORY;
-      *ppvOut = static_cast<IDirectInput8W*>(pDInput);
-
-      HRESULT hr = pDInput->Initialize(NULL, DIRECTINPUT_VERSION);
-      if (FAILED(hr)) { return hr; }
-
-      return DI_OK;
-    }
-    
-    return DIERR_INVALIDPARAM;
-  }
 #ifdef DINPUT8_EXPORTS
 }
 #endif

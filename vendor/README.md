@@ -1,5 +1,6 @@
 - [Microsoft detours](https://github.com/microsoft/Detours)
 - [SDL3](https://github.com/libsdl-org/SDL)
+- [SimpleINI](https://github.com/brofield/simpleini)
 
 SDL3
 ====

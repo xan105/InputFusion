@@ -212,6 +212,15 @@ namespace {
                         char* mapping = SDL_GetGamepadMapping(gamepad);
                         SDL_Log("Gamepad Mapping: \"%s\"", mapping);
                         SDL_free(mapping);
+
+                        // Workaround for https://github.com/libsdl-org/SDL/issues/16261
+                        SDL_GamepadType type = SDL_GetGamepadType(gamepad);
+                        if (type == SDL_GAMEPAD_TYPE_PS4) {
+                            int index = SDL_GetGamepadPlayerIndex(gamepad);
+                            if (index == 0) {
+                                SDL_SetGamepadLED(gamepad, 0, 0, 64); // Blue (First Player)
+                            }
+                        }
                     }
                     break;
                 }

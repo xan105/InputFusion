@@ -51,7 +51,7 @@
     <ClInclude Include="..\src\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\detour.h">
+    <ClInclude Include="..\src\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\dllmain.h">
@@ -75,9 +75,6 @@
     <ClInclude Include="..\src\WinMM\winmm.h">
       <Filter>Header Files\WinMM</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\delegate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\XInput\xinput.h">
       <Filter>Header Files\XInput</Filter>
     </ClInclude>
@@ -88,7 +85,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\detour.cpp">
+    <ClCompile Include="..\src\detours.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\dllmain.cpp">
@@ -180,9 +177,6 @@
     </ClCompile>
     <ClCompile Include="..\src\WinMM\winmm.cpp">
       <Filter>Source Files\WinMM</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\delegate.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\XInput\xinput.cpp">
       <Filter>Source Files\XInput</Filter>

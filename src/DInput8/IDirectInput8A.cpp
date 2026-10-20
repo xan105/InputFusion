@@ -36,7 +36,7 @@ STDMETHODIMP IDirectInput8A::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInput8A::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+  SDL_Log("IDirectInput8A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -59,7 +59,7 @@ STDMETHODIMP_(ULONG) IDirectInput8A::Release() {
 }
 
 STDMETHODIMP IDirectInput8A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8A* lplpDirectInputDevice, LPUNKNOWN pUnkOuter) {
-  SDL_Log("IDirectInput8A::CreateDevice() <%s>", GUIDToString(rguid).c_str());
+  SDL_Log("IDirectInput8A::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
 
   if (rguid == GUID_NULL) return DIERR_NOINTERFACE;
 

@@ -19,8 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\delegate.cpp" />
-    <ClCompile Include="..\src\detour.cpp" />
+    <ClCompile Include="..\src\detours.cpp" />
     <ClCompile Include="..\src\DInput8\dinput8.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp" />
     <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp" />
@@ -54,8 +53,7 @@
     <ClCompile Include="..\src\XInput\xinput.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\delegate.h" />
-    <ClInclude Include="..\src\detour.h" />
+    <ClInclude Include="..\src\detours.h" />
     <ClInclude Include="..\src\DInput8\dinput8.h" />
     <ClInclude Include="..\src\DInput\dinput.h" />
     <ClInclude Include="..\src\dllmain.h" />

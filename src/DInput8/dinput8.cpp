@@ -6,11 +6,11 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "dinput8.h"
 #include "../flags.h"
-#include "../delegate.h"
 
-extern DirectInput8Create_t Win32_DirectInput8Create;
+#ifdef DINPUT8_EXPORTS
+extern "C" {
+#endif
 
-namespace InputFusion {
     HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter) {
         SDL_Log("DirectInput8Create()");
 
@@ -43,21 +43,7 @@ namespace InputFusion {
 
         return DIERR_INVALIDPARAM;
     }
-}
 
-#ifdef DINPUT8_EXPORTS
-extern "C" {
-#endif
-    HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_DirectInput8Create != nullptr)
-        {
-            SDL_Log("DirectInput8Create() > Delegate to Win32");
-            return Win32_DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
-        }
-        return InputFusion::DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
-    }
 #ifdef DINPUT8_EXPORTS
 }
 #endif

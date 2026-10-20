@@ -8,11 +8,13 @@ found in the LICENSE file in the root directory of this source tree.
 #include "util.h"
 #include "../vendor/SimpleINI/SimpleIni.h"
 
-static void SetFlagFromEnv(bool& flag, const wchar_t* name, const wchar_t* value)
-{
-    const std::wstring env = Getenv(name);
-    if (env.empty()) return;
-    flag = (env == value);
+namespace {
+    void SetFlagFromEnv(bool& flag, const wchar_t* name, const wchar_t* value)
+    {
+        const std::wstring env = util::GetEnvVar(name);
+        if (env.empty()) return;
+        flag = (env == value);
+    }
 }
 
 const Flags_t& Flags() {
@@ -22,16 +24,12 @@ const Flags_t& Flags() {
         CSimpleIniW ini;
         ini.SetUnicode();
 
-        std::wstring config_file = Getenv(L"INPUTFUSION_CONFIG_FILE_PATH");
-        std::wstring default_file = L"InputFusion.ini";
-        if (config_file.empty()) config_file = GetSelfDir() + default_file;
+        std::wstring config_file = util::GetEnvVar(L"INPUTFUSION_CONFIG_FILE");
+        if (config_file.empty()) config_file = util::GetModuleDirectory() + L"InputFusion.ini";
 
         if (ini.LoadFile(config_file.c_str()) == SI_OK) {
-            SDL_Log("Parsed config file [\"%s\"]", SDL_iconv_wchar_utf8(config_file.c_str()));
-
             flag.ledbatterylvl              = ini.GetBoolValue(L"SDL",      L"GAMEPAD_LED_BATTERY_LVL",     false);
             flag.norumble                   = ini.GetBoolValue(L"SDL",      L"DISABLE_GAMEPAD_RUMBLE",      false);
-            flag.delegate                   = ini.GetBoolValue(L"SDL",      L"DELEGATE",                    false);
             flag.winmm_layout_xbox          = ini.GetBoolValue(L"WinMM",    L"XBOX_LAYOUT",                 false);
             flag.xinput_always_connected    = ini.GetBoolValue(L"XInput",   L"DEVICE_ALWAYS_CONNECTED",     false);
             flag.dinput_nodevices           = ini.GetBoolValue(L"DInput8",  L"NO_DEVICES",                  false);
@@ -40,11 +38,12 @@ const Flags_t& Flags() {
             flag.dinput8_detour             = ini.GetBoolValue(L"API",      L"DINPUT8",                     false);
             flag.dinput_detour              = ini.GetBoolValue(L"API",      L"DINPUT",                      false);
             flag.winmm_detour               = ini.GetBoolValue(L"API",      L"WINMM",                       false);
+
+            SDL_Log("Parsed flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
         }
 
         SetFlagFromEnv(flag.ledbatterylvl,              L"GAMEPAD_LED",                         L"BATTERYLVL");
         SetFlagFromEnv(flag.norumble,                   L"GAMEPAD_RUMBLE",                      L"DISABLE");
-        SetFlagFromEnv(flag.delegate,                   L"GAMEPAD_API_DELEGATE",                L"ENABLE");
         SetFlagFromEnv(flag.winmm_layout_xbox,          L"GAMEPAD_API_WINMM_LAYOUT",            L"XBOX");
         SetFlagFromEnv(flag.xinput_always_connected,    L"GAMEPAD_API_XINPUT_DEVICE_CONNECTED", L"ALWAYS");
         SetFlagFromEnv(flag.dinput_nodevices,           L"GAMEPAD_API_DINPUT8_NODEVICES",       L"ENABLE");
@@ -53,12 +52,12 @@ const Flags_t& Flags() {
         SetFlagFromEnv(flag.dinput8_detour,             L"GAMEPAD_API_DINPUT8",                 L"HOOK");
         SetFlagFromEnv(flag.dinput_detour,              L"GAMEPAD_API_DINPUT",                  L"HOOK");
         SetFlagFromEnv(flag.winmm_detour,               L"GAMEPAD_API_WINMM",                   L"HOOK");
-        SDL_Log("Parsed env. var.");
+
+        SDL_Log("Parsed flags from env. var.");
 
         SDL_Log("Flags:\n"
             "- ledbatterylvl: %d\n"
             "- norumble: %d\n"
-            "- delegate: %d\n"
             "- winmm_layout_xbox: %d\n"
             "- xinput_always_connected: %d\n"
             "- dinput_nodevices: %d\n"
@@ -69,7 +68,6 @@ const Flags_t& Flags() {
             "- winmm_detour: %d\n",
             flag.ledbatterylvl,
             flag.norumble,
-            flag.delegate,
             flag.winmm_layout_xbox,
             flag.xinput_always_connected,
             flag.dinput_nodevices,

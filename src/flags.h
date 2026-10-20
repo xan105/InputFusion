@@ -11,7 +11,6 @@ found in the LICENSE file in the root directory of this source tree.
 struct Flags_t {
     bool ledbatterylvl              = false;
     bool norumble                   = false;
-    bool delegate                   = false;
     bool winmm_layout_xbox          = false;
     bool xinput_always_connected    = false;
     bool dinput_nodevices           = false;
@@ -21,5 +20,9 @@ struct Flags_t {
     bool dinput_detour              = false;
     bool winmm_detour               = false;
 };
+
+namespace {
+    void SetFlagFromEnv(bool& flag, const wchar_t* name, const wchar_t* value);
+}
 
 const Flags_t& Flags();

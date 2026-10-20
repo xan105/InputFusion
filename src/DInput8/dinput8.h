@@ -804,10 +804,6 @@ public:
 
 typedef HRESULT(WINAPI* DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
 
-namespace InputFusion {
-    HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
-}
-
 #ifdef DINPUT8_EXPORTS
 extern "C" {
 #endif

@@ -25,7 +25,7 @@ STDMETHODIMP IGameInputForceFeedbackEffect::QueryInterface(REFIID riid, void** p
     return S_OK;
   }
 
-  SDL_Log("IGameInputForceFeedbackEffect::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+  SDL_Log("IGameInputForceFeedbackEffect::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;

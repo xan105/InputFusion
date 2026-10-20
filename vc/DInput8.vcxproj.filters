@@ -51,7 +51,7 @@
     <ClInclude Include="..\src\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\detour.h">
+    <ClInclude Include="..\src\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\dllmain.h">
@@ -61,9 +61,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\flags.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\delegate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DInput\dinput.h">
@@ -94,13 +91,10 @@
     <ClCompile Include="..\src\util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\detour.cpp">
+    <ClCompile Include="..\src\detours.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\flags.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\delegate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\dinput.cpp">

@@ -57,7 +57,7 @@
     <ClInclude Include="..\src\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\detour.h">
+    <ClInclude Include="..\src\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DInput\dinput.h">
@@ -78,9 +78,6 @@
     <ClInclude Include="..\src\GameInput\gameinput.h">
       <Filter>Header Files\GameInput</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\delegate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -94,7 +91,7 @@
     <ClCompile Include="..\src\util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\detour.cpp">
+    <ClCompile Include="..\src\detours.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\dinput.cpp">
@@ -183,9 +180,6 @@
     </ClCompile>
     <ClCompile Include="..\src\GameInput\gameinput.cpp">
       <Filter>Source Files\GameInput</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\delegate.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

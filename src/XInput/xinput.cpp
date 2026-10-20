@@ -6,59 +6,47 @@ found in the LICENSE file in the root directory of this source tree.
 
 #include "xinput.h"
 #include "../flags.h"
-#include "../delegate.h"
 
-extern XInputEnable_t                      Win32_XInputEnable;
-extern XInputGetState_t                    Win32_XInputGetState;
-extern XInputSetState_t                    Win32_XInputSetState;
-extern XInputGetCapabilities_t             Win32_XInputGetCapabilities;
-extern XInputGetBatteryInformation_t       Win32_XInputGetBatteryInformation;
-extern XInputGetKeystroke_t                Win32_XInputGetKeystroke;
-extern XInputGetAudioDeviceIds_t           Win32_XInputGetAudioDeviceIds;
-extern XInputGetDSoundAudioDeviceGuids_t   Win32_XInputGetDSoundAudioDeviceGuids;
-extern XInputGetStateEx_t                  Win32_XInputGetStateEx;
-extern XInputWaitForGuideButton_t          Win32_XInputWaitForGuideButton;
-extern XInputCancelGuideButtonWait_t       Win32_XInputCancelGuideButtonWait;
-extern XInputPowerOffController_t          Win32_XInputPowerOffController;
-extern XInputGetBaseBusInformation_t       Win32_XInputGetBaseBusInformation;
-extern XInputGetCapabilitiesEx_t           Win32_XInputGetCapabilitiesEx;
+extern HANDLE InputFusion_SDL_Init_Wait;
 
-extern HANDLE SDL_Init_Wait;
+namespace {
+    const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+        {SDL_GAMEPAD_BUTTON_SOUTH, XINPUT_GAMEPAD_A},
+        {SDL_GAMEPAD_BUTTON_EAST, XINPUT_GAMEPAD_B},
+        {SDL_GAMEPAD_BUTTON_WEST, XINPUT_GAMEPAD_X},
+        {SDL_GAMEPAD_BUTTON_NORTH, XINPUT_GAMEPAD_Y},
+        {SDL_GAMEPAD_BUTTON_BACK, XINPUT_GAMEPAD_BACK},
+        {SDL_GAMEPAD_BUTTON_START, XINPUT_GAMEPAD_START},
+        {SDL_GAMEPAD_BUTTON_LEFT_STICK, XINPUT_GAMEPAD_LEFT_THUMB},
+        {SDL_GAMEPAD_BUTTON_RIGHT_STICK, XINPUT_GAMEPAD_RIGHT_THUMB},
+        {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, XINPUT_GAMEPAD_LEFT_SHOULDER},
+        {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER},
+        {SDL_GAMEPAD_BUTTON_DPAD_UP, XINPUT_GAMEPAD_DPAD_UP},
+        {SDL_GAMEPAD_BUTTON_DPAD_DOWN, XINPUT_GAMEPAD_DPAD_DOWN},
+        {SDL_GAMEPAD_BUTTON_DPAD_LEFT, XINPUT_GAMEPAD_DPAD_LEFT},
+        {SDL_GAMEPAD_BUTTON_DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT},
+        {SDL_GAMEPAD_BUTTON_GUIDE, XINPUT_GAMEPAD_GUIDE},
+        {SDL_GAMEPAD_BUTTON_TOUCHPAD, XINPUT_GAMEPAD_BACK} // PS4/PS5 touchpad button
+    };
 
-static const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
-    {SDL_GAMEPAD_BUTTON_SOUTH, XINPUT_GAMEPAD_A},
-    {SDL_GAMEPAD_BUTTON_EAST, XINPUT_GAMEPAD_B},
-    {SDL_GAMEPAD_BUTTON_WEST, XINPUT_GAMEPAD_X},
-    {SDL_GAMEPAD_BUTTON_NORTH, XINPUT_GAMEPAD_Y},
-    {SDL_GAMEPAD_BUTTON_BACK, XINPUT_GAMEPAD_BACK},
-    {SDL_GAMEPAD_BUTTON_START, XINPUT_GAMEPAD_START},
-    {SDL_GAMEPAD_BUTTON_LEFT_STICK, XINPUT_GAMEPAD_LEFT_THUMB},
-    {SDL_GAMEPAD_BUTTON_RIGHT_STICK, XINPUT_GAMEPAD_RIGHT_THUMB},
-    {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, XINPUT_GAMEPAD_LEFT_SHOULDER},
-    {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER},
-    {SDL_GAMEPAD_BUTTON_DPAD_UP, XINPUT_GAMEPAD_DPAD_UP},
-    {SDL_GAMEPAD_BUTTON_DPAD_DOWN, XINPUT_GAMEPAD_DPAD_DOWN},
-    {SDL_GAMEPAD_BUTTON_DPAD_LEFT, XINPUT_GAMEPAD_DPAD_LEFT},
-    {SDL_GAMEPAD_BUTTON_DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT},
-    {SDL_GAMEPAD_BUTTON_GUIDE, XINPUT_GAMEPAD_GUIDE},
-    {SDL_GAMEPAD_BUTTON_TOUCHPAD, XINPUT_GAMEPAD_BACK} // PS4/PS5 touchpad button
-};
+    const std::vector<SDL_GamepadAxis> AXIS = {
+        SDL_GAMEPAD_AXIS_LEFTX,
+        SDL_GAMEPAD_AXIS_LEFTY,
+        SDL_GAMEPAD_AXIS_RIGHTX,
+        SDL_GAMEPAD_AXIS_RIGHTY,
+        SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
+        SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
+    };
+}
 
-static const std::vector<SDL_GamepadAxis> AXIS = {
-    SDL_GAMEPAD_AXIS_LEFTX,
-    SDL_GAMEPAD_AXIS_LEFTY,
-    SDL_GAMEPAD_AXIS_RIGHTX,
-    SDL_GAMEPAD_AXIS_RIGHTY,
-    SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
-    SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
-};
-
-namespace InputFusion {
+#ifdef XINPUT_EXPORTS
+extern "C" {
+#endif
 
     DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
         SDL_Log("XInputGetState(%u, %p)", dwUserIndex, pState);
 
-        DWORD result = InputFusion::XInputGetStateEx(dwUserIndex, pState);
+        DWORD result = XInputGetStateEx(dwUserIndex, pState);
         if (result != ERROR_SUCCESS) return result;
 
         //Remove GUIDE button
@@ -79,9 +67,9 @@ namespace InputFusion {
 
         if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             SDL_Log("SDL is not ready!");
-            if (SDL_Init_Wait) {
+            if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputGetStateEx(%u, %p) > Waiting...", dwUserIndex, pState);
-                WaitForSingleObject(SDL_Init_Wait, INFINITE);
+                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
                 SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputGetStateEx(%u, %p) > ...Resuming", dwUserIndex, pState);
             }
@@ -154,7 +142,7 @@ namespace InputFusion {
         vibrationEx.wLeftTriggerSpeed = 0;
         vibrationEx.wRightTriggerSpeed = 0;
 
-        return InputFusion::XInputSetStateEx(dwUserIndex, &vibrationEx);
+        return XInputSetStateEx(dwUserIndex, &vibrationEx);
     }
 
     DWORD WINAPI XInputSetStateEx(DWORD dwUserIndex, const XINPUT_VIBRATION_EX* pVibration) {
@@ -171,9 +159,9 @@ namespace InputFusion {
 
         if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             SDL_Log("SDL is not ready!");
-            if (SDL_Init_Wait) {
+            if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputSetStateEx(%u, %p) > Waiting...", dwUserIndex, pVibration);
-                WaitForSingleObject(SDL_Init_Wait, INFINITE);
+                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
                 SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputSetStateEx(%u, %p) > ...Resuming", dwUserIndex, pVibration);
             }
@@ -209,7 +197,7 @@ namespace InputFusion {
 
         XINPUT_CAPABILITIES_EX capabilitiesEx = {};
 
-        DWORD result = InputFusion::XInputGetCapabilitiesEx(1, dwUserIndex, dwFlags, &capabilitiesEx);
+        DWORD result = XInputGetCapabilitiesEx(1, dwUserIndex, dwFlags, &capabilitiesEx);
         if (result != ERROR_SUCCESS) return result;
 
         //Remove GUIDE button
@@ -229,9 +217,9 @@ namespace InputFusion {
 
         if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             SDL_Log("SDL is not ready!");
-            if (SDL_Init_Wait) {
+            if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > Waiting...", dwUserIndex, dwFlags, pCapabilities);
-                WaitForSingleObject(SDL_Init_Wait, INFINITE);
+                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
                 SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ...Resuming", dwUserIndex, dwFlags, pCapabilities);
             }
@@ -315,9 +303,9 @@ namespace InputFusion {
 
         if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             SDL_Log("SDL is not ready!");
-            if (SDL_Init_Wait) {
+            if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > Waiting...", dwUserIndex, devType, pBatteryInformation);
-                WaitForSingleObject(SDL_Init_Wait, INFINITE);
+                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
                 SDL_Delay(10); // SDL event loop
                 SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ...Resuming", dwUserIndex, devType, pBatteryInformation);
             }
@@ -419,10 +407,10 @@ namespace InputFusion {
 
     DWORD WINAPI XInputGetAudioDeviceIds(DWORD dwUserIndex, LPWSTR pRenderDeviceId, UINT* pRenderCount, LPWSTR pCaptureDeviceId, UINT* pCaptureCount) {
         SDL_Log("XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p)", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
-        
+
         SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputGetAudioDeviceIds() is deprecated!");
         // Windows 10 or later: Deprecated (unofficial), suffers from major limitations and no longer functions reliably on recent versions of Windows
-        
+
         SDL_Log("XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
@@ -436,178 +424,7 @@ namespace InputFusion {
         SDL_Log("XInputGetDSoundAudioDeviceGuids(%u, %p, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
-}
 
-#ifdef XINPUT_EXPORTS
-extern "C" {
-#endif
-
-    DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-       if (Flags().delegate && 
-           IsSDL3(_ReturnAddress()) && 
-           Win32_XInputGetState != nullptr)  
-       {
-           SDL_Log("XInputGetState(%u, %p) > Delegate to Win32", dwUserIndex, pState);
-           return Win32_XInputGetState(dwUserIndex, pState);
-       }
-       return InputFusion::XInputGetState(dwUserIndex, pState);
-    }
-
-    DWORD WINAPI XInputGetStateEx(DWORD dwUserIndex, XINPUT_STATE* pState) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputGetStateEx != nullptr) 
-        {
-            SDL_Log("XInputGetStateEx(%u, %p) > Delegate to Win32", dwUserIndex, pState);
-            return Win32_XInputGetStateEx(dwUserIndex, pState);
-        }
-        return InputFusion::XInputGetStateEx(dwUserIndex, pState);
-    }
-
-    DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputSetState != nullptr) 
-        {
-            SDL_Log("XInputSetState(%u, %p) > Delegate to Win32", dwUserIndex, pVibration);
-            return Win32_XInputSetState(dwUserIndex, pVibration);
-        }
-        return InputFusion::XInputSetState(dwUserIndex, pVibration);
-    }
-
-    DWORD WINAPI XInputSetStateEx(DWORD dwUserIndex, const XINPUT_VIBRATION_EX* pVibration) {
-        // This function does not exist in XInput, it's an addition from the GDK (XInputOnGameInput)
-        // InputFusion does implement it and exports it along the other _Ex hidden functions
-        // XInputSetStateEx() is placed at ordinal @1000 arbitrarily
-
-        if (Flags().delegate && 
-            IsSDL3(_ReturnAddress())) 
-        {
-            return ERROR_PROC_NOT_FOUND;
-        }
-        return InputFusion::XInputSetStateEx(dwUserIndex, pVibration);
-    }
-
-    DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities) {
-        if (Flags().delegate && 
-            IsSDL3(_ReturnAddress()) && 
-            Win32_XInputGetCapabilities != nullptr) 
-        {
-            SDL_Log("XInputGetCapabilities(%u, %u, %p) > Delegate to Win32", dwUserIndex, dwFlags, pCapabilities);
-            return Win32_XInputGetCapabilities(dwUserIndex, dwFlags, pCapabilities);
-        }
-        return InputFusion::XInputGetCapabilities(dwUserIndex, dwFlags, pCapabilities);
-    }
-
-    DWORD WINAPI XInputGetCapabilitiesEx(DWORD a1, DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES_EX* pCapabilities) {
-        if (Flags().delegate && 
-            IsSDL3(_ReturnAddress()) && 
-            Win32_XInputGetCapabilitiesEx != nullptr) 
-        {
-            SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) -> Delegate to Win32", dwUserIndex, dwFlags, pCapabilities);
-            return Win32_XInputGetCapabilitiesEx(a1, dwUserIndex, dwFlags, pCapabilities);
-        }
-        return InputFusion::XInputGetCapabilitiesEx(a1, dwUserIndex, dwFlags, pCapabilities);
-    }
-
-    DWORD WINAPI XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT_BATTERY_INFORMATION* pBatteryInformation) {
-        if (Flags().delegate && 
-            IsSDL3(_ReturnAddress()) && 
-            Win32_XInputGetBatteryInformation != nullptr) 
-        {
-            SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > Delegate to Win32", dwUserIndex, devType, pBatteryInformation);
-            return Win32_XInputGetBatteryInformation(dwUserIndex, devType, pBatteryInformation);
-        }
-        return InputFusion::XInputGetBatteryInformation(dwUserIndex, devType, pBatteryInformation);
-    }
-
-    DWORD WINAPI XInputGetKeystroke(DWORD dwUserIndex, DWORD dwReserved, PXINPUT_KEYSTROKE pKeystroke) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputGetKeystroke != nullptr) 
-        {
-            SDL_Log("XInputGetKeystroke(%u, %u, %p) > Delegate to Win32", dwUserIndex, dwReserved, pKeystroke);
-            return Win32_XInputGetKeystroke(dwUserIndex, dwReserved, pKeystroke);
-        }
-        return InputFusion::XInputGetKeystroke(dwUserIndex, dwReserved, pKeystroke);
-    }
-
-    DWORD WINAPI XInputWaitForGuideButton(DWORD dwUserIndex, DWORD dwFlags, XINPUT_LISTEN_STATE* pState) {
-        if (Flags().delegate && 
-            IsSDL3(_ReturnAddress()) && 
-            Win32_XInputWaitForGuideButton != nullptr) 
-        {
-            SDL_Log("XInputWaitForGuideButton(%u, %u, %p) > Delegate to Win32", dwUserIndex, dwFlags, pState);
-            return Win32_XInputWaitForGuideButton(dwUserIndex, dwFlags, pState);
-        }
-        return InputFusion::XInputWaitForGuideButton(dwUserIndex, dwFlags, pState);
-    }
-
-    DWORD WINAPI XInputCancelGuideButtonWait(DWORD dwUserIndex) {
-        if (Flags().delegate && 
-            IsSDL3(_ReturnAddress()) && 
-            Win32_XInputCancelGuideButtonWait != nullptr)
-        {
-            SDL_Log("XInputCancelGuideButtonWait(%u) > Delegate to Win32", dwUserIndex);
-            return Win32_XInputCancelGuideButtonWait(dwUserIndex);
-        }
-        return InputFusion::XInputCancelGuideButtonWait(dwUserIndex);
-    }
-
-    DWORD WINAPI XInputPowerOffController(DWORD dwUserIndex) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputPowerOffController != nullptr)
-        {
-            SDL_Log("XInputPowerOffController(%u) > Delegate to Win32", dwUserIndex);
-            return Win32_XInputPowerOffController(dwUserIndex);
-        }
-        return InputFusion::XInputPowerOffController(dwUserIndex);
-    }
-
-    DWORD WINAPI XInputGetBaseBusInformation(DWORD dwUserIndex, XINPUT_BASE_BUS_INFORMATION* pInfo) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputGetBaseBusInformation != nullptr) 
-        {
-            SDL_Log("XInputGetBaseBusInformation(%u, %p) > Delegate to Win32", dwUserIndex, pInfo);
-            return Win32_XInputGetBaseBusInformation(dwUserIndex, pInfo);
-        }
-        return InputFusion::XInputGetBaseBusInformation(dwUserIndex, pInfo);
-    }
-
-    void WINAPI XInputEnable(BOOL enable) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputEnable != nullptr) 
-        {
-            SDL_Log("XInputEnable(%d) > Delegate to Win32", enable);
-            return Win32_XInputEnable(enable);
-        }
-        return InputFusion::XInputEnable(enable);
-    }
-
-    DWORD WINAPI XInputGetAudioDeviceIds(DWORD dwUserIndex, LPWSTR pRenderDeviceId, UINT* pRenderCount, LPWSTR pCaptureDeviceId, UINT* pCaptureCount) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputGetAudioDeviceIds != nullptr) 
-        {
-            SDL_Log("XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p) > Delegate to Win32", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
-            return Win32_XInputGetAudioDeviceIds(dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
-        }
-        return InputFusion::XInputGetAudioDeviceIds(dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
-    }
-
-    DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid) {
-        if (Flags().delegate &&
-            IsSDL3(_ReturnAddress()) &&
-            Win32_XInputGetDSoundAudioDeviceGuids != nullptr) 
-        {
-            SDL_Log("XInputGetDSoundAudioDeviceGuids(%u, %p, %p) > Delegate to Win32", dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
-            return Win32_XInputGetDSoundAudioDeviceGuids(dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
-        }
-        return InputFusion::XInputGetDSoundAudioDeviceGuids(dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
-    }
 #ifdef XINPUT_EXPORTS
 }
 #endif

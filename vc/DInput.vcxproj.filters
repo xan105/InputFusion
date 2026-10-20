@@ -50,7 +50,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\detour.h">
+    <ClInclude Include="..\src\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\dllmain.h">
@@ -85,7 +85,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\detour.cpp">
+    <ClCompile Include="..\src\detours.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\dllmain.cpp">
@@ -95,9 +95,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\flags.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\delegate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DInput\dinput.cpp">

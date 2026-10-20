@@ -36,7 +36,7 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInput8W::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+  SDL_Log("IDirectInput8W::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -59,7 +59,7 @@ STDMETHODIMP_(ULONG) IDirectInput8W::Release() {
 }
 
 STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* lplpDirectInputDevice, LPUNKNOWN pUnkOuter) {
-  SDL_Log("IDirectInput8W::CreateDevice() <%s>", GUIDToString(rguid).c_str());
+  SDL_Log("IDirectInput8W::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
   
   if (rguid == GUID_NULL) return DIERR_NOINTERFACE;
   
@@ -145,7 +145,7 @@ STDMETHODIMP IDirectInput8W::Initialize(HINSTANCE hinst, DWORD dwVersion) {
 }
 
 STDMETHODIMP IDirectInput8W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LPGUID pguidInstance) {
-  SDL_Log("IDirectInput8W::FindDevice() <%s>", GUIDToString(rguidClass).c_str());
+  SDL_Log("IDirectInput8W::FindDevice() <%s>", util::GUIDToString(rguidClass).c_str());
 
   if (pguidInstance == nullptr) return E_POINTER;
   if (rguidClass == GUID_Joystick)

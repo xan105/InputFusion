@@ -11,6 +11,9 @@ found in the LICENSE file in the root directory of this source tree.
 extern HANDLE InputFusion_SDL_Init_Wait;
 
 namespace {
+
+    constexpr auto INPUTFUSION_SDL_EVENT_LOOP_DELAY = 10;
+
     JOYSTICK Joysticks[MAXJOY] = {};
 
     UINT absDiff(UINT a, UINT b) {
@@ -515,7 +518,7 @@ extern "C" {
             if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("joyGetPosEx(%u, %p) > Waiting...", uJoyID, pjiEx);
                 WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(10); // SDL event loop
+                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
                 SDL_Log("joyGetPosEx(%u, %p) > ...Resuming", uJoyID, pjiEx);
             }
         }
@@ -621,7 +624,7 @@ extern "C" {
             if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("joySetCapture(%p, %u, %u, %d) > Waiting...", hwnd, uJoyID, uPeriod, fChanged);
                 WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(10); // SDL event loop
+                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
                 SDL_Log("joySetCapture(%p, %u, %u, %d) > ...Resuming", hwnd, uJoyID, uPeriod, fChanged);
             }
         }

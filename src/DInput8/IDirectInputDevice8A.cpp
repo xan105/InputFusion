@@ -12,6 +12,9 @@ found in the LICENSE file in the root directory of this source tree.
 extern HANDLE InputFusion_SDL_Init_Wait;
 
 namespace {
+
+    constexpr auto INPUTFUSION_SDL_EVENT_LOOP_DELAY = 10;
+
     static const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
       {SDL_GAMEPAD_BUTTON_SOUTH, 0},
       {SDL_GAMEPAD_BUTTON_EAST, 1},
@@ -321,7 +324,7 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
       if (InputFusion_SDL_Init_Wait) {
           SDL_Log("IDirectInputDevice8A::GetDeviceState() > Waiting...");
           WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-          SDL_Delay(10); // SDL event loop
+          SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
           SDL_Log("IDirectInputDevice8A::GetDeviceState() > ...Resuming");
       }
   }

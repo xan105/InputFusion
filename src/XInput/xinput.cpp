@@ -10,7 +10,10 @@ found in the LICENSE file in the root directory of this source tree.
 extern HANDLE InputFusion_SDL_Init_Wait;
 
 namespace {
-    const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+
+    constexpr auto INPUTFUSION_SDL_EVENT_LOOP_DELAY = 10;
+
+    const std::unordered_map<SDL_GamepadButton, WORD> BUTTONS = {
         {SDL_GAMEPAD_BUTTON_SOUTH, XINPUT_GAMEPAD_A},
         {SDL_GAMEPAD_BUTTON_EAST, XINPUT_GAMEPAD_B},
         {SDL_GAMEPAD_BUTTON_WEST, XINPUT_GAMEPAD_X},
@@ -70,7 +73,7 @@ extern "C" {
             if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputGetStateEx(%u, %p) > Waiting...", dwUserIndex, pState);
                 WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(10); // SDL event loop
+                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
                 SDL_Log("XInputGetStateEx(%u, %p) > ...Resuming", dwUserIndex, pState);
             }
         }
@@ -91,14 +94,14 @@ extern "C" {
 
         SDL_UpdateGamepads();
 
-        for (const auto& [sdl_button, xinput_button] : BUTTONS) {
+        for (const auto& [sdl_button, button] : BUTTONS) {
             if (SDL_GetGamepadButton(gamepad, sdl_button)) {
-                pState->Gamepad.wButtons |= xinput_button;
+                pState->Gamepad.wButtons |= button;
             }
         }
 
         for (const auto& sdl_axis : AXIS) {
-            int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
+            SHORT value = SDL_GetGamepadAxis(gamepad, sdl_axis);
 
             if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
                 pState->Gamepad.sThumbLX = value;
@@ -162,7 +165,7 @@ extern "C" {
             if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputSetStateEx(%u, %p) > Waiting...", dwUserIndex, pVibration);
                 WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(10); // SDL event loop
+                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
                 SDL_Log("XInputSetStateEx(%u, %p) > ...Resuming", dwUserIndex, pVibration);
             }
         }
@@ -220,7 +223,7 @@ extern "C" {
             if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > Waiting...", dwUserIndex, dwFlags, pCapabilities);
                 WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(10); // SDL event loop
+                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
                 SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ...Resuming", dwUserIndex, dwFlags, pCapabilities);
             }
         }
@@ -322,7 +325,7 @@ extern "C" {
             if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > Waiting...", dwUserIndex, devType, pBatteryInformation);
                 WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(10); // SDL event loop
+                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
                 SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ...Resuming", dwUserIndex, devType, pBatteryInformation);
             }
         }

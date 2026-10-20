@@ -41,7 +41,7 @@ STDMETHODIMP IDirectInput2A::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInput2A::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+  SDL_Log("IDirectInput2A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -64,7 +64,7 @@ STDMETHODIMP_(ULONG) IDirectInput2A::Release() {
 }
 
 STDMETHODIMP IDirectInput2A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE2A *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInput2A::CreateDevice() <%s>", GUIDToString(rguid).c_str());
+  SDL_Log("IDirectInput2A::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
   
   IDirectInputDevice2A* pDInputDevice = new(std::nothrow) IDirectInputDevice2A;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;

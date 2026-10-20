@@ -10,10 +10,14 @@ found in the LICENSE file in the root directory of this source tree.
 #include <SDL3/SDL.h>
 #include <atomic>
 
-void setDefaultGamepadAPIs();
-bool init();
-void quit();
-void closeGamepads();
-void eventLoop();
-DWORD WINAPI Main(LPVOID lpReserved);
+namespace {
+	void InputFusion_SDL_SetHints();
+	bool InputFusion_SDL_Init();
+	void InputFusion_SDL_Quit();
+	void InputFusion_SDL_CloseGamepads();
+	void InputFusion_SDL_EventLoop();
+	void InputFusion_SDL_Logger(void* userdata, int category, SDL_LogPriority priority, const char* message);
+}
+
+DWORD WINAPI InputFusion_Main(LPVOID lpReserved);
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);

@@ -1,0 +1,154 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  release:
+    types: [published]
+
+# PR, master, and release do not cancel each other. A newer run in the
+# same group cancels the in-progress one (per PR, or the single master /
+# release slot).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.event_name == 'release' && 'release' || 'master' }}
+  cancel-in-progress: true
+
+jobs:
+  Windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Test with CMake
+        run: |
+          cmake -S . -B build
+          cmake --build build --config Release --target tests
+          ctest --verbose --test-dir build -C Release
+
+  Ubuntu:
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install requirements
+        run: |
+          sudo apt install libgtest-dev cmake
+
+      - name: Format check
+        if: matrix.runner == 'ubuntu-latest'
+        run: |
+          sudo apt install clang-format
+          make format-check
+
+      - name: Test with CMake (-DSIMPLEINI_USE_SYSTEM_GTEST=OFF)
+        run: |
+          cmake -S . -B build -DSIMPLEINI_USE_SYSTEM_GTEST=OFF
+          cmake --build build
+          ctest --verbose --test-dir build
+
+      - name: Test with CMake (-DSIMPLEINI_USE_SYSTEM_GTEST=ON)
+        run: |
+          cmake -S . -B build-system-gtest -DSIMPLEINI_USE_SYSTEM_GTEST=ON
+          cmake --build build-system-gtest
+          ctest --verbose --test-dir build-system-gtest
+
+  Clang:
+    runs-on: ubuntu-latest
+    env:
+      CC: clang
+      CXX: clang++
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install requirements
+        run: |
+          sudo apt install clang cmake libgtest-dev
+
+      - name: Test with CMake (-DSIMPLEINI_USE_SYSTEM_GTEST=OFF)
+        run: |
+          cmake -S . -B build -DSIMPLEINI_USE_SYSTEM_GTEST=OFF \
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          cmake --build build
+          ctest --verbose --test-dir build
+
+      - name: Test with CMake (-DSIMPLEINI_USE_SYSTEM_GTEST=ON)
+        run: |
+          cmake -S . -B build-system-gtest -DSIMPLEINI_USE_SYSTEM_GTEST=ON \
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          cmake --build build-system-gtest
+          ctest --verbose --test-dir build-system-gtest
+
+  FreeBSD:
+    if: false # disabled: GTest header mismatch with pkg googletest in /usr/local/include
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Test in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "14.4"
+          usesh: true
+          prepare: |
+            pkg install -y cmake googletest
+          run: |
+            cmake -S . -B build -DSIMPLEINI_USE_SYSTEM_GTEST=OFF
+            cmake --build build
+            ctest --verbose --test-dir build
+
+            cmake -S . -B build-system-gtest -DSIMPLEINI_USE_SYSTEM_GTEST=ON
+            cmake --build build-system-gtest
+            ctest --verbose --test-dir build-system-gtest
+
+  MacOS:
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install requirements
+        run: |
+          brew list googletest &>/dev/null || brew install googletest
+          brew list cmake &>/dev/null || brew install cmake
+
+      - name: Test with CMake (-DSIMPLEINI_USE_SYSTEM_GTEST=OFF)
+        run: |
+          cmake -S . -B build -DSIMPLEINI_USE_SYSTEM_GTEST=OFF
+          cmake --build build
+          ctest --verbose --test-dir build
+
+      - name: Test with CMake (-DSIMPLEINI_USE_SYSTEM_GTEST=ON)
+        run: |
+          cmake -S . -B build-system-gtest -DSIMPLEINI_USE_SYSTEM_GTEST=ON
+          cmake --build build-system-gtest
+          ctest --verbose --test-dir build-system-gtest
+
+  Doxygen:
+    needs: [Ubuntu, Clang, Windows, MacOS]
+    if: ${{ always() && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
+      - name: Generate Documentation
+        run: doxygen Doxyfile
+
+      - name: Deploy Documentation to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/html

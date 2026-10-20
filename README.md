@@ -151,45 +151,90 @@ Alternatively, here are some of my own:
 > [!TIP]
 > Consider changing the file extension from `.dll` to `.asi` to help prevent false positive with Windows Defender.
 
-Gamepad Layout
-==============
+Env Var & Config file
+=====================
 
-Games have different layout expectation depending on their era and/or gamepads they support.
-For practical reasons, this project tries to mimic a Xbox controller unless otherwise specified.
-Very old and legacy APIs tend to have a more custom/retro layout to match their era.
+🧪 Mostly experimental features are behind env. var. flags.
 
-💡 Please be advised that SDL has also the ability to change the mapping of a gamepad: see [Input Re-mapping](#input-re-mapping) below.
+For people unfamiliar with environment variables, you can instead use the provided `InputFusion.ini` config file. Place it next to the DLL.
 
-- XInput:
+Note that Environment variables supercede the config file!
 
-As an Xbox controller
+#### `GAMEPAD_LED=BATTERYLVL`
 
-- DInput8:
+**BATTERYLVL**
 
-As an Xbox controller therefore it has the same limitations as a real Xbox controller with DInput such as no individual trigger axis.
+When enabled the LED light of the controller is used to show the battery level of the controller:
 
-- DInput (1-7):
+  - 100% / Green
+  - 75% / Yellow
+  - 50% / Orange
+  - 25% / Red
+  
+Currently only available for PS4/PS5 controller in wireless.
 
-As DInput8.
+#### `GAMEPAD_RUMBLE=NONE`
 
-- WinMM:
+Disable motor vibration. This includes _"Impulse Triggers"_ on newer Xbox controllers.
 
-> [!NOTE] 
-> After considering the games from that era that could be played with a gamepad. I somewhat deviated from the "usual" modern mapping for this implementation.
+#### `GAMEPAD_API_GAMEINPUT=HOOK`
 
-The D-Pad and the left joystick both map the X/Y axis, usually used for movement.
-The right joystick maps to Z/R axes and to the POV when pressed + _direction_, usually used to move the camera point of view.
-The right and left trigger are mapped to buttons.
-Buttons order is tweaked to allow triggers in games supporting a limited amount of buttons and start/options to usually end up as the PAUSE button.
+Enable GameInput functions hooking / detouring.<br />
+This forces the use of the GameInput functions from the DLL when calling GameInput functions.
 
-> [!TIP]
-> If for some reasons you'd like the modern Xbox controller layout with WinMM, you can use the env. var. `GAMEPAD_API_WINMM_LAYOUT=XBOX` (See below).
+⚠️ This will also disable GameInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_GAMEINPUT=0).
+
+#### `GAMEPAD_API_XINPUT=HOOK`
+
+Enable XInput functions hooking / detouring.<br />
+This forces the use of the XInput functions from the DLL when calling XInput functions.
+
+⚠️ This will also disable XInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_XINPUT_ENABLED=0).
+
+#### `GAMEPAD_API_XINPUT_DEVICE_CONNECTED=ALWAYS`
+
+All XInput slots will report as connected, returning dummy data when necessary.  
+This helps with games that do not properly handle gamepad disconnection (hot reload), as they may not retry after receiving **ERROR_DEVICE_NOT_CONNECTED**.
+
+#### `GAMEPAD_API_XINPUT_VID_PID=DEVICE`
+
+When enabled `XInputGetCapabilitiesEx()` returns the real VID/PID (Vendor ID / Product ID) of the device, as reported by SDL or fallbacks to a Xbox 360 controller when they aren't available.
+
+By default InputFusion returns the VID/PID of a Xbox 360 controller.
+
+#### `GAMEPAD_API_DINPUT8=HOOK`
+
+Enable DInput8 functions hooking / detouring.
+This forces the use of the DInput8 functions from the DLL when calling DInput8 functions.
+
+⚠️ This will also disable DirectInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_DIRECTINPUT=0).
+
+#### `GAMEPAD_API_DINPUT8_NODEVICES=ENABLE`
+
+Do not return any devices when enumerating devices with DInput8.
+
+#### `GAMEPAD_API_DINPUT=HOOK`
+
+Enable DInput 1-7 functions hooking / detouring.
+This forces the use of the DInput functions from the DLL when calling DInput functions.
+
+#### `GAMEPAD_API_WINMM=HOOK`
+
+Enable WinMM functions hooking / detouring.
+This forces the use of the WinMM functions from the DLL when calling WinMM Joystick related functions.
+
+#### `GAMEPAD_API_WINMM_LAYOUT=XBOX`
+
+Use the modern Xbox controller layout with WinMM. Useful for modern games that decided to use a legacy API for a Xbox controller such as [Deadly Premonition](https://store.steampowered.com/app/247660/Deadly_Premonition_The_Directors_Cut/).
 
 Input Re-mapping
 ================
 
-SDL has the ability to change the mapping of an existing gamepad or add support for gamepads that SDL is unaware of.
-To manually do so the end user can, for example, use the env var `SDL_GAMECONTROLLERCONFIG` or `SDL_GAMECONTROLLERCONFIG_FILE`.
+SDL has the ability to change the mapping of an existing gamepad or add support for gamepads that SDL is unaware of using env. var.:
+- [SDL_HINT_GAMECONTROLLERCONFIG](https://wiki.libsdl.org/SDL3/SDL_HINT_GAMECONTROLLERCONFIG) or 
+- [SDL_HINT_GAMECONTROLLERCONFIG_FILE](https://wiki.libsdl.org/SDL3/SDL_HINT_GAMECONTROLLERCONFIG_FILE).
+
+You can also set these values through `InputFusion.ini` config filer under `[SDL] > CONTROLLER_MAPPING` and `[SDL] > CONTROLLER_MAPPING_FILE`
 
 The mapping string has the format: `GUID,name,mapping`. 
 
@@ -216,85 +261,37 @@ Example to swap the D-PAD with the Left Joystick for retro gaming:
   <em>SDL testcontroller</em>
 </p>
 
-Env Var
-=======
+Gamepad Layout
+==============
 
-🧪 Mostly experimental features are behind env var flags.
+Games have different layout expectation depending on their era and/or gamepads they support.
+For practical reasons, this project tries to mimic a Xbox controller unless otherwise specified.
+Very old and legacy APIs tend to have a more custom/retro layout to match their era.
 
-#### `GAMEPAD_LED=BATTERYLVL`
+- XInput:
 
-**BATTERYLVL**
+As an Xbox controller
 
-When enabled the LED light of the controller is used to show the battery level of the controller:
+- DInput8:
 
-  - 100% / Green
-  - 75% / Yellow
-  - 50% / Orange
-  - 25% / Red
-  
-Currently only available for PS4/PS5 controller in wireless.
+As an Xbox controller therefore it has the same limitations as a real Xbox controller with DInput such as no individual trigger axis.
 
-`DLL: Any`
+- DInput (1-7):
 
-#### `GAMEPAD_RUMBLE=NONE`
+As DInput8.
 
-Disable motor vibration. This includes _"Impulse Triggers"_ on newer Xbox controllers.
+- WinMM:
 
-`DLL: Any`
+> [!NOTE] 
+> After considering the games from that era that could be played with a gamepad. I somewhat deviated from the "usual" modern mapping for this implementation.
 
-#### `GAMEPAD_API_GAMEINPUT=HOOK`
+The D-Pad and the left joystick both map the X/Y axis, usually used for movement.
+The right joystick maps to Z/R axes and to the POV when pressed + _direction_, usually used to move the camera point of view.
+The right and left trigger are mapped to buttons.
+Buttons order is tweaked to allow triggers in games supporting a limited amount of buttons and start/options to usually end up as the PAUSE button.
 
-Enable GameInput functions hooking / detouring.<br />
-This forces the use of the GameInput functions from the DLL when calling GameInput functions.
-
-⚠️ This will also disable GameInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_GAMEINPUT=0).
-
-`DLL: InputFusion, GameInput`
-
-#### `GAMEPAD_API_XINPUT=HOOK`
-
-Enable XInput functions hooking / detouring.<br />
-This forces the use of the XInput functions from the DLL when calling XInput functions.
-
-⚠️ This will also disable XInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_XINPUT_ENABLED=0).
-
-`DLL: InputFusion, XInput`
-
-#### `GAMEPAD_API_XINPUT_DEVICE_CONNECTED=ALWAYS`
-
-All XInput slots will report as connected, returning dummy data when necessary.  
-This helps with games that do not properly handle gamepad disconnection (hot reload), as they may not retry after receiving **ERROR_DEVICE_NOT_CONNECTED**.
-
-`DLL: InputFusion, XInput`
-
-#### `GAMEPAD_API_DINPUT8=HOOK`
-
-Enable DInput8 functions hooking / detouring.
-This forces the use of the DInput8 functions from the DLL when calling DInput8 functions.
-
-⚠️ This will also disable DirectInput usage within SDL to prevent conflict due to API hooking (SDL_HINT_JOYSTICK_DIRECTINPUT=0).
-
-`DLL: InputFusion, Dinput8`
-
-#### `GAMEPAD_API_DINPUT=HOOK`
-
-Enable DInput 1-7 functions hooking / detouring.
-This forces the use of the DInput functions from the DLL when calling DInput functions.
-
-`DLL: InputFusion, Dinput`
-
-#### `GAMEPAD_API_WINMM=HOOK`
-
-Enable WinMM functions hooking / detouring.
-This forces the use of the WinMM functions from the DLL when calling WinMM Joystick related functions.
-
-`DLL: InputFusion, WinMM`
-
-#### `GAMEPAD_API_WINMM_LAYOUT=XBOX`
-
-Use the modern Xbox controller layout with WinMM. Useful for modern games that decided to use a legacy API for a Xbox controller such as [Deadly Premonition](https://store.steampowered.com/app/247660/Deadly_Premonition_The_Directors_Cut/).
-
-`DLL: InputFusion, WinMM`
+> [!TIP]
+> If for some reasons you'd like the modern Xbox controller layout with WinMM, you can use the env. var. `GAMEPAD_API_WINMM_LAYOUT=XBOX` or set `[WinMM] > XBOX_LAYOUT` to `true` in the config file.
 
 Linux (Wine/Proton)
 ===================
@@ -321,6 +318,9 @@ Caveats
 - Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.
   The focus of this project is **for now** on API translation and not on compatibility for _poorly engineered_ games. 
+  
+- What happens when InputFusion replaces an API that SDL also relies on to communicate with your gamepad? This creates a problem potentially causing an infinite loop, stack overflow, or other unexpected behavior.
+  InputFusion avoids this problem by forcibly disabling the use of any APIs within SDL that would cause such conflict.
 
 Build
 =====

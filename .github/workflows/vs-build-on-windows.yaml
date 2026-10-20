@@ -73,7 +73,7 @@ jobs:
           Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86\InputFusion.asi" -Force
           Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug" -Force
           Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\InputFusion\x86\Debug\InputFusion.asi" -Force
-          
+
           # GameInput
           New-Item -ItemType Directory -Path "$tmp\GameInput" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\GameInput\x64" | Out-Null
@@ -138,6 +138,7 @@ jobs:
           Copy-Item ".\build\WinMM\output\Win32\Debug\winmm.dll" "$tmp\WinMM\x86\Debug" -Force
           
           # Misc
+          Copy-Item ".\InputFusion.ini" $tmp -Force
           Copy-Item ".\README.md" $tmp -Force
           Copy-Item ".\LICENSE" $tmp -Force
 

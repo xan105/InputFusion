@@ -9,30 +9,32 @@ found in the LICENSE file in the root directory of this source tree.
 #include <algorithm>
 #include "../util.h"
 
-extern HANDLE SDL_Init_Wait;
+extern HANDLE InputFusion_SDL_Init_Wait;
 
-const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
-  {SDL_GAMEPAD_BUTTON_SOUTH, 0},
-  {SDL_GAMEPAD_BUTTON_EAST, 1},
-  {SDL_GAMEPAD_BUTTON_WEST, 2},
-  {SDL_GAMEPAD_BUTTON_NORTH, 3},
-  {SDL_GAMEPAD_BUTTON_BACK, 6},
-  {SDL_GAMEPAD_BUTTON_START, 7},
-  {SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
-  {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
-  {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
-  {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
-  {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
-};
+namespace {
+    static const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+      {SDL_GAMEPAD_BUTTON_SOUTH, 0},
+      {SDL_GAMEPAD_BUTTON_EAST, 1},
+      {SDL_GAMEPAD_BUTTON_WEST, 2},
+      {SDL_GAMEPAD_BUTTON_NORTH, 3},
+      {SDL_GAMEPAD_BUTTON_BACK, 6},
+      {SDL_GAMEPAD_BUTTON_START, 7},
+      {SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
+      {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
+      {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
+      {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
+      {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
+    };
 
-const std::vector<SDL_GamepadAxis> AXIS = {
-  SDL_GAMEPAD_AXIS_LEFTX,
-  SDL_GAMEPAD_AXIS_LEFTY,
-  SDL_GAMEPAD_AXIS_RIGHTX,
-  SDL_GAMEPAD_AXIS_RIGHTY,
-  SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
-  SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
-};
+    static const std::vector<SDL_GamepadAxis> AXIS = {
+      SDL_GAMEPAD_AXIS_LEFTX,
+      SDL_GAMEPAD_AXIS_LEFTY,
+      SDL_GAMEPAD_AXIS_RIGHTX,
+      SDL_GAMEPAD_AXIS_RIGHTY,
+      SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
+      SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
+    };
+}
 
 IDirectInputDevice8A::IDirectInputDevice8A() : m_refCount(1) {
   SDL_Log("IDirectInputDevice8A");
@@ -61,7 +63,7 @@ STDMETHODIMP IDirectInputDevice8A::QueryInterface(REFIID riid, void** ppvObject)
     return S_OK;
   }
 
-  SDL_Log("IDirectInputDevice8A::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+  SDL_Log("IDirectInputDevice8A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
@@ -316,9 +318,9 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
 
   if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
       SDL_Log("SDL is not ready!");
-      if (SDL_Init_Wait) {
+      if (InputFusion_SDL_Init_Wait) {
           SDL_Log("IDirectInputDevice8A::GetDeviceState() > Waiting...");
-          WaitForSingleObject(SDL_Init_Wait, INFINITE);
+          WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
           SDL_Delay(10); // SDL event loop
           SDL_Log("IDirectInputDevice8A::GetDeviceState() > ...Resuming");
       }

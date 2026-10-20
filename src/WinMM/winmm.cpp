@@ -8,335 +8,340 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 #include "../flags.h"
 
-extern HANDLE SDL_Init_Wait;
-JOYSTICK Joysticks[MAXJOY] = {};
+extern HANDLE InputFusion_SDL_Init_Wait;
 
-namespace LAYOUT {
-  namespace RETRO
-  {
-    const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
-            {SDL_GAMEPAD_BUTTON_SOUTH, 0},
-            {SDL_GAMEPAD_BUTTON_EAST, 1},
-            {SDL_GAMEPAD_BUTTON_WEST, 2},
-            {SDL_GAMEPAD_BUTTON_NORTH, 3},
-            {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
-            {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
-            {SDL_GAMEPAD_BUTTON_BACK, 8},
-            {SDL_GAMEPAD_BUTTON_START, 9},
-            {SDL_GAMEPAD_BUTTON_LEFT_STICK, 10},
-            {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 11},
-            {SDL_GAMEPAD_BUTTON_TOUCHPAD, 8} // PS4/PS5 touchpad button
-    };
+namespace {
+    JOYSTICK Joysticks[MAXJOY] = {};
 
-    const std::unordered_map<SDL_GamepadAxis, DWORD> TRIGGERS = {
-            {SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 6},
-            {SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 7}
-    };
-    
-    void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx){
-      if (pjiEx->dwFlags & JOY_RETURNX) {
-            bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
-            bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
-            bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
-            bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+    UINT absDiff(UINT a, UINT b) {
+        return a > b ? a - b : b - a;
+    }
 
-            if (left && right) {
-                pjiEx->dwXpos = 0x8000; //cancel opposite
+    void CALLBACK joystick_capture(HWND hwnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime) {
+        //NB: No events are send for the pov and the axes other than X, Y, Z but they are available through joyGetPosEx()
+        SDL_Log("joystick_capture(%p, %u, %u, %u)", hwnd, wMsg, (unsigned)wTimer, dwTime);
+
+        for (int i = 0; i < MAXJOY; i++)
+        {
+            if (Joysticks[i].capture != hwnd) continue;
+
+            JOYINFO info = {};
+            if (joyGetPos(i, &info) != JOYERR_NOERROR) continue;
+            LONG pos = MAKELONG(info.wXpos, info.wYpos);
+
+            if (!Joysticks[i].changed ||
+                absDiff(Joysticks[i].info.wXpos, info.wXpos) > Joysticks[i].threshold ||
+                absDiff(Joysticks[i].info.wYpos, info.wYpos) > Joysticks[i].threshold)
+            {
+                SendMessageA(Joysticks[i].capture, MM_JOY1MOVE + i, info.wButtons, pos);
+                Joysticks[i].info.wXpos = info.wXpos;
+                Joysticks[i].info.wYpos = info.wYpos;
             }
-            else if (left && (up || down)) {
-                pjiEx->dwXpos = 0x2000;
+
+            if (!Joysticks[i].changed ||
+                absDiff(Joysticks[i].info.wZpos, info.wZpos) > Joysticks[i].threshold)
+            {
+                SendMessageA(Joysticks[i].capture, MM_JOY1ZMOVE + i, info.wButtons, pos);
+                Joysticks[i].info.wZpos = info.wZpos;
             }
-            else if (right && (up || down)) {
-                pjiEx->dwXpos = 0xDFFF;
+
+            UINT buttonChange = Joysticks[i].info.wButtons ^ info.wButtons;
+            if (buttonChange != 0) {
+                if (info.wButtons & buttonChange) {
+                    SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONDOWN + i, (buttonChange << 8) | (info.wButtons & buttonChange), pos);
+                }
+                if (Joysticks[i].info.wButtons & buttonChange) {
+                    SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONUP + i, (buttonChange << 8) | (Joysticks[i].info.wButtons & buttonChange), pos);
+                }
+                Joysticks[i].info.wButtons = info.wButtons;
             }
-            else if (left) {
-                pjiEx->dwXpos = 0x0;
+        }
+    }
+
+    BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+        if (GetParent(hwnd) == NULL) {
+            SendMessageA(hwnd, WM_USER, 0, (LPARAM)JOY_CONFIGCHANGED_MSGSTRING);
+        }
+        return TRUE;
+    }
+
+    namespace RETRO
+    {
+        const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+                {SDL_GAMEPAD_BUTTON_SOUTH, 0},
+                {SDL_GAMEPAD_BUTTON_EAST, 1},
+                {SDL_GAMEPAD_BUTTON_WEST, 2},
+                {SDL_GAMEPAD_BUTTON_NORTH, 3},
+                {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
+                {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
+                {SDL_GAMEPAD_BUTTON_BACK, 8},
+                {SDL_GAMEPAD_BUTTON_START, 9},
+                {SDL_GAMEPAD_BUTTON_LEFT_STICK, 10},
+                {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 11},
+                {SDL_GAMEPAD_BUTTON_TOUCHPAD, 8} // PS4/PS5 touchpad button
+        };
+
+        const std::unordered_map<SDL_GamepadAxis, DWORD> TRIGGERS = {
+                {SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 6},
+                {SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 7}
+        };
+
+        void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx) {
+            if (pjiEx->dwFlags & JOY_RETURNX) {
+                bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+                bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+                bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+                bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+
+                if (left && right) {
+                    pjiEx->dwXpos = 0x8000; //cancel opposite
+                }
+                else if (left && (up || down)) {
+                    pjiEx->dwXpos = 0x2000;
+                }
+                else if (right && (up || down)) {
+                    pjiEx->dwXpos = 0xDFFF;
+                }
+                else if (left) {
+                    pjiEx->dwXpos = 0x0;
+                }
+                else if (right) {
+                    pjiEx->dwXpos = 0xffff;
+                }
+                else {
+                    int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
+                    pjiEx->dwXpos = (DWORD)(value + 0x8000);
+                }
             }
-            else if (right) {
-                pjiEx->dwXpos = 0xffff;
+            if (pjiEx->dwFlags & JOY_RETURNY) {
+                bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+                bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+                bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+                bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+
+                if (up && down) {
+                    pjiEx->dwYpos = 0x8000; //cancel opposite
+                }
+                else if (up && (left || right)) {
+                    pjiEx->dwYpos = 0x2000;
+                }
+                else if (down && (left || right)) {
+                    pjiEx->dwYpos = 0xDFFF;
+                }
+                else if (up) {
+                    pjiEx->dwYpos = 0x0;
+                }
+                else if (down) {
+                    pjiEx->dwYpos = 0xffff;
+                }
+                else {
+                    int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
+                    pjiEx->dwYpos = (DWORD)(value + 0x8000);
+                }
             }
-            else {
+            if (pjiEx->dwFlags & JOY_RETURNZ) {
+                if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+                    pjiEx->dwZpos = 0x8000;
+                }
+                else {
+                    int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
+                    pjiEx->dwZpos = (DWORD)(value + 0x8000);
+                }
+            }
+            if (pjiEx->dwFlags & JOY_RETURNR) {
+                if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+                    pjiEx->dwRpos = 0x8000;
+                }
+                else {
+                    int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
+                    pjiEx->dwRpos = (DWORD)(value + 0x8000);
+                }
+            }
+            if (pjiEx->dwFlags & JOY_RETURNU) {
+                pjiEx->dwUpos = 0x8000;
+            }
+            if (pjiEx->dwFlags & JOY_RETURNV) {
+                pjiEx->dwVpos = 0x8000;
+            }
+
+            if (pjiEx->dwFlags & JOY_RETURNPOV)
+            {
+                pjiEx->dwPOV = 0xFFFF;
+
+                if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
+
+                    const float deadZone = 6000 / 32767.0f;
+
+                    float rX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
+                    float rY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
+                    float magnitude = std::sqrt(rX * rX + rY * rY);
+
+                    if (magnitude >= deadZone) {
+                        if (rX > 0.5f && std::abs(rY) < 0.5f) {
+                            pjiEx->dwPOV = 0x2328;  // Right
+                        }
+                        else if (rX < -0.5f && std::abs(rY) < 0.5f) {
+                            pjiEx->dwPOV = 0x6978;  // Left
+                        }
+                        else if (rY > 0.5f && std::abs(rX) < 0.5f) {
+                            pjiEx->dwPOV = 0x4650;  // Down
+                        }
+                        else if (rY < -0.5f && std::abs(rX) < 0.5f) {
+                            pjiEx->dwPOV = 0x0;  // Up
+                        }
+                        else if (rX > 0.5f && rY > 0.5f) {
+                            pjiEx->dwPOV = 0x34BC;  // Down-Right
+                        }
+                        else if (rX > 0.5f && rY < -0.5f) {
+                            pjiEx->dwPOV = 0x1194;  // Up-Right
+                        }
+                        else if (rX < -0.5f && rY > 0.5f) {
+                            pjiEx->dwPOV = 0x57E4;  // Down-Left
+                        }
+                        else if (rX < -0.5f && rY < -0.5f) {
+                            pjiEx->dwPOV = 0x7B0C;  // Up-Left
+                        }
+                    }
+                }
+            }
+
+            if (pjiEx->dwFlags & JOY_RETURNBUTTONS)
+            {
+                pjiEx->dwButtons = 0;
+                for (const auto& [sdl_button, index] : BUTTONS) {
+                    if (SDL_GetGamepadButton(gamepad, sdl_button)) {
+                        pjiEx->dwButtons |= 1 << index;
+                    }
+                }
+
+                for (const auto& [sdl_axis, index] : TRIGGERS) {
+                    if (SDL_GetGamepadAxis(gamepad, sdl_axis) > 30) {
+                        pjiEx->dwButtons |= 1 << index;
+                    }
+                }
+
+                pjiEx->dwButtonNumber = static_cast<DWORD>(std::bitset<32>(pjiEx->dwButtons).count());
+            }
+        }
+
+        void SetCapabilities(LPJOYCAPSW pjc) {
+            pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASR | JOYCAPS_HASPOV;
+            pjc->wNumAxes = 4;
+            pjc->wMaxAxes = 4;
+            pjc->wNumButtons = 12;
+            pjc->wMaxButtons = 12;
+        }
+    }
+    namespace XBOX
+    {
+        const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
+                {SDL_GAMEPAD_BUTTON_SOUTH, 0},
+                {SDL_GAMEPAD_BUTTON_EAST, 1},
+                {SDL_GAMEPAD_BUTTON_WEST, 2},
+                {SDL_GAMEPAD_BUTTON_NORTH, 3},
+                {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
+                {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
+                {SDL_GAMEPAD_BUTTON_BACK, 6},
+                {SDL_GAMEPAD_BUTTON_START, 7},
+                {SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
+                {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
+                {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
+        };
+
+        void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx) {
+            if (pjiEx->dwFlags & JOY_RETURNX) {
                 int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
                 pjiEx->dwXpos = (DWORD)(value + 0x8000);
             }
-        }
-        if (pjiEx->dwFlags & JOY_RETURNY) {
-            bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
-            bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
-            bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
-            bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
-
-            if (up && down) {
-                pjiEx->dwYpos = 0x8000; //cancel opposite
-            }
-            else if (up && (left || right)) {
-                pjiEx->dwYpos = 0x2000;
-            }
-            else if (down && (left || right)) {
-                pjiEx->dwYpos = 0xDFFF;
-            }
-            else if (up) {
-                pjiEx->dwYpos = 0x0;
-            }
-            else if (down) {
-                pjiEx->dwYpos = 0xffff;
-            }
-            else {
+            if (pjiEx->dwFlags & JOY_RETURNY) {
                 int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
                 pjiEx->dwYpos = (DWORD)(value + 0x8000);
             }
-        }
-        if (pjiEx->dwFlags & JOY_RETURNZ) {
-            if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
-              pjiEx->dwZpos = 0x8000;
-            } else {
-              int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
-              pjiEx->dwZpos = (DWORD)(value + 0x8000);
+            if (pjiEx->dwFlags & JOY_RETURNZ) {
+                int lt = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+                int rt = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
+                pjiEx->dwZpos = (0x8000 + lt) - rt;
             }
-        }
-        if (pjiEx->dwFlags & JOY_RETURNR) {
-            if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
-              pjiEx->dwRpos = 0x8000;
-            } else {
-              int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
-              pjiEx->dwRpos = (DWORD)(value + 0x8000);
+            // SWAPPING R/U AXES ON PURPOSE FOR "Deadly Premonition The Director's Cut" (Steam/247660)
+            // Unless there is another modern game that decided to use legacy api for a Xbox controller!
+            // In that case should revisite this decision
+            // NB: Peter Jackson's King Kong in GAMEPAD_API_WINMM_LAYOUT=XBOX has also the correct camera axes.
+            if (pjiEx->dwFlags & JOY_RETURNR) {
+                //int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
+                int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
+                pjiEx->dwRpos = (DWORD)(value + 0x8000);
             }
-        }
-        if (pjiEx->dwFlags & JOY_RETURNU) {
-            pjiEx->dwUpos = 0x8000;
-        }
-        if (pjiEx->dwFlags & JOY_RETURNV) {
-            pjiEx->dwVpos = 0x8000;
-        }
+            if (pjiEx->dwFlags & JOY_RETURNU) {
+                //int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
+                int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
+                pjiEx->dwUpos = (DWORD)(value + 0x8000);
+            }
+            if (pjiEx->dwFlags & JOY_RETURNV) {
+                pjiEx->dwVpos = 0x8000;
+            }
 
-        if (pjiEx->dwFlags & JOY_RETURNPOV)
-        {
-            pjiEx->dwPOV = 0xFFFF;
-            
-            if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_RIGHT_STICK)) {
-            
-                const float deadZone = 6000 / 32767.0f;
+            if (pjiEx->dwFlags & JOY_RETURNPOV)
+            {
+                bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+                bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+                bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+                bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
 
-                float rX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
-                float rY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
-                float magnitude = std::sqrt(rX * rX + rY * rY);
-                
-                if (magnitude >= deadZone) {
-                  if (rX > 0.5f && std::abs(rY) < 0.5f) {
-                      pjiEx->dwPOV = 0x2328;  // Right
-                  }
-                  else if (rX < -0.5f && std::abs(rY) < 0.5f) {
-                      pjiEx->dwPOV = 0x6978;  // Left
-                  }
-                  else if (rY > 0.5f && std::abs(rX) < 0.5f) {
-                      pjiEx->dwPOV = 0x4650;  // Down
-                  }
-                  else if (rY < -0.5f && std::abs(rX) < 0.5f) {
-                      pjiEx->dwPOV = 0x0;  // Up
-                  }
-                  else if (rX > 0.5f && rY > 0.5f) {
-                      pjiEx->dwPOV = 0x34BC;  // Down-Right
-                  }
-                  else if (rX > 0.5f && rY < -0.5f) {
-                      pjiEx->dwPOV = 0x1194;  // Up-Right
-                  }
-                  else if (rX < -0.5f && rY > 0.5f) {
-                      pjiEx->dwPOV = 0x57E4;  // Down-Left
-                  }
-                  else if (rX < -0.5f && rY < -0.5f) {
-                      pjiEx->dwPOV = 0x7B0C;  // Up-Left
-                  }
+                if (up && down || left && right) {
+                    pjiEx->dwPOV = 0xFFFF; //cancel opposite
                 }
-            } 
-        }
-
-        if (pjiEx->dwFlags & JOY_RETURNBUTTONS)
-        {
-            pjiEx->dwButtons = 0;
-            for (const auto& [sdl_button, index] : BUTTONS) {
-                if (SDL_GetGamepadButton(gamepad, sdl_button)) {
-                    pjiEx->dwButtons |= 1 << index;
+                else if (up && left) {
+                    pjiEx->dwPOV = 0x7B0C;
+                }
+                else if (up && right) {
+                    pjiEx->dwPOV = 0x1194;
+                }
+                else if (down && left) {
+                    pjiEx->dwPOV = 0x57E4;
+                }
+                else if (down && right) {
+                    pjiEx->dwPOV = 0x34BC;
+                }
+                else if (up) {
+                    pjiEx->dwPOV = 0x0;
+                }
+                else if (down) {
+                    pjiEx->dwPOV = 0x4650;
+                }
+                else if (left) {
+                    pjiEx->dwPOV = 0x6978;
+                }
+                else if (right) {
+                    pjiEx->dwPOV = 0x2328;
+                }
+                else {
+                    pjiEx->dwPOV = 0xFFFF;
                 }
             }
-  
-            for (const auto& [sdl_axis, index] : TRIGGERS) {
-              if (SDL_GetGamepadAxis(gamepad, sdl_axis) > 30) {
-                pjiEx->dwButtons |= 1 << index;
-              } 
-            }
 
-            pjiEx->dwButtonNumber = static_cast<DWORD>(std::bitset<32>(pjiEx->dwButtons).count());
-        }
-      }
-      
-      void SetCapabilities(LPJOYCAPSW pjc){
-        pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASR | JOYCAPS_HASPOV;
-        pjc->wNumAxes = 4;
-        pjc->wMaxAxes = 4;
-        pjc->wNumButtons = 12;
-        pjc->wMaxButtons = 12;
-      }
-  }
-  namespace XBOX
-  {
-    const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
-            {SDL_GAMEPAD_BUTTON_SOUTH, 0},
-            {SDL_GAMEPAD_BUTTON_EAST, 1},
-            {SDL_GAMEPAD_BUTTON_WEST, 2},
-            {SDL_GAMEPAD_BUTTON_NORTH, 3},
-            {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 4},
-            {SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 5},
-            {SDL_GAMEPAD_BUTTON_BACK, 6},
-            {SDL_GAMEPAD_BUTTON_START, 7},
-            {SDL_GAMEPAD_BUTTON_LEFT_STICK, 8},
-            {SDL_GAMEPAD_BUTTON_RIGHT_STICK, 9},
-            {SDL_GAMEPAD_BUTTON_TOUCHPAD, 6} // PS4/PS5 touchpad button
-    };
-    
-    void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx){
-      if (pjiEx->dwFlags & JOY_RETURNX) {
-             int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
-             pjiEx->dwXpos = (DWORD)(value + 0x8000);
-        }
-        if (pjiEx->dwFlags & JOY_RETURNY) {
-             int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
-             pjiEx->dwYpos = (DWORD)(value + 0x8000);
-        }
-        if (pjiEx->dwFlags & JOY_RETURNZ) {
-            int lt = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
-            int rt = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
-            pjiEx->dwZpos = (0x8000 + lt) - rt;
-        }
-        // SWAPPING R/U AXES ON PURPOSE FOR "Deadly Premonition The Director's Cut" (Steam/247660)
-        // Unless there is another modern game that decided to use legacy api for a Xbox controller!
-        // In that case should revisite this decision
-        // NB: Peter Jackson's King Kong in GAMEPAD_API_WINMM_LAYOUT=XBOX has also the correct camera axes.
-        if (pjiEx->dwFlags & JOY_RETURNR) {
-            //int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
-            int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
-            pjiEx->dwRpos = (DWORD)(value + 0x8000);
-        }
-        if (pjiEx->dwFlags & JOY_RETURNU) {
-            //int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY);
-            int value = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX);
-            pjiEx->dwUpos = (DWORD)(value + 0x8000);
-        }
-        if (pjiEx->dwFlags & JOY_RETURNV) {
-            pjiEx->dwVpos = 0x8000;
-        }
-
-        if (pjiEx->dwFlags & JOY_RETURNPOV)
-        {
-            bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
-            bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
-            bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
-            bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
-
-            if (up && down || left && right) {
-                pjiEx->dwPOV = 0xFFFF; //cancel opposite
-            }
-            else if (up && left) {
-                pjiEx->dwPOV = 0x7B0C;
-            }
-            else if (up && right) {
-                pjiEx->dwPOV = 0x1194;
-            }
-            else if (down && left) {
-                pjiEx->dwPOV = 0x57E4;
-            }
-            else if (down && right) {
-                pjiEx->dwPOV = 0x34BC;
-            }
-            else if (up) {
-                pjiEx->dwPOV = 0x0;
-            }
-            else if (down) {
-                pjiEx->dwPOV = 0x4650;
-            }
-            else if (left) {
-                pjiEx->dwPOV = 0x6978;
-            }
-            else if (right) {
-                pjiEx->dwPOV = 0x2328;
-            }
-            else {
-                pjiEx->dwPOV = 0xFFFF;
-            }
-        }
-
-        if (pjiEx->dwFlags & JOY_RETURNBUTTONS)
-        {
-            pjiEx->dwButtons = 0;
-            for (const auto& [sdl_button, index] : BUTTONS) {
-                if (SDL_GetGamepadButton(gamepad, sdl_button)) {
-                    pjiEx->dwButtons |= 1 << index;
+            if (pjiEx->dwFlags & JOY_RETURNBUTTONS)
+            {
+                pjiEx->dwButtons = 0;
+                for (const auto& [sdl_button, index] : BUTTONS) {
+                    if (SDL_GetGamepadButton(gamepad, sdl_button)) {
+                        pjiEx->dwButtons |= 1 << index;
+                    }
                 }
+                pjiEx->dwButtonNumber = static_cast<DWORD>(std::bitset<32>(pjiEx->dwButtons).count());
             }
-            pjiEx->dwButtonNumber = static_cast<DWORD>(std::bitset<32>(pjiEx->dwButtons).count());
-        }
-    }
-    
-    void SetCapabilities(LPJOYCAPSW pjc){
-        pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASPOV;
-        pjc->wNumAxes = 5;
-        pjc->wMaxAxes = 5;
-        pjc->wNumButtons = 10;
-        pjc->wMaxButtons = 10;
-    }
-  }
-}
-
-UINT absDiff(UINT a, UINT b) {
-    return a > b ? a - b : b - a;
-}
-
-void CALLBACK joystick_capture(HWND hwnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime) {
-    //NB: No events are send for the pov and the axes other than X, Y, Z but they are available through joyGetPosEx()
-    SDL_Log("joystick_capture(%p, %u, %u, %u)", hwnd, wMsg, (unsigned)wTimer, dwTime);
-
-    for (int i = 0; i < MAXJOY; i++)
-    {
-        if (Joysticks[i].capture != hwnd) continue;
-
-        JOYINFO info = {};
-        if (joyGetPos(i, &info) != JOYERR_NOERROR) continue;
-        LONG pos = MAKELONG(info.wXpos, info.wYpos);
-
-        if (!Joysticks[i].changed ||
-            absDiff(Joysticks[i].info.wXpos, info.wXpos) > Joysticks[i].threshold ||
-            absDiff(Joysticks[i].info.wYpos, info.wYpos) > Joysticks[i].threshold)
-        {
-            SendMessageA(Joysticks[i].capture, MM_JOY1MOVE + i, info.wButtons, pos);
-            Joysticks[i].info.wXpos = info.wXpos;
-            Joysticks[i].info.wYpos = info.wYpos;
         }
 
-        if (!Joysticks[i].changed ||
-            absDiff(Joysticks[i].info.wZpos, info.wZpos) > Joysticks[i].threshold)
-        {
-            SendMessageA(Joysticks[i].capture, MM_JOY1ZMOVE + i, info.wButtons, pos);
-            Joysticks[i].info.wZpos = info.wZpos;
-        }
-
-        UINT buttonChange = Joysticks[i].info.wButtons ^ info.wButtons;
-        if (buttonChange != 0) {
-            if (info.wButtons & buttonChange) {
-                SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONDOWN + i, (buttonChange << 8) | (info.wButtons & buttonChange), pos);
-            }
-            if (Joysticks[i].info.wButtons & buttonChange) {
-                SendMessageA(Joysticks[i].capture, MM_JOY1BUTTONUP + i, (buttonChange << 8) | (Joysticks[i].info.wButtons & buttonChange), pos);
-            }
-            Joysticks[i].info.wButtons = info.wButtons;
+        void SetCapabilities(LPJOYCAPSW pjc) {
+            pjc->wCaps = JOYCAPS_HASZ | JOYCAPS_HASPOV;
+            pjc->wNumAxes = 5;
+            pjc->wMaxAxes = 5;
+            pjc->wNumButtons = 10;
+            pjc->wMaxButtons = 10;
         }
     }
 }
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
-    if (GetParent(hwnd) == NULL) {
-        SendMessageA(hwnd, WM_USER, 0, (LPARAM)JOY_CONFIGCHANGED_MSGSTRING);
-    }
-    return TRUE;
-}
+
 
 #ifdef WINMM_EXPORTS
 extern "C" {
@@ -450,10 +455,10 @@ extern "C" {
         wcscpy_s(pjc->szOEMVxD, _countof(pjc->szOEMVxD), L"");
 
         if (Flags().winmm_layout_xbox) {
-            LAYOUT::XBOX::SetCapabilities(pjc);
+            XBOX::SetCapabilities(pjc);
         }
         else {
-            LAYOUT::RETRO::SetCapabilities(pjc);
+            RETRO::SetCapabilities(pjc);
         }
 
         SDL_Log("joyGetDevCapsW(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
@@ -507,9 +512,9 @@ extern "C" {
 
         if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             SDL_Log("SDL is not ready!");
-            if (SDL_Init_Wait) {
+            if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("joyGetPosEx(%u, %p) > Waiting...", uJoyID, pjiEx);
-                WaitForSingleObject(SDL_Init_Wait, INFINITE);
+                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
                 SDL_Delay(10); // SDL event loop
                 SDL_Log("joyGetPosEx(%u, %p) > ...Resuming", uJoyID, pjiEx);
             }
@@ -524,10 +529,10 @@ extern "C" {
         SDL_UpdateGamepads();
 
         if (Flags().winmm_layout_xbox) {
-            LAYOUT::XBOX::TranslateInput(gamepad, pjiEx);
+            XBOX::TranslateInput(gamepad, pjiEx);
         }
         else {
-            LAYOUT::RETRO::TranslateInput(gamepad, pjiEx);
+            RETRO::TranslateInput(gamepad, pjiEx);
         }
 
         SDL_Log("joyGetPosEx(%u, %p) > JOYERR_NOERROR", uJoyID, pjiEx);
@@ -613,9 +618,9 @@ extern "C" {
 
         if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
             SDL_Log("SDL is not ready!");
-            if (SDL_Init_Wait) {
+            if (InputFusion_SDL_Init_Wait) {
                 SDL_Log("joySetCapture(%p, %u, %u, %d) > Waiting...", hwnd, uJoyID, uPeriod, fChanged);
-                WaitForSingleObject(SDL_Init_Wait, INFINITE);
+                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
                 SDL_Delay(10); // SDL event loop
                 SDL_Log("joySetCapture(%p, %u, %u, %d) > ...Resuming", hwnd, uJoyID, uPeriod, fChanged);
             }

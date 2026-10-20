@@ -19,7 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\detour.cpp" />
+    <ClCompile Include="..\src\detours.cpp" />
+    <ClCompile Include="..\src\DInput8\dinput8.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInput8A.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInput8W.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8A.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputDevice8W.cpp" />
+    <ClCompile Include="..\src\DInput8\IDirectInputJoyConfig8.cpp" />
+    <ClCompile Include="..\src\DInput\dinput.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput2A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput2W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput7A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInput7W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputA.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice2W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7A.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDevice7W.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceA.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputDeviceW.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputJoyConfig.cpp" />
+    <ClCompile Include="..\src\DInput\IDirectInputW.cpp" />
     <ClCompile Include="..\src\dllmain.cpp" />
     <ClCompile Include="..\src\flags.cpp" />
     <ClCompile Include="..\src\GameInput\gameinput.cpp" />
@@ -29,15 +49,21 @@
     <ClCompile Include="..\src\GameInput\IGameInputForceFeedbackEffect.cpp" />
     <ClCompile Include="..\src\GameInput\IGameInputReading.cpp" />
     <ClCompile Include="..\src\util.cpp" />
+    <ClCompile Include="..\src\WinMM\winmm.cpp" />
+    <ClCompile Include="..\src\XInput\xinput.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\detour.h" />
+    <ClInclude Include="..\src\detours.h" />
+    <ClInclude Include="..\src\DInput8\dinput8.h" />
+    <ClInclude Include="..\src\DInput\dinput.h" />
     <ClInclude Include="..\src\dllmain.h" />
     <ClInclude Include="..\src\flags.h" />
     <ClInclude Include="..\src\GameInput\gameinput.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />
+    <ClInclude Include="..\src\WinMM\winmm.h" />
+    <ClInclude Include="..\src\XInput\xinput.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc" />
@@ -129,7 +155,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -150,7 +176,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -171,7 +197,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_DEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -192,7 +218,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;NDEBUG;GAMEINPUT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

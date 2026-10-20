@@ -155,23 +155,35 @@ typedef MMRESULT (WINAPI *joyReleaseCapture_t)(UINT uJoyID);
 typedef MMRESULT (WINAPI *joySetCapture_t)(HWND hwnd, UINT uJoyID, UINT uPeriod, BOOL fCapture);
 typedef MMRESULT (WINAPI *joySetThreshold_t)(UINT uJoyID, UINT uThreshold);
 
+namespace {
+    UINT absDiff(UINT a, UINT b);
+    void CALLBACK joystick_capture(HWND hwnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime);
+    BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
+    namespace RETRO
+    {
+        void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx);
+        void SetCapabilities(LPJOYCAPSW pjc);
+    }
+    namespace XBOX
+    {
+        void TranslateInput(SDL_Gamepad* gamepad, LPJOYINFOEX pjiEx);
+        void SetCapabilities(LPJOYCAPSW pjc);
+    }
+}
+
 #ifdef WINMM_EXPORTS
-extern "C" {
+    extern "C" {
 #endif
-MMRESULT WINAPI joyConfigChanged(DWORD dwFlags);
-MMRESULT WINAPI joyGetDevCapsA(UINT_PTR uJoyID, LPJOYCAPSA pjc, UINT cbjc);
-MMRESULT WINAPI joyGetDevCapsW(UINT_PTR uJoyID, LPJOYCAPSW pjc, UINT cbjc);
-UINT WINAPI joyGetNumDevs(void);
-MMRESULT WINAPI joyGetPos(UINT uJoyID, LPJOYINFO pji);
-MMRESULT WINAPI joyGetPosEx(UINT uJoyID, LPJOYINFOEX pjiEx);
-MMRESULT WINAPI joyGetThreshold(UINT uJoyID, LPUINT puThreshold);
-MMRESULT WINAPI joyReleaseCapture(UINT uJoyID);
-MMRESULT WINAPI joySetCapture(HWND hwnd, UINT uJoyID, UINT uPeriod, BOOL fCapture);
-MMRESULT WINAPI joySetThreshold(UINT uJoyID, UINT uThreshold);
+    MMRESULT WINAPI joyConfigChanged(DWORD dwFlags);
+    MMRESULT WINAPI joyGetDevCapsA(UINT_PTR uJoyID, LPJOYCAPSA pjc, UINT cbjc);
+    MMRESULT WINAPI joyGetDevCapsW(UINT_PTR uJoyID, LPJOYCAPSW pjc, UINT cbjc);
+    UINT WINAPI joyGetNumDevs(void);
+    MMRESULT WINAPI joyGetPos(UINT uJoyID, LPJOYINFO pji);
+    MMRESULT WINAPI joyGetPosEx(UINT uJoyID, LPJOYINFOEX pjiEx);
+    MMRESULT WINAPI joyGetThreshold(UINT uJoyID, LPUINT puThreshold);
+    MMRESULT WINAPI joyReleaseCapture(UINT uJoyID);
+    MMRESULT WINAPI joySetCapture(HWND hwnd, UINT uJoyID, UINT uPeriod, BOOL fCapture);
+    MMRESULT WINAPI joySetThreshold(UINT uJoyID, UINT uThreshold);
 #ifdef WINMM_EXPORTS
 }
 #endif
-
-UINT absDiff(UINT a, UINT b);
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
-void CALLBACK joystick_capture(HWND hWnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime);

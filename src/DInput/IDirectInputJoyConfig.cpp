@@ -31,7 +31,7 @@ STDMETHODIMP IDirectInputJoyConfig::QueryInterface(REFIID riid, void** ppvObject
     return S_OK;
   }
 
-  SDL_Log("IDirectInputJoyConfig::QueryInterface() > Unknow REFIID: %s", GUIDToString(riid).c_str());
+  SDL_Log("IDirectInputJoyConfig::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;

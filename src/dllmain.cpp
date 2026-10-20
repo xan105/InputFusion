@@ -16,6 +16,9 @@ HANDLE InputFusion_SDL_Quit_Wait = nullptr;
 std::atomic<bool> InputFusion_SDL_Event_Loop(true);
 
 namespace {
+
+    constexpr auto INPUTFUSION_SDL_EVENT_LOOP_DELAY = 10;
+
     void InputFusion_SDL_SetHints() {
 
         CSimpleIniW ini;
@@ -24,23 +27,23 @@ namespace {
         std::wstring file = util::GetModuleDirectory() + L"InputFusion.ini";
 
         struct {
-            bool HIDAPI = true;   // HID
-            bool GAMEINPUT = true;   // GameInput
-            bool WGI = true;   // Windows.Gaming.Input (WinRT)
-            bool XINPUT = false;  // Xinput 
-            bool DINPUT8 = false;  // Dinput8
-            bool RAWINPUT = false;  // RAW (Xbox controllers) | Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
+            bool HIDAPI     = true;    // HID
+            bool GAMEINPUT  = true;    // GameInput
+            bool WGI        = true;    // Windows.Gaming.Input (WinRT)
+            bool XINPUT     = true;    // Xinput 
+            bool DINPUT8    = true;    // Dinput8
+            bool RAWINPUT   = false;   // RAW (Xbox controllers) | Disabled for now cf: https://github.com/libsdl-org/SDL/issues/13047#issuecomment-2913284199
             std::wstring CONTROLLER_MAPPING = L"";
             std::wstring CONTROLLER_MAPPING_FILE = L"";
         } SDL_Hints;
 
         if (ini.LoadFile(file.c_str()) == SI_OK) {
-            SDL_Hints.HIDAPI = ini.GetBoolValue(L"SDL", L"HIDAPI", true);
-            SDL_Hints.GAMEINPUT = ini.GetBoolValue(L"SDL", L"GAMEINPUT", true);
-            SDL_Hints.WGI = ini.GetBoolValue(L"SDL", L"WGI", true);
-            SDL_Hints.XINPUT = ini.GetBoolValue(L"SDL", L"XINPUT", false);
-            SDL_Hints.DINPUT8 = ini.GetBoolValue(L"SDL", L"DINPUT8", false);
-            SDL_Hints.RAWINPUT = ini.GetBoolValue(L"SDL", L"RAWINPUT", false);
+            SDL_Hints.HIDAPI      = ini.GetBoolValue(L"SDL", L"HIDAPI", true);
+            SDL_Hints.GAMEINPUT   = ini.GetBoolValue(L"SDL", L"GAMEINPUT", true);
+            SDL_Hints.WGI         = ini.GetBoolValue(L"SDL", L"WGI", true);
+            SDL_Hints.XINPUT      = ini.GetBoolValue(L"SDL", L"XINPUT", true);
+            SDL_Hints.DINPUT8     = ini.GetBoolValue(L"SDL", L"DINPUT8", true);
+            SDL_Hints.RAWINPUT    = ini.GetBoolValue(L"SDL", L"RAWINPUT", false);
             SDL_Hints.CONTROLLER_MAPPING = ini.GetValue(L"SDL", L"CONTROLLER_MAPPING", L"");
             SDL_Hints.CONTROLLER_MAPPING_FILE = ini.GetValue(L"SDL", L"CONTROLLER_MAPPING_FILE", L"");
 
@@ -52,13 +55,13 @@ namespace {
         SDL_SetHint(SDL_HINT_JOYSTICK_WGI, SDL_Hints.WGI ? "1" : "0");
         SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, SDL_Hints.GAMEINPUT ? "1" : "0");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, SDL_Hints.HIDAPI ? "1" : "0");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
+            SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");
+            SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4, "1");
+            SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+            SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, SDL_Hints.RAWINPUT ? "1" : "0");
-        SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "1");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers                                                               
-        SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");                     // Xbox controllers raw input (SDL is not running in the main thread)
+            SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "1");  // Raw input pulls data from WGI/XInput providing better support for Xbox controllers                                                               
+            SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");                     // Xbox controllers raw input (SDL is not running in the main thread)
 
         // https://github.com/libsdl-org/SDL/pull/14353
         // Should be merged in SDL3 3.6
@@ -279,7 +282,7 @@ namespace {
                 }
                 }
             }
-            SDL_Delay(10); // Prevent this loop from consuming too much CPU
+            SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY); // Prevent this loop from consuming too much CPU
         }
     }
 

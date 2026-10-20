@@ -32,13 +32,13 @@ const Flags_t& Flags() {
             flag.norumble                   = ini.GetBoolValue(L"SDL",      L"DISABLE_GAMEPAD_RUMBLE",      false);
             flag.winmm_layout_xbox          = ini.GetBoolValue(L"WinMM",    L"XBOX_LAYOUT",                 false);
             flag.xinput_always_connected    = ini.GetBoolValue(L"XInput",   L"DEVICE_ALWAYS_CONNECTED",     false);
+            flag.xinput_realID              = ini.GetBoolValue(L"XInput",   L"DEVICE_VID_PID",              false);
             flag.dinput_nodevices           = ini.GetBoolValue(L"DInput8",  L"NO_DEVICES",                  false);
             flag.gameinput_detour           = ini.GetBoolValue(L"API",      L"GAMEINPUT",                   false);
             flag.xinput_detour              = ini.GetBoolValue(L"API",      L"XINPUT",                      false);
             flag.dinput8_detour             = ini.GetBoolValue(L"API",      L"DINPUT8",                     false);
             flag.dinput_detour              = ini.GetBoolValue(L"API",      L"DINPUT",                      false);
             flag.winmm_detour               = ini.GetBoolValue(L"API",      L"WINMM",                       false);
-
             SDL_Log("Parsed flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
         }
 
@@ -46,6 +46,7 @@ const Flags_t& Flags() {
         SetFlagFromEnv(flag.norumble,                   L"GAMEPAD_RUMBLE",                      L"DISABLE");
         SetFlagFromEnv(flag.winmm_layout_xbox,          L"GAMEPAD_API_WINMM_LAYOUT",            L"XBOX");
         SetFlagFromEnv(flag.xinput_always_connected,    L"GAMEPAD_API_XINPUT_DEVICE_CONNECTED", L"ALWAYS");
+        SetFlagFromEnv(flag.xinput_realID,              L"GAMEPAD_API_XINPUT_VID_PID",          L"DEVICE");
         SetFlagFromEnv(flag.dinput_nodevices,           L"GAMEPAD_API_DINPUT8_NODEVICES",       L"ENABLE");
         SetFlagFromEnv(flag.gameinput_detour,           L"GAMEPAD_API_GAMEINPUT",               L"HOOK");
         SetFlagFromEnv(flag.xinput_detour,              L"GAMEPAD_API_XINPUT",                  L"HOOK");
@@ -60,6 +61,7 @@ const Flags_t& Flags() {
             "- norumble: %d\n"
             "- winmm_layout_xbox: %d\n"
             "- xinput_always_connected: %d\n"
+            "- xinput_realID: %d\n"
             "- dinput_nodevices: %d\n"
             "- gameinput_detour: %d\n"
             "- xinput_detour: %d\n"
@@ -70,6 +72,7 @@ const Flags_t& Flags() {
             flag.norumble,
             flag.winmm_layout_xbox,
             flag.xinput_always_connected,
+            flag.xinput_realID,
             flag.dinput_nodevices,
             flag.gameinput_detour,
             flag.xinput_detour,

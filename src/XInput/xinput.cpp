@@ -242,10 +242,26 @@ extern "C" {
         }
 
         ZeroMemory(pCapabilities, sizeof(XINPUT_CAPABILITIES_EX));
-        // TODO: set the real device id behind a flag
-        pCapabilities->VendorId = 0x045E; //SDL_GetGamepadVendor(gamepad)
-        pCapabilities->ProductId = 0x028E; //SDL_GetGamepadProduct(gamepad)
-        pCapabilities->ProductVersion = 0x114; //SDL_GetGamepadProductVersion(gamepad)
+
+        if (Flags().xinput_realID) {
+            pCapabilities->VendorId = SDL_GetGamepadVendor(gamepad);
+            if (pCapabilities->VendorId == 0) {
+                pCapabilities->VendorId = 0x045E;
+            }
+            pCapabilities->ProductId = SDL_GetGamepadProduct(gamepad);
+            if (pCapabilities->ProductId == 0) {
+                pCapabilities->ProductId = 0x028E;
+            }
+            pCapabilities->ProductVersion = SDL_GetGamepadProductVersion(gamepad);
+            if (pCapabilities->ProductVersion == 0) {
+                pCapabilities->ProductVersion = 0x114;
+            }
+        }
+        else {
+            pCapabilities->VendorId         = 0x045E;
+            pCapabilities->ProductId        = 0x028E;
+            pCapabilities->ProductVersion   = 0x114;
+        }
         pCapabilities->Capabilities.Type = XINPUT_DEVTYPE_GAMEPAD;
         pCapabilities->Capabilities.SubType = XINPUT_DEVSUBTYPE_GAMEPAD;
 

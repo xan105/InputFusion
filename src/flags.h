@@ -13,6 +13,7 @@ struct Flags_t {
     bool norumble                   = false;
     bool winmm_layout_xbox          = false;
     bool xinput_always_connected    = false;
+    bool xinput_realID              = false;
     bool dinput_nodevices           = false;
     bool gameinput_detour           = false;
     bool xinput_detour              = false;

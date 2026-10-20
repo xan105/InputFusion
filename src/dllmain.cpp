@@ -68,7 +68,7 @@ namespace {
             SDL_SetHint(SDL_HINT_GAMECONTROLLERCONFIG, util::WStringToUtf8(SDL_Hints.CONTROLLER_MAPPING).c_str());
         }
         if (!SDL_Hints.CONTROLLER_MAPPING_FILE.empty()) {
-            SDL_SetHint(SDL_HINT_GAMECONTROLLERCONFIG, util::WStringToUtf8(SDL_Hints.CONTROLLER_MAPPING_FILE).c_str());
+            SDL_SetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE, util::WStringToUtf8(SDL_Hints.CONTROLLER_MAPPING_FILE).c_str());
         }
     }
 

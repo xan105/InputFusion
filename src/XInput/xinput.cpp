@@ -5,13 +5,14 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "xinput.h"
+#include <SDL3/SDL.h>
+#include <unordered_map>
+#include <algorithm>
+#include <atomic>
+#include "../InputFusion.h"
 #include "../flags.h"
 
-extern HANDLE InputFusion_SDL_Init_Wait;
-
 namespace {
-
-    constexpr auto INPUTFUSION_SDL_EVENT_LOOP_DELAY = 10;
 
     const std::unordered_map<SDL_GamepadButton, WORD> BUTTONS = {
         {SDL_GAMEPAD_BUTTON_SOUTH, XINPUT_GAMEPAD_A},
@@ -68,15 +69,7 @@ extern "C" {
             return ERROR_INVALID_PARAMETER;
         }
 
-        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
-            SDL_Log("SDL is not ready!");
-            if (InputFusion_SDL_Init_Wait) {
-                SDL_Log("XInputGetStateEx(%u, %p) > Waiting...", dwUserIndex, pState);
-                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-                SDL_Log("XInputGetStateEx(%u, %p) > ...Resuming", dwUserIndex, pState);
-            }
-        }
+        InputFusion_SDL_Wait_ready();
 
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(dwUserIndex);
         if (gamepad == nullptr) {
@@ -160,15 +153,7 @@ extern "C" {
             return ERROR_INVALID_PARAMETER;
         }
 
-        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
-            SDL_Log("SDL is not ready!");
-            if (InputFusion_SDL_Init_Wait) {
-                SDL_Log("XInputSetStateEx(%u, %p) > Waiting...", dwUserIndex, pVibration);
-                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-                SDL_Log("XInputSetStateEx(%u, %p) > ...Resuming", dwUserIndex, pVibration);
-            }
-        }
+        InputFusion_SDL_Wait_ready();
 
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(dwUserIndex);
         if (gamepad == nullptr) {
@@ -218,15 +203,7 @@ extern "C" {
             return ERROR_INVALID_PARAMETER;
         }
 
-        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
-            SDL_Log("SDL is not ready!");
-            if (InputFusion_SDL_Init_Wait) {
-                SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > Waiting...", dwUserIndex, dwFlags, pCapabilities);
-                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-                SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ...Resuming", dwUserIndex, dwFlags, pCapabilities);
-            }
-        }
+        InputFusion_SDL_Wait_ready();
 
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(dwUserIndex);
         if (gamepad == nullptr) {
@@ -245,6 +222,7 @@ extern "C" {
         }
 
         ZeroMemory(pCapabilities, sizeof(XINPUT_CAPABILITIES_EX));
+        SDL_UpdateGamepads();
 
         if (Flags().xinput_realID) {
             pCapabilities->VendorId = SDL_GetGamepadVendor(gamepad);
@@ -267,8 +245,6 @@ extern "C" {
         }
         pCapabilities->Capabilities.Type = XINPUT_DEVTYPE_GAMEPAD;
         pCapabilities->Capabilities.SubType = XINPUT_DEVSUBTYPE_GAMEPAD;
-
-        SDL_UpdateGamepads();
 
         SDL_GamepadType type = SDL_GetGamepadType(gamepad);
         if (type == SDL_GAMEPAD_TYPE_PS4 || type == SDL_GAMEPAD_TYPE_PS5 || type == SDL_GAMEPAD_TYPE_XBOXONE) {
@@ -320,15 +296,7 @@ extern "C" {
             return ERROR_INVALID_PARAMETER;
         }
 
-        if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
-            SDL_Log("SDL is not ready!");
-            if (InputFusion_SDL_Init_Wait) {
-                SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > Waiting...", dwUserIndex, devType, pBatteryInformation);
-                WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-                SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-                SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ...Resuming", dwUserIndex, devType, pBatteryInformation);
-            }
-        }
+        InputFusion_SDL_Wait_ready();
 
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(dwUserIndex);
         if (gamepad == nullptr) {

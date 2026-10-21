@@ -8,9 +8,6 @@ found in the LICENSE file in the root directory of this source tree.
 #define WIN32_LEAN_AND_MEAN 
 #include <Windows.h>
 #include <SDL3/SDL.h>
-#include <unordered_map>
-#include <cmath>
-#include <bitset>
 
 #define MMSYSERR_NOERROR       0
 #define MMSYSERR_ERROR         1
@@ -48,9 +45,9 @@ found in the LICENSE file in the root directory of this source tree.
 #define JOY_RETURNR		      0x00000008
 #define JOY_RETURNU		      0x00000010
 #define JOY_RETURNV		      0x00000020
-#define JOY_RETURNPOV		    0x00000040
+#define JOY_RETURNPOV		  0x00000040
 #define JOY_RETURNBUTTONS	  0x00000080
-#define JOY_RETURNALL		    (JOY_RETURNX | JOY_RETURNY | JOY_RETURNZ | JOY_RETURNR | JOY_RETURNU | JOY_RETURNV | JOY_RETURNPOV | JOY_RETURNBUTTONS)
+#define JOY_RETURNALL		  (JOY_RETURNX | JOY_RETURNY | JOY_RETURNZ | JOY_RETURNR | JOY_RETURNU | JOY_RETURNV | JOY_RETURNPOV | JOY_RETURNBUTTONS)
 
 #define MAXJOY 16
 

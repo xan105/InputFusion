@@ -48,6 +48,7 @@
     <ClCompile Include="..\src\GameInput\IGameInputDispatcher.cpp" />
     <ClCompile Include="..\src\GameInput\IGameInputForceFeedbackEffect.cpp" />
     <ClCompile Include="..\src\GameInput\IGameInputReading.cpp" />
+    <ClCompile Include="..\src\InputFusion.cpp" />
     <ClCompile Include="..\src\util.cpp" />
     <ClCompile Include="..\src\WinMM\winmm.cpp" />
     <ClCompile Include="..\src\XInput\xinput.cpp" />
@@ -59,6 +60,7 @@
     <ClInclude Include="..\src\dllmain.h" />
     <ClInclude Include="..\src\flags.h" />
     <ClInclude Include="..\src\GameInput\gameinput.h" />
+    <ClInclude Include="..\src\InputFusion.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />

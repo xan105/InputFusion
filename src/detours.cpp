@@ -5,6 +5,8 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "detours.h"
+#include <vector>
+#include "InputFusion.h"
 #include "util.h"
 #include "flags.h"
 #include "GameInput/gameinput.h"
@@ -13,8 +15,12 @@ found in the LICENSE file in the root directory of this source tree.
 #include "DInput/dinput.h"
 #include "WinMM/winmm.h"
 
-extern HANDLE InputFusion_SDL_Quit_Wait;
-extern std::atomic<bool> InputFusion_SDL_Event_Loop;
+#include "../vendor/Detour/detours.h"
+#if defined(_X86_)
+    #pragma comment(lib, "../vendor/Detour/detours.x86.lib")
+#elif defined(_AMD64_)
+    #pragma comment(lib, "../vendor/Detour/detours.x64.lib")
+#endif
 
 namespace {
 

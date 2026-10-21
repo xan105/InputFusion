@@ -6,7 +6,7 @@ found in the LICENSE file in the root directory of this source tree.
 
 #pragma once
 #define WIN32_LEAN_AND_MEAN 
-#include <SDL3/SDL.h>
+#include <Windows.h>
 
 struct Flags_t {
     bool ledbatterylvl              = false;

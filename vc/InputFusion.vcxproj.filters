@@ -78,6 +78,9 @@
     <ClInclude Include="..\src\GameInput\gameinput.h">
       <Filter>Header Files\GameInput</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\InputFusion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -180,6 +183,9 @@
     </ClCompile>
     <ClCompile Include="..\src\GameInput\gameinput.cpp">
       <Filter>Source Files\GameInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\InputFusion.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

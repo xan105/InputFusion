@@ -8,12 +8,9 @@ found in the LICENSE file in the root directory of this source tree.
 #include <unordered_map>
 #include <algorithm>
 #include "../util.h"
-
-extern HANDLE InputFusion_SDL_Init_Wait;
+#include "../InputFusion.h"
 
 namespace {
-
-    constexpr auto INPUTFUSION_SDL_EVENT_LOOP_DELAY = 10;
 
     static const std::unordered_map<SDL_GamepadButton, DWORD> BUTTONS = {
       {SDL_GAMEPAD_BUTTON_SOUTH, 0},
@@ -319,15 +316,7 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
 
-  if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
-      SDL_Log("SDL is not ready!");
-      if (InputFusion_SDL_Init_Wait) {
-          SDL_Log("IDirectInputDevice8W::GetDeviceState() > Waiting...");
-          WaitForSingleObject(InputFusion_SDL_Init_Wait, INFINITE);
-          SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-          SDL_Log("IDirectInputDevice8W::GetDeviceState() > ...Resuming");
-      }
-  }
+  InputFusion_SDL_Wait_ready();
 
   SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(this->playerIndex);
   if (gamepad == nullptr) {

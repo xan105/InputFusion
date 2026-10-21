@@ -5,6 +5,7 @@ found in the LICENSE file in the root directory of this source tree.
 */
 
 #include "flags.h"
+#include <SDL3/SDL.h>
 #include "util.h"
 #include "../vendor/SimpleINI/SimpleIni.h"
 

@@ -218,7 +218,7 @@ namespace {
                 }
 
                 for (const auto& [sdl_axis, index] : TRIGGERS) {
-                    if (SDL_GetGamepadAxis(gamepad, sdl_axis) > 30) {
+                    if (SDL_GetGamepadAxis(gamepad, sdl_axis) > 3855) {
                         pjiEx->dwButtons |= 1 << index;
                     }
                 }

@@ -314,7 +314,7 @@ Caveats
 
 - ~~SDL might still be initializing when the game does it's first Gamepad API call (on startup).~~<br />
   _This shouldn't be a problem since v0.4.0 of this project._
-
+  
 - Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.
   The focus of this project is **for now** on API translation and not on compatibility for _poorly engineered_ games. 
@@ -348,3 +348,30 @@ Output: `./build/${project}/output/${platform}/${config}`
 `./.github/workflows/vs-build-on-windows.yaml`
 
 Build all targets (debug and release) and create a release.
+
+Licensing FAQ
+=============
+
+- **Why LGPL-3.0?**
+
+The LGPL allows InputFusion to be used in proprietary software while ensuring that improvements to the library remain available under the same license.
+
+- **Can I use InputFusion commercially?**
+
+Yes! Commercial use is permitted, including in proprietary applications. InputFusion is provided as a shared library, so your application does not need to be open-source just because it uses InputFusion.
+
+- **Can I modify the source code?**
+
+Yes! You can modify InputFusion to suit your needs. However, if you distribute your modified version, you must provide the corresponding source code under the LGPL-3.0.
+
+- **Do I have to open-source my project?**
+
+No! Using InputFusion does not mean you have to publish your application's source code. You can keep your project proprietary.
+
+- **Are there any fees or royalties?**
+
+No! InputFusion is free to use, including commercially.
+
+- **Need more details?**
+
+This FAQ covers common use cases in plain English. For the full terms and conditions, including requirements that may apply when distributing InputFusion or software that uses it, please refer to the LGPL-3.0 license included with this project.

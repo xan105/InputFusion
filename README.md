@@ -302,19 +302,14 @@ You just need to tell Wine/Proton to load the dll instead of its built-in:
 Example:
 
 ```
-WINEDLLOVERRIDES="xinput1_3=n,b
+WINEDLLOVERRIDES="xinput1_4=n,b
 ```
-
-NB: In case of DLL injection you need a DLL injector that can run under Wine/Proton.
-The classic combo `createRemoteThread()` + `LoadLibrary()` from Kernel32 works under Wine/Proton.
-A quick google search will find you plenty on GitHub. Otherwise may I suggest one of my own: [xan105/Mini-Launcher](https://github.com/xan105/Mini-Launcher)
 
 Caveats
 =======
 
-- ~~SDL might still be initializing when the game does it's first Gamepad API call (on startup).~~<br />
-  _This shouldn't be a problem since v0.4.0 of this project._
-  
+- The first call to any of InputFusion's exported functions may take longer than usual while waiting for SDL to initialize.
+
 - Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.
   The focus of this project is **for now** on API translation and not on compatibility for _poorly engineered_ games. 
@@ -354,7 +349,7 @@ Licensing FAQ
 
 - **Why LGPL-3.0?**
 
-The LGPL allows InputFusion to be used in proprietary software while ensuring that improvements to the library remain available under the same license.
+The LGPL allows InputFusion to be used in proprietary software while ensuring that improvements to the project remain available under the same license.
 
 - **Can I use InputFusion commercially?**
 

@@ -308,7 +308,7 @@ WINEDLLOVERRIDES="xinput1_4=n,b
 Caveats
 =======
 
-- The first call to any of InputFusion's exported functions may take longer than usual while waiting for SDL to initialize.
+- While waiting for SDL to initialize, the first call to any of InputFusion's exported functions is stalled and may take longer than usual.
 
 - Games that support more than one input API usually, but not always, do a lot of Win32 APIs sniffing behind the scenes to determine which input API to use.
   Therefore even tho an input API is translated to SDL, your gamepad may still not work due to how a game engine is programmed and how it decides to handle input.

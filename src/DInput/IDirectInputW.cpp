@@ -8,17 +8,17 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInputW::IDirectInputW() : m_refCount(1) {
-  SDL_Log("IDirectInputW");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW");
   proxy = new(std::nothrow) IDirectInput8W();
 }
 
 IDirectInputW::~IDirectInputW() {
-  SDL_Log("~IDirectInputW");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "~IDirectInputW");
   if (proxy) { proxy->Release(); }
 }
 
 STDMETHODIMP IDirectInputW::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInputW::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -31,20 +31,20 @@ STDMETHODIMP IDirectInputW::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInputDeviceW::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDeviceW::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInputW::AddRef() {
-  SDL_Log("IDirectInputW::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputW::Release() {
-  SDL_Log("IDirectInputW::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -54,7 +54,7 @@ STDMETHODIMP_(ULONG) IDirectInputW::Release() {
 }
 
 STDMETHODIMP IDirectInputW::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICEW *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInputW::CreateDevice()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::CreateDevice()");
   
   IDirectInputDeviceW* pDInputDevice = new(std::nothrow) IDirectInputDeviceW;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
@@ -67,7 +67,7 @@ STDMETHODIMP IDirectInputW::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICEW *lp
 }
 
 STDMETHODIMP IDirectInputW::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags){
-  SDL_Log("IDirectInputW::EnumDevices()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::EnumDevices()");
   
   if (proxy){
       return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
@@ -77,7 +77,7 @@ STDMETHODIMP IDirectInputW::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACK
 }
 
 STDMETHODIMP IDirectInputW::GetDeviceStatus(REFGUID rguidInstance){
-  SDL_Log("IDirectInputW::GetDeviceStatus()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::GetDeviceStatus()");
   
   if (proxy){
       return proxy->GetDeviceStatus(rguidInstance);
@@ -87,7 +87,7 @@ STDMETHODIMP IDirectInputW::GetDeviceStatus(REFGUID rguidInstance){
 }
 
 STDMETHODIMP IDirectInputW::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
-  SDL_Log("IDirectInputW::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::RunControlPanel()");
   
   if (proxy){
       return proxy->RunControlPanel(hwndOwner, dwFlags);
@@ -97,7 +97,7 @@ STDMETHODIMP IDirectInputW::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
 }
 
 STDMETHODIMP IDirectInputW::Initialize(HINSTANCE hinst, DWORD dwVersion){
-  SDL_Log("IDirectInputW::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputW::Initialize()");
   
   if (proxy){
       return proxy->Initialize(hinst, dwVersion);

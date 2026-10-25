@@ -8,11 +8,11 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInputJoyConfig8::IDirectInputJoyConfig8() : m_refCount(1) {
-  SDL_Log("IDirectInputJoyConfig8");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8");
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInputJoyConfig8::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -25,20 +25,20 @@ STDMETHODIMP IDirectInputJoyConfig8::QueryInterface(REFIID riid, void** ppvObjec
     return S_OK;
   }
 
-  SDL_Log("IDirectInputJoyConfig8::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInputJoyConfig8::AddRef() {
-  SDL_Log("IDirectInputJoyConfig8::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputJoyConfig8::Release() {
-  SDL_Log("IDirectInputJoyConfig8::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -48,64 +48,64 @@ STDMETHODIMP_(ULONG) IDirectInputJoyConfig8::Release() {
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::Acquire(){
-  SDL_Log("IDirectInputJoyConfig8::Acquire()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::Acquire()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::Unacquire(){
-  SDL_Log("IDirectInputJoyConfig8::Unacquire()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::Unacquire()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::SetCooperativeLevel(HWND  unnamedParam1, DWORD unnamedParam2){
-  SDL_Log("IDirectInputJoyConfig8::SetCooperativeLevel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::SetCooperativeLevel()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::SendNotify(){
-  SDL_Log("IDirectInputJoyConfig8::SendNotify()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::SendNotify()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::EnumTypes(LPDIJOYTYPECALLBACK unnamedParam1, LPVOID unnamedParam2){
-  SDL_Log("IDirectInputJoyConfig8::EnumTypes()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::EnumTypes()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::GetTypeInfo(LPCWSTR unnamedParam1, LPDIJOYTYPEINFO unnamedParam2, DWORD unnamedParam3){
-  SDL_Log("IDirectInputJoyConfig8::GetTypeInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetTypeInfo()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::SetTypeInfo(LPCWSTR unnamedParam1, LPCDIJOYTYPEINFO unnamedParam2, DWORD unnamedParam3, LPWSTR unnamedParam4){
-  SDL_Log("IDirectInputJoyConfig8::SetTypeInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::SetTypeInfo()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::DeleteType(LPCWSTR unnamedParam1){
-  SDL_Log("IDirectInputJoyConfig8::DeleteType()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::DeleteType()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::GetConfig(UINT uid, LPDIJOYCONFIG pjc, DWORD flags){
-  SDL_Log("IDirectInputJoyConfig8::GetConfig() for joystick %u", uid);
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() for joystick %u", uid);
   
   if (uid > DIRECTINPUT_USER_MAX_COUNT - 1) {
-    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIERR_NOMOREITEMS");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() > DIERR_NOMOREITEMS");
     return DIERR_NOMOREITEMS;
   }
   if (pjc == nullptr) return E_POINTER;
   
   if (flags && DIJC_GUIDINSTANCE) {
-    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_GUIDINSTANCE");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() > DIJC_GUIDINSTANCE");
     
         //To ID the gamepad later on when creating a device, I'm encoding the corresponding playerIndex into the fake guid instance
         pjc->guidInstance = {
@@ -117,59 +117,59 @@ STDMETHODIMP IDirectInputJoyConfig8::GetConfig(UINT uid, LPDIJOYCONFIG pjc, DWOR
   }
   
   if (flags && DIJC_REGHWCONFIGTYPE) {
-    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_REGHWCONFIGTYPE");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() > DIJC_REGHWCONFIGTYPE");
   }
   
   if (flags && DIJC_GAIN) {
-    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_GAIN");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() > DIJC_GAIN");
   }
   
   if (flags && DIJC_CALLOUT) {
-    SDL_Log("IDirectInputJoyConfig8::GetConfig() > DIJC_CALLOUT");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() > DIJC_CALLOUT");
   }
   
-  SDL_Log("IDirectInputJoyConfig8::GetConfig() > DI_OK");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetConfig() > DI_OK");
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::SetConfig(UINT unnamedParam1, LPCDIJOYCONFIG unnamedParam2, DWORD unnamedParam3){
-  SDL_Log("IDirectInputJoyConfig8::SetConfig()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::SetConfig()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::DeleteConfig(UINT unnamedParam1){
-  SDL_Log("IDirectInputJoyConfig8::DeleteConfig()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::DeleteConfig()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::GetUserValues(LPDIJOYUSERVALUES unnamedParam1, DWORD unnamedParam2){
-  SDL_Log("IDirectInputJoyConfig8::GetUserValues()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::GetUserValues()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::SetUserValues(LPCDIJOYUSERVALUES unnamedParam1, DWORD unnamedParam2){
-  SDL_Log("IDirectInputJoyConfig8::SetUserValues()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::SetUserValues()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::AddNewHardware(HWND unnamedParam1, REFGUID unnamedParam2){
-  SDL_Log("IDirectInputJoyConfig8::AddNewHardware()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::AddNewHardware()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::OpenTypeKey(LPCWSTR unnamedParam1, DWORD unnamedParam2, PHKEY unnamedParam3){
-  SDL_Log("IDirectInputJoyConfig8::OpenTypeKey()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::OpenTypeKey()");
   
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputJoyConfig8::OpenAppStatusKey(PHKEY unnamedParam1){
-  SDL_Log("IDirectInputJoyConfig8::OpenAppStatusKey()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputJoyConfig8::OpenAppStatusKey()");
   
   return DI_OK;
 }

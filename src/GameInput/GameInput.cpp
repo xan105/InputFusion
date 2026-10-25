@@ -12,7 +12,7 @@ found in the LICENSE file in the root directory of this source tree.
 extern "C" {
 #endif
     HRESULT WINAPI GameInputCreate(IGameInput** gameInput) {
-        SDL_Log("GameInputCreate()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GameInputCreate()");
         if (gameInput == nullptr) return E_POINTER;
         static IGameInput singleton{};
         *gameInput = &singleton;
@@ -20,22 +20,22 @@ extern "C" {
     }
 
     void WINAPI GameInputDeviceCallback(GameInputCallbackToken callbackToken, void* context, IGameInputDevice* device, uint64_t timestamp, GameInputDeviceStatus currentStatus, GameInputDeviceStatus previousStatus) {
-        SDL_Log("GameInputDeviceCallback()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GameInputDeviceCallback()");
         return;
     }
 
     void WINAPI GameInputKeyboardLayoutCallback(GameInputCallbackToken callbackToken, void * context, IGameInputDevice * device, uint64_t timestamp, uint32_t currentLayout, uint32_t previousLayout) {
-        SDL_Log("GameInputKeyboardLayoutCallback()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GameInputKeyboardLayoutCallback()");
         return;
     }
 
     void WINAPI GameInputReadingCallback(GameInputCallbackToken callbackToken, void* context, IGameInputReading* reading) {
-        SDL_Log("GameInputReadingCallback()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GameInputReadingCallback()");
         return;
     }
 
     void WINAPI GameInputSystemButtonCallback(GameInputCallbackToken callbackToken, void* context, IGameInputDevice* device, uint64_t timestamp, GameInputSystemButtons currentButtons, GameInputSystemButtons previousButtons) {
-        SDL_Log("GameInputSystemButtonCallback()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GameInputSystemButtonCallback()");
         return;
     }
 #ifdef GAMEINPUT_EXPORTS

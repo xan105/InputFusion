@@ -10,26 +10,57 @@ found in the LICENSE file in the root directory of this source tree.
 
 namespace util {
 
-    void EnableConsole() {
+    void EnableConsole()
+    {
+        if (!AllocConsole()) return;
 
-        if (AllocConsole()) {
-            HWND consoleWindow = GetConsoleWindow();
+        // Show the console window
+        HWND consoleWindow = GetConsoleWindow();
 
-            if (consoleWindow) {
-                // Set the console window to be layered
-                LONG style = GetWindowLong(consoleWindow, GWL_EXSTYLE);
-                SetWindowLong(consoleWindow, GWL_EXSTYLE, style | WS_EX_LAYERED);
-                SetLayeredWindowAttributes(consoleWindow, 0, 225, LWA_COLORKEY);
+        if (consoleWindow)
+        {
+            LONG style = GetWindowLong(consoleWindow, GWL_EXSTYLE);
+            SetWindowLong(consoleWindow, GWL_EXSTYLE, style & ~WS_EX_LAYERED);
+            ShowWindow(consoleWindow, SW_SHOW);
+            SetWindowPos(consoleWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        }
 
-                // Show the console window
-                ShowWindow(consoleWindow, SW_SHOW);
+        // Redirect standard streams
+        FILE* dummy;
+        freopen_s(&dummy, "CONOUT$", "w", stdout);
+        freopen_s(&dummy, "CONIN$", "r", stdin);
+        freopen_s(&dummy, "CONOUT$", "w", stderr);
+
+        // Enable UTF-8 for console i/o
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
+
+        // Enable ANSI / VT escape sequences
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hOut != INVALID_HANDLE_VALUE && hOut != nullptr)
+        {
+            DWORD mode = 0;
+
+            if (GetConsoleMode(hOut, &mode))
+            {
+                mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                mode |= DISABLE_NEWLINE_AUTO_RETURN;
+
+                SetConsoleMode(hOut, mode);
             }
+        }
 
-            // Redirect stdio to the console
-            FILE* dummy;
-            freopen_s(&dummy, "CONOUT$", "w", stdout);
-            freopen_s(&dummy, "CONIN$", "r", stdin);
-            freopen_s(&dummy, "CONOUT$", "w", stderr);
+        // Enable VT processing for stderr
+        HANDLE hErr = GetStdHandle(STD_ERROR_HANDLE);
+        if (hErr != INVALID_HANDLE_VALUE && hErr != nullptr)
+        {
+            DWORD mode = 0;
+
+            if (GetConsoleMode(hErr, &mode))
+            {
+                mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                SetConsoleMode(hErr, mode);
+            }
         }
     }
     

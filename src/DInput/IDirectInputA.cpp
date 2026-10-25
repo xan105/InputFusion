@@ -7,17 +7,17 @@ found in the LICENSE file in the root directory of this source tree.
 #include "dinput.h"
 
 IDirectInputA::IDirectInputA() : m_refCount(1) {
-  SDL_Log("IDirectInputA");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA");
   proxy = new(std::nothrow) IDirectInput8A();
 }
 
 IDirectInputA::~IDirectInputA() {
-  SDL_Log("~IDirectInputA");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "~IDirectInputA");
   if (proxy) { proxy->Release(); }
 }
 
 STDMETHODIMP IDirectInputA::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInputA::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -35,13 +35,13 @@ STDMETHODIMP IDirectInputA::QueryInterface(REFIID riid, void** ppvObject) {
 }
 
 STDMETHODIMP_(ULONG) IDirectInputA::AddRef() {
-  SDL_Log("IDirectInputA::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputA::Release() {
-  SDL_Log("IDirectInputA::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -51,7 +51,7 @@ STDMETHODIMP_(ULONG) IDirectInputA::Release() {
 }
 
 STDMETHODIMP IDirectInputA::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICEA *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInputA::CreateDevice()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::CreateDevice()");
   
   IDirectInputDeviceA* pDInputDevice = new(std::nothrow) IDirectInputDeviceA;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
@@ -64,7 +64,7 @@ STDMETHODIMP IDirectInputA::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICEA *lp
 }
 
 STDMETHODIMP IDirectInputA::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags){
-  SDL_Log("IDirectInputA::EnumDevices()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::EnumDevices()");
   
   if (proxy){
       return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
@@ -74,7 +74,7 @@ STDMETHODIMP IDirectInputA::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACK
 }
 
 STDMETHODIMP IDirectInputA::GetDeviceStatus(REFGUID rguidInstance){
-  SDL_Log("IDirectInputA::GetDeviceStatus()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::GetDeviceStatus()");
   
   if (proxy){
       return proxy->GetDeviceStatus(rguidInstance);
@@ -84,7 +84,7 @@ STDMETHODIMP IDirectInputA::GetDeviceStatus(REFGUID rguidInstance){
 }
 
 STDMETHODIMP IDirectInputA::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
-  SDL_Log("IDirectInputA::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::RunControlPanel()");
   
   if (proxy){
       return proxy->RunControlPanel(hwndOwner, dwFlags);
@@ -94,7 +94,7 @@ STDMETHODIMP IDirectInputA::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
 }
 
 STDMETHODIMP IDirectInputA::Initialize(HINSTANCE hinst, DWORD dwVersion){
-  SDL_Log("IDirectInputA::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputA::Initialize()");
   
   if (proxy){
       return proxy->Initialize(hinst, dwVersion);

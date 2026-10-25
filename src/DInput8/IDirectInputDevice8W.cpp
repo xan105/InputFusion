@@ -37,7 +37,7 @@ namespace {
 }
 
 IDirectInputDevice8W::IDirectInputDevice8W() : m_refCount(1) {
-  SDL_Log("IDirectInputDevice8W");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W");
   this->playerIndex = -1;
   this->AXIS_LEFTX_MIN = (LONG)(SDL_JOYSTICK_AXIS_MIN + 0x8000);
   this->AXIS_LEFTX_MAX = (LONG)(SDL_JOYSTICK_AXIS_MAX + 0x8000);
@@ -50,7 +50,7 @@ IDirectInputDevice8W::IDirectInputDevice8W() : m_refCount(1) {
 }
 
 STDMETHODIMP IDirectInputDevice8W::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInputDevice8W::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -63,20 +63,20 @@ STDMETHODIMP IDirectInputDevice8W::QueryInterface(REFIID riid, void** ppvObject)
     return S_OK;
   }
 
-  SDL_Log("IDirectInputDevice8A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInputDevice8W::AddRef() {
-  SDL_Log("IDirectInputDevice8W::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputDevice8W::Release() {
-  SDL_Log("IDirectInputDevice8W::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -87,7 +87,7 @@ STDMETHODIMP_(ULONG) IDirectInputDevice8W::Release() {
 
 
 STDMETHODIMP IDirectInputDevice8W::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
-  SDL_Log("IDirectInputDevice8W::GetCapabilities()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetCapabilities()");
 
   if (lpDIDevCaps == nullptr) return E_POINTER;
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
@@ -122,7 +122,7 @@ STDMETHODIMP IDirectInputDevice8W::GetCapabilities(LPDIDEVCAPS lpDIDevCaps) {
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::EnumObjects()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::EnumObjects()");
 
   //Offsets below assume DIJOYSTATE
   
@@ -190,7 +190,7 @@ STDMETHODIMP IDirectInputDevice8W::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKW lp
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetProperty(REFGUID rguidProp, LPDIPROPHEADER pdiph) {
-  SDL_Log("IDirectInputDevice8W::GetProperty()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetProperty()");
 
   if (pdiph == nullptr) return E_POINTER;
 
@@ -201,13 +201,13 @@ STDMETHODIMP IDirectInputDevice8W::GetProperty(REFGUID rguidProp, LPDIPROPHEADER
 
   switch (propID) {
   case DIPROP_GRANULARITY: {
-      SDL_Log("GetProperty: DIPROP_GRANULARITY");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GetProperty: DIPROP_GRANULARITY");
       DIPROPDWORD* pd = reinterpret_cast<DIPROPDWORD*>(pdiph);
       pd->dwData = 1;
       break;
   }
   default:
-      SDL_Log("GetProperty: Unsupported property ID = %hu", propID);
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "GetProperty: Unsupported property ID = %hu", propID);
       break;
   };
 
@@ -215,7 +215,7 @@ STDMETHODIMP IDirectInputDevice8W::GetProperty(REFGUID rguidProp, LPDIPROPHEADER
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
-  SDL_Log("IDirectInputDevice8W::SetProperty()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SetProperty()");
   
     if (pdiph == nullptr) return E_POINTER;
     if (pdiph->dwHeaderSize != sizeof(DIPROPHEADER)) return DIERR_INVALIDPARAM;
@@ -227,10 +227,10 @@ STDMETHODIMP IDirectInputDevice8W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
 
     switch (propID) {
     case DIPROP_RANGE:
-        SDL_Log("SetProperty: DIPROP_RANGE");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SetProperty: DIPROP_RANGE");
         if (pdiph->dwSize == sizeof(DIPROPRANGE)) {
             DIPROPRANGE* range = (DIPROPRANGE*)pdiph;
-            SDL_Log("    Range: lMin = %ld, lMax = %ld for 0x%08X as %d", range->lMin, range->lMax, range->diph.dwObj, range->diph.dwHow);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "    Range: lMin = %ld, lMax = %ld for 0x%08X as %d", range->lMin, range->lMax, range->diph.dwObj, range->diph.dwHow);
 
             if (range->diph.dwHow == DIPH_BYOFFSET) {
                 switch (range->diph.dwObj) {
@@ -260,7 +260,7 @@ STDMETHODIMP IDirectInputDevice8W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
         }
         break;
     default:
-        SDL_Log("SetProperty: Unsupported property ID = %hu", propID);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SetProperty: Unsupported property ID = %hu", propID);
         break;
     };
     
@@ -268,17 +268,17 @@ STDMETHODIMP IDirectInputDevice8W::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
 }
 
 STDMETHODIMP IDirectInputDevice8W::Acquire() {
-  SDL_Log("IDirectInputDevice8W::Acquire() for %d", this->playerIndex);
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Acquire() for %d", this->playerIndex);
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Unacquire() {
-  SDL_Log("IDirectInputDevice8W::Unacquire()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Unacquire()");
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) {
-  SDL_Log("IDirectInputDevice8W::GetDeviceState() for %d", this->playerIndex);
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() for %d", this->playerIndex);
 
   //IDirectInputDevice8::SetDataFormat
   //c_dfDIJoystick -> DIJOYSTATE
@@ -293,7 +293,7 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
       for (int i = 0; i < 256; ++i) {
         keys[i] = (keys[i] & 0x80) ? 0x80 : 0x00;
       }
-      SDL_Log("IDirectInputDevice8W::GetDeviceState() > GetKeyboardState()");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > GetKeyboardState()");
       return DI_OK; 
     } else {
       return DIERR_INPUTLOST;
@@ -301,19 +301,19 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     return DI_OK;
   }
   
-  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %zu or %zu for known format", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %zu or %zu for known format", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
   
   if (cbData == sizeof(DIJOYSTATE)) {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
   }
   else if (cbData == sizeof(DIJOYSTATE2)) {
-    SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
   }
   else if (cbData == this->dataFormatSize){
-      SDL_Log("IDirectInputDevice8W::GetDeviceState() > Using custom data saved in SetDataFormat()");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > Using custom data saved in SetDataFormat()");
   }
   else {
-      SDL_Log("IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
       return DIERR_INVALIDPARAM;
   }
   
@@ -476,17 +476,17 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     }
   }
   
-  SDL_Log("IDirectInputDevice8W::GetDeviceState() > OK");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceState() > OK");
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::GetDeviceData()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceData()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
-  SDL_Log("IDirectInputDevice8W::SetDataFormat()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SetDataFormat()");
       if (!lpdf)
           return DIERR_INVALIDPARAM;
 
@@ -501,7 +501,7 @@ STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
       if (lpdf->dwDataSize == 256 || // KBM (Resident Evil 3)
           lpdf->dwDataSize == sizeof(DIJOYSTATE) || // Dino Crisi 1
           lpdf->dwDataSize == sizeof(DIJOYSTATE2)) {
-          SDL_Log("IDirectInputDevice8W::SetDataFormat() > Known format being set (size: %lu) | TODO", lpdf->dwDataSize);
+          SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SetDataFormat() > Known format being set (size: %lu) | TODO", lpdf->dwDataSize);
           return DI_OK; // Only dealing with custom format for now (Resident Evil 1)
       }
 
@@ -543,7 +543,7 @@ STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
       this->dataFormatObjects = std::move(objects);
       this->dataFormatOffsets = std::move(offsets);
 
-      SDL_Log(
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, 
           "SetDataFormat: saved %lu bytes, %lu objects",
           static_cast<unsigned long>(this->dataFormatSize),
           static_cast<unsigned long>(this->dataFormatObjects.size()));
@@ -552,26 +552,26 @@ STDMETHODIMP IDirectInputDevice8W::SetDataFormat(LPCDIDATAFORMAT lpdf) {
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetEventNotification(HANDLE hEvent) {
-  SDL_Log("IDirectInputDevice8W::SetEventNotification()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SetEventNotification()");
   //SDL_UpdateGamepads();
   //SetEvent(&hEvent);
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetCooperativeLevel(HWND hwnd, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::SetCooperativeLevel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SetCooperativeLevel()");
   
   //if (hwnd == nullptr) return DIERR_INVALIDPARAM;
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEW pdidoi, DWORD dwObj, DWORD dwHow) {
-  SDL_Log("IDirectInputDevice8W::GetObjectInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetObjectInfo()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetDeviceInfo(LPDIDEVICEINSTANCEW pdidi) {
-  SDL_Log("IDirectInputDevice8W::GetDeviceInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetDeviceInfo()");
   
   if (pdidi == nullptr) return E_POINTER;
   if (pdidi->dwSize != sizeof(DIDEVICEINSTANCEW)) return DIERR_INVALIDPARAM;
@@ -601,15 +601,15 @@ STDMETHODIMP IDirectInputDevice8W::GetDeviceInfo(LPDIDEVICEINSTANCEW pdidi) {
 }
 
 STDMETHODIMP IDirectInputDevice8W::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::RunControlPanel()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, REFGUID rguid) {
-  SDL_Log("IDirectInputDevice8W::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Initialize()");
 
   if (IsEqualGUID(rguid, GUID_SysKeyboard)) {
-      SDL_Log("KBM");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "KBM");
       return DI_OK; //fixme later: let it through
   }
 
@@ -620,80 +620,80 @@ STDMETHODIMP IDirectInputDevice8W::Initialize(HINSTANCE hinst, DWORD dwVersion, 
 
   this->playerIndex = rguid.Data4[1];
   if (this->playerIndex < 0) {
-    SDL_Log("IDirectInputDevice8W::Initialize() > DIERR_DEVICENOTREG");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Initialize() > DIERR_DEVICENOTREG");
     return DIERR_DEVICENOTREG;
   }
 
-  SDL_Log("IDirectInputDevice8W::Initialize() > Set player to %i", this->playerIndex);
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Initialize() > Set player to %i", this->playerIndex);
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff, LPDIRECTINPUTEFFECT* ppdeff, LPUNKNOWN punkOuter) {
-  SDL_Log("IDirectInputDevice8W::CreateEffect()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::CreateEffect()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumEffects(LPDIENUMEFFECTSCALLBACKW lpCallback, LPVOID pvRef, DWORD dwEffType) {
-  SDL_Log("IDirectInputDevice8W::EnumEffects()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::EnumEffects()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetEffectInfo(LPDIEFFECTINFOW pdei, REFGUID rguid) {
-  SDL_Log("IDirectInputDevice8W::GetEffectInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetEffectInfo()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetForceFeedbackState(LPDWORD pdwOut) {
-  SDL_Log("IDirectInputDevice8W::GetForceFeedbackState()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetForceFeedbackState()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SendForceFeedbackCommand(DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::SendForceFeedbackCommand()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SendForceFeedbackCommand()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumCreatedEffectObjects(LPDIENUMCREATEDEFFECTOBJECTSCALLBACK lpCallback, LPVOID pvRef, DWORD fl) {
-  SDL_Log("IDirectInputDevice8W::EnumCreatedEffectObjects()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::EnumCreatedEffectObjects()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Escape(LPDIEFFESCAPE pesc) {
-  SDL_Log("IDirectInputDevice8W::Escape()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Escape()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::Poll() {
-  SDL_Log("IDirectInputDevice8W::Poll()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::Poll()");
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SendDeviceData(DWORD cbObjectData, LPCDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD fl) {
-  SDL_Log("IDirectInputDevice8W::SendDeviceData()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SendDeviceData()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::EnumEffectsInFile(LPCWSTR lpszFileName, LPDIENUMEFFECTSINFILECALLBACK pec, LPVOID pvRef, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::EnumEffectsInFile()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::EnumEffectsInFile()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::WriteEffectToFile(LPCWSTR lpszFileName, DWORD dwEntries, LPCDIFILEEFFECT rgDiFileEft, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::WriteEffectToFile()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::WriteEffectToFile()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::BuildActionMap(LPDIACTIONFORMATW lpdiaf, LPCTSTR lpszUserName, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::BuildActionMap()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::BuildActionMap()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::SetActionMap(LPCDIACTIONFORMATW lpdiActionFormat, LPCTSTR lptszUserName, DWORD dwFlags) {
-  SDL_Log("IDirectInputDevice8W::SetActionMap()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::SetActionMap()");
   return DIERR_UNSUPPORTED;
 }
 
 STDMETHODIMP IDirectInputDevice8W::GetImageInfo(LPDIDEVICEIMAGEINFOHEADERW lpdiDevImageInfoHeader) {
-  SDL_Log("IDirectInputDevice8W::GetImageInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice8W::GetImageInfo()");
   return DIERR_UNSUPPORTED;
 }

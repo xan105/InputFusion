@@ -11,21 +11,21 @@ extern "C" {
 #endif
     HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppvOut, LPUNKNOWN punkOuter)
     {
-        SDL_Log("DirectInputCreateA()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "DirectInputCreateA()");
 
         return DirectInputCreateEx(hinst, dwVersion, IID_IDirectInput7A, ppvOut, punkOuter);
     }
 
     HRESULT WINAPI DirectInputCreateW(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppvOut, LPUNKNOWN punkOuter)
     {
-        SDL_Log("DirectInputCreateW()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "DirectInputCreateW()");
   
         return DirectInputCreateEx(hinst, dwVersion, IID_IDirectInput7W, ppvOut, punkOuter);
     }
 
     HRESULT WINAPI DirectInputCreateEx(HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID* ppvOut, LPUNKNOWN punkOuter)
     {
-        SDL_Log("DirectInputCreateEx()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "DirectInputCreateEx()");
 
         if(hinst == nullptr || ppvOut == nullptr)
           return DIERR_INVALIDPARAM;

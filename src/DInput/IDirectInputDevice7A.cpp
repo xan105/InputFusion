@@ -8,17 +8,17 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInputDevice7A::IDirectInputDevice7A() : m_refCount(1) {
-  SDL_Log("IDirectInputDevice7A");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A");
   proxy = new(std::nothrow) IDirectInputDevice8A();
 }
 
 IDirectInputDevice7A::~IDirectInputDevice7A() {
-  SDL_Log("~IDirectInputDevice7A");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "~IDirectInputDevice7A");
   if (proxy) { proxy->Release(); }
 }
 
 STDMETHODIMP IDirectInputDevice7A::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInputDevice7A::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -30,10 +30,10 @@ STDMETHODIMP IDirectInputDevice7A::QueryInterface(REFIID riid, void** ppvObject)
   {
     
     if(IsEqualGUID(riid, IID_IDirectInputDevice2A)) {
-      SDL_Log("IDirectInputDevice7A::QueryInterface() > IDirectInputDevice2A");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::QueryInterface() > IDirectInputDevice2A");
     }
     if(IsEqualGUID(riid, IID_IDirectInputDeviceA)) {
-      SDL_Log("IDirectInputDevice7A::QueryInterface() > IDirectInputDeviceA");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::QueryInterface() > IDirectInputDeviceA");
     }
     
     *ppvObject = static_cast<IDirectInputDevice7A*>(this);
@@ -41,20 +41,20 @@ STDMETHODIMP IDirectInputDevice7A::QueryInterface(REFIID riid, void** ppvObject)
     return S_OK;
   }
 
-  SDL_Log("IDirectInputDevice7A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInputDevice7A::AddRef() {
-  SDL_Log("IDirectInputDevice7A::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInputDevice7A::Release() {
-  SDL_Log("IDirectInputDevice7A::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -64,7 +64,7 @@ STDMETHODIMP_(ULONG) IDirectInputDevice7A::Release() {
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetCapabilities(LPDIDEVCAPS lpDIDevCaps){
-  SDL_Log("IDirectInputDevice7A::GetCapabilities()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetCapabilities()");
   
   if (proxy){
       return proxy->GetCapabilities(lpDIDevCaps);
@@ -74,7 +74,7 @@ STDMETHODIMP IDirectInputDevice7A::GetCapabilities(LPDIDEVCAPS lpDIDevCaps){
 }
 
 STDMETHODIMP IDirectInputDevice7A::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::EnumObjects()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::EnumObjects()");
   
   if (proxy){
       return proxy->EnumObjects(lpCallback, pvRef, dwFlags);
@@ -84,7 +84,7 @@ STDMETHODIMP IDirectInputDevice7A::EnumObjects(LPDIENUMDEVICEOBJECTSCALLBACKA lp
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetProperty(REFGUID rguidProp, LPDIPROPHEADER pdiph){
-  SDL_Log("IDirectInputDevice7A::GetProperty()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetProperty()");
   
   if (proxy){
       return proxy->GetProperty(rguidProp, pdiph);
@@ -94,7 +94,7 @@ STDMETHODIMP IDirectInputDevice7A::GetProperty(REFGUID rguidProp, LPDIPROPHEADER
 }
 
 STDMETHODIMP IDirectInputDevice7A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph){
-  SDL_Log("IDirectInputDevice7A::SetProperty()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::SetProperty()");
   
   if (proxy){
       return proxy->SetProperty(rguidProp, pdiph);
@@ -104,7 +104,7 @@ STDMETHODIMP IDirectInputDevice7A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADE
 }
 
 STDMETHODIMP IDirectInputDevice7A::Acquire(){
-  SDL_Log("IDirectInputDevice7A::Acquire()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::Acquire()");
   
   if (proxy){
       return proxy->Acquire();
@@ -114,7 +114,7 @@ STDMETHODIMP IDirectInputDevice7A::Acquire(){
 }
 
 STDMETHODIMP IDirectInputDevice7A::Unacquire(){
-  SDL_Log("IDirectInputDevice7A::Unacquire()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::Unacquire()");
   
   if (proxy){
       return proxy->Unacquire();
@@ -124,7 +124,7 @@ STDMETHODIMP IDirectInputDevice7A::Unacquire(){
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetDeviceState(DWORD cbData, LPVOID lpvData){
-  SDL_Log("IDirectInputDevice7A::GetDeviceState()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetDeviceState()");
   
   if (proxy){
       return proxy->GetDeviceState(cbData, lpvData);
@@ -134,7 +134,7 @@ STDMETHODIMP IDirectInputDevice7A::GetDeviceState(DWORD cbData, LPVOID lpvData){
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::GetDeviceData()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetDeviceData()");
   
   if (proxy){
       return proxy->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
@@ -144,7 +144,7 @@ STDMETHODIMP IDirectInputDevice7A::GetDeviceData(DWORD cbObjectData, LPDIDEVICEO
 }
 
 STDMETHODIMP IDirectInputDevice7A::SetDataFormat(LPCDIDATAFORMAT lpdf){
-  SDL_Log("IDirectInputDevice7A::SetDataFormat()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::SetDataFormat()");
   
   if (proxy){
       return proxy->SetDataFormat(lpdf);
@@ -154,7 +154,7 @@ STDMETHODIMP IDirectInputDevice7A::SetDataFormat(LPCDIDATAFORMAT lpdf){
 }
 
 STDMETHODIMP IDirectInputDevice7A::SetEventNotification(HANDLE hEvent){
-  SDL_Log("IDirectInputDevice7A::SetEventNotification()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::SetEventNotification()");
   
   if (proxy){
       return proxy->SetEventNotification(hEvent);
@@ -164,7 +164,7 @@ STDMETHODIMP IDirectInputDevice7A::SetEventNotification(HANDLE hEvent){
 }
 
 STDMETHODIMP IDirectInputDevice7A::SetCooperativeLevel(HWND hwnd, DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::SetCooperativeLevel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::SetCooperativeLevel()");
   
   if (proxy){
       return proxy->SetCooperativeLevel(hwnd, dwFlags);
@@ -174,7 +174,7 @@ STDMETHODIMP IDirectInputDevice7A::SetCooperativeLevel(HWND hwnd, DWORD dwFlags)
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEA pdidoi, DWORD dwObj, DWORD dwHow){
-  SDL_Log("IDirectInputDevice7A::GetObjectInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetObjectInfo()");
   
   if (proxy){
       return proxy->GetObjectInfo(pdidoi, dwObj, dwHow);
@@ -184,7 +184,7 @@ STDMETHODIMP IDirectInputDevice7A::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEA pdido
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetDeviceInfo(LPDIDEVICEINSTANCEA pdidi){
-  SDL_Log("IDirectInputDevice7A::GetDeviceInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetDeviceInfo()");
   
   if (proxy){
       return proxy->GetDeviceInfo(pdidi);
@@ -194,7 +194,7 @@ STDMETHODIMP IDirectInputDevice7A::GetDeviceInfo(LPDIDEVICEINSTANCEA pdidi){
 }
 
 STDMETHODIMP IDirectInputDevice7A::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::RunControlPanel()");
   
   if (proxy){
       return proxy->RunControlPanel(hwndOwner, dwFlags);
@@ -204,7 +204,7 @@ STDMETHODIMP IDirectInputDevice7A::RunControlPanel(HWND hwndOwner, DWORD dwFlags
 }
 
 STDMETHODIMP IDirectInputDevice7A::Initialize(HINSTANCE hinst, DWORD dwVersion, REFGUID rguid){
-  SDL_Log("IDirectInputDevice7A::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::Initialize()");
   
   if (proxy){
       return proxy->Initialize(hinst, dwVersion, rguid);
@@ -214,7 +214,7 @@ STDMETHODIMP IDirectInputDevice7A::Initialize(HINSTANCE hinst, DWORD dwVersion, 
 }
 
 STDMETHODIMP IDirectInputDevice7A::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff, LPDIRECTINPUTEFFECT * ppdeff, LPUNKNOWN punkOuter){
-  SDL_Log("IDirectInputDevice7A::CreateEffect()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::CreateEffect()");
   
   if (proxy){
       return proxy->CreateEffect(rguid, lpeff, ppdeff, punkOuter);
@@ -224,7 +224,7 @@ STDMETHODIMP IDirectInputDevice7A::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff
 }
 
 STDMETHODIMP IDirectInputDevice7A::EnumEffects(LPDIENUMEFFECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwEffType){
-  SDL_Log("IDirectInputDevice7A::EnumEffects()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::EnumEffects()");
   
   if (proxy){
       return proxy->EnumEffects(lpCallback, pvRef, dwEffType);
@@ -234,7 +234,7 @@ STDMETHODIMP IDirectInputDevice7A::EnumEffects(LPDIENUMEFFECTSCALLBACKA lpCallba
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetEffectInfo(LPDIEFFECTINFOA pdei, REFGUID rguid){
-  SDL_Log("IDirectInputDevice7A::GetEffectInfo()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetEffectInfo()");
   
   if (proxy){
       return proxy->GetEffectInfo(pdei, rguid);
@@ -244,7 +244,7 @@ STDMETHODIMP IDirectInputDevice7A::GetEffectInfo(LPDIEFFECTINFOA pdei, REFGUID r
 }
 
 STDMETHODIMP IDirectInputDevice7A::GetForceFeedbackState(LPDWORD pdwOut){
-  SDL_Log("IDirectInputDevice7A::GetForceFeedbackState()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::GetForceFeedbackState()");
   
   if (proxy){
       return proxy->GetForceFeedbackState(pdwOut);
@@ -254,7 +254,7 @@ STDMETHODIMP IDirectInputDevice7A::GetForceFeedbackState(LPDWORD pdwOut){
 }
 
 STDMETHODIMP IDirectInputDevice7A::SendForceFeedbackCommand(DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::SendForceFeedbackCommand()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::SendForceFeedbackCommand()");
   
   if (proxy){
       return proxy->SendForceFeedbackCommand(dwFlags);
@@ -264,7 +264,7 @@ STDMETHODIMP IDirectInputDevice7A::SendForceFeedbackCommand(DWORD dwFlags){
 }
 
 STDMETHODIMP IDirectInputDevice7A::EnumCreatedEffectObjects(LPDIENUMCREATEDEFFECTOBJECTSCALLBACK lpCallback, LPVOID pvRef, DWORD fl){
-  SDL_Log("IDirectInputDevice7A::EnumCreatedEffectObjects()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::EnumCreatedEffectObjects()");
   
   if (proxy){
       return proxy->EnumCreatedEffectObjects(lpCallback, pvRef, fl);
@@ -274,7 +274,7 @@ STDMETHODIMP IDirectInputDevice7A::EnumCreatedEffectObjects(LPDIENUMCREATEDEFFEC
 }
 
 STDMETHODIMP IDirectInputDevice7A::Escape(LPDIEFFESCAPE pesc){
-  SDL_Log("IDirectInputDevice7A::Escape()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::Escape()");
   
   if (proxy){
       return proxy->Escape(pesc);
@@ -284,7 +284,7 @@ STDMETHODIMP IDirectInputDevice7A::Escape(LPDIEFFESCAPE pesc){
 }
 
 STDMETHODIMP IDirectInputDevice7A::Poll(){
-  SDL_Log("IDirectInputDevice7A::Poll()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::Poll()");
   
   if (proxy){
       return proxy->Poll();
@@ -294,7 +294,7 @@ STDMETHODIMP IDirectInputDevice7A::Poll(){
 }
 
 STDMETHODIMP IDirectInputDevice7A::SendDeviceData(DWORD cbObjectData, LPCDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD fl){
-  SDL_Log("IDirectInputDevice7A::SendDeviceData()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::SendDeviceData()");
   
   if (proxy){
       return proxy->SendDeviceData(cbObjectData, rgdod, pdwInOut, fl);
@@ -304,7 +304,7 @@ STDMETHODIMP IDirectInputDevice7A::SendDeviceData(DWORD cbObjectData, LPCDIDEVIC
 }
 
 STDMETHODIMP IDirectInputDevice7A::EnumEffectsInFile(LPCSTR lpszFileName, LPDIENUMEFFECTSINFILECALLBACK pec, LPVOID pvRef, DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::EnumEffectsInFile()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::EnumEffectsInFile()");
   
   if (proxy){
     return proxy->EnumEffectsInFile(lpszFileName, pec, pvRef, dwFlags);
@@ -314,7 +314,7 @@ STDMETHODIMP IDirectInputDevice7A::EnumEffectsInFile(LPCSTR lpszFileName, LPDIEN
 }
 
 STDMETHODIMP IDirectInputDevice7A::WriteEffectToFile(LPCSTR lpszFileName, DWORD dwEntries, LPDIFILEEFFECT rgDiFileEft, DWORD dwFlags){
-  SDL_Log("IDirectInputDevice7A::WriteEffectToFile()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInputDevice7A::WriteEffectToFile()");
   
   if (proxy){
     return proxy->WriteEffectToFile(lpszFileName, dwEntries, rgDiFileEft, dwFlags);

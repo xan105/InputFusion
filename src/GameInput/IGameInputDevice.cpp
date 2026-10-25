@@ -8,11 +8,11 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IGameInputDevice::IGameInputDevice() : m_refCount(1) {
-  SDL_Log("IGameInputDevice");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice");
 }
 
 STDMETHODIMP IGameInputDevice::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IGameInputDevice::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -25,20 +25,20 @@ STDMETHODIMP IGameInputDevice::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IGameInputDevice::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IGameInputDevice::AddRef() {
-  SDL_Log("IGameInputDevice::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IGameInputDevice::Release() {
-  SDL_Log("IGameInputDevice::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -48,32 +48,32 @@ STDMETHODIMP_(ULONG) IGameInputDevice::Release() {
 }
 
 STDMETHODIMP IGameInputDevice::CreateForceFeedbackEffect(uint32_t motorIndex, const GameInputForceFeedbackParams* params, IGameInputForceFeedbackEffect** effect) {
-  SDL_Log("IGameInputDevice::CreateForceFeedbackEffect()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::CreateForceFeedbackEffect()");
   return E_NOTIMPL;
 }
 
 STDMETHODIMP IGameInputDevice::GetDeviceInfo(const GameInputDeviceInfo** info) {
-    SDL_Log("IGameInputDevice::GetDeviceInfo()");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::GetDeviceInfo()");
     return E_NOTIMPL;
 }
 
 STDMETHODIMP_(GameInputDeviceStatus) IGameInputDevice::GetDeviceStatus() {
-  SDL_Log("IGameInputDevice::GetDeviceStatus()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::GetDeviceStatus()");
   GameInputDeviceStatus status = {};
   return status;
 }
 
 STDMETHODIMP_(bool) IGameInputDevice::IsForceFeedbackMotorPoweredOn(uint32_t motorIndex) {
-  SDL_Log("IGameInputDevice::IsForceFeedbackMotorPoweredOn()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::IsForceFeedbackMotorPoweredOn()");
   return true;
 }
 
 STDMETHODIMP_(void) IGameInputDevice::SetForceFeedbackMotorGain(uint32_t motorIndex, float masterGain) {
-  SDL_Log("IGameInputDevice::SetForceFeedbackMotorGain()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::SetForceFeedbackMotorGain()");
   return;
 }
 
 STDMETHODIMP_(void) IGameInputDevice::SetRumbleState(const GameInputRumbleParams* params) {
-  SDL_Log("IGameInputDevice::SetRumbleState()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IGameInputDevice::SetRumbleState()");
   return;
 }

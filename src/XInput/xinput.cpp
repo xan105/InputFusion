@@ -48,7 +48,7 @@ extern "C" {
 #endif
 
     DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-        SDL_Log("XInputGetState(%u, %p)", dwUserIndex, pState);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetState(%u, %p)", dwUserIndex, pState);
 
         DWORD result = XInputGetStateEx(dwUserIndex, pState);
         if (result != ERROR_SUCCESS) return result;
@@ -60,12 +60,12 @@ extern "C" {
     }
 
     DWORD WINAPI XInputGetStateEx(DWORD dwUserIndex, XINPUT_STATE* pState) {
-        SDL_Log("XInputGetStateEx(%u, %p)", dwUserIndex, pState);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p)", dwUserIndex, pState);
 
         static std::atomic<DWORD> dwPacketNumber[XUSER_MAX_COUNT] = {};
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pState == nullptr) {
-            SDL_Log("XInputGetStateEx(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pState);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pState);
             return ERROR_INVALID_PARAMETER;
         }
 
@@ -75,10 +75,10 @@ extern "C" {
         if (gamepad == nullptr) {
             if (Flags().xinput_always_connected) {
                 ZeroMemory(pState, sizeof(XINPUT_STATE));
-                SDL_Log("XInputGetStateEx(%u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, pState);
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, pState);
                 return ERROR_SUCCESS;
             }
-            SDL_Log("XInputGetStateEx(%u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, pState);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, pState);
             return ERROR_DEVICE_NOT_CONNECTED;
         }
 
@@ -120,15 +120,15 @@ extern "C" {
             }
         }
 
-        SDL_Log("XInputGetStateEx(%u, %p) > ERROR_SUCCESS", dwUserIndex, pState);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p) > ERROR_SUCCESS", dwUserIndex, pState);
         return ERROR_SUCCESS;
     }
 
     DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) {
-        SDL_Log("XInputSetState(%u, %p)", dwUserIndex, pVibration);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetState(%u, %p)", dwUserIndex, pVibration);
 
         if (pVibration == nullptr) {
-            SDL_Log("XInputSetState(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pVibration);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputSetState(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pVibration);
             return ERROR_INVALID_PARAMETER;
         }
 
@@ -146,10 +146,10 @@ extern "C" {
         // InputFusion does implement it and exports it along the other _Ex hidden functions
         // XInputSetStateEx() is placed at ordinal @1000 arbitrarily
 
-        SDL_Log("XInputSetStateEx(%u, %p)", dwUserIndex, pVibration);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p)", dwUserIndex, pVibration);
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pVibration == nullptr) {
-            SDL_Log("XInputSetStateEx(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pVibration);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pVibration);
             return ERROR_INVALID_PARAMETER;
         }
 
@@ -158,10 +158,10 @@ extern "C" {
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(dwUserIndex);
         if (gamepad == nullptr) {
             if (Flags().xinput_always_connected) {
-                SDL_Log("XInputSetStateEx(%u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, pVibration);
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, pVibration);
                 return ERROR_SUCCESS;
             }
-            SDL_Log("XInputSetStateEx(%u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, pVibration);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, pVibration);
             return ERROR_DEVICE_NOT_CONNECTED;
         }
 
@@ -171,15 +171,15 @@ extern "C" {
             SDL_UpdateGamepads();
         }
 
-        SDL_Log("XInputSetStateEx(%u, %p) > ERROR_SUCCESS", dwUserIndex, pVibration);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p) > ERROR_SUCCESS", dwUserIndex, pVibration);
         return ERROR_SUCCESS;
     }
 
     DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities) {
-        SDL_Log("XInputGetCapabilities(%u, %u, %p)", dwUserIndex, dwFlags, pCapabilities);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilities(%u, %u, %p)", dwUserIndex, dwFlags, pCapabilities);
 
         if (pCapabilities == nullptr) {
-            SDL_Log("XInputGetCapabilities(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, dwFlags, pCapabilities);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilities(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, dwFlags, pCapabilities);
             return ERROR_INVALID_PARAMETER;
         }
 
@@ -196,10 +196,10 @@ extern "C" {
     }
 
     DWORD WINAPI XInputGetCapabilitiesEx(DWORD a1, DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES_EX* pCapabilities) {
-        SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p)", dwUserIndex, dwFlags, pCapabilities);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p)", dwUserIndex, dwFlags, pCapabilities);
 
         if (dwUserIndex >= XUSER_MAX_COUNT || dwFlags > XINPUT_FLAG_GAMEPAD || pCapabilities == nullptr) {
-            SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, dwFlags, pCapabilities);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, dwFlags, pCapabilities);
             return ERROR_INVALID_PARAMETER;
         }
 
@@ -214,10 +214,10 @@ extern "C" {
                 pCapabilities->ProductVersion = 0x114;
                 pCapabilities->Capabilities.Type = XINPUT_DEVTYPE_GAMEPAD;
                 pCapabilities->Capabilities.SubType = XINPUT_DEVSUBTYPE_GAMEPAD;
-                SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, dwFlags, pCapabilities);
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, dwFlags, pCapabilities);
                 return ERROR_SUCCESS;
             }
-            SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, dwFlags, pCapabilities);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, dwFlags, pCapabilities);
             return ERROR_DEVICE_NOT_CONNECTED;
         }
 
@@ -279,20 +279,20 @@ extern "C" {
             }
         }
 
-        SDL_Log("XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_SUCCESS", dwUserIndex, dwFlags, pCapabilities);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_SUCCESS", dwUserIndex, dwFlags, pCapabilities);
         return ERROR_SUCCESS;
     }
 
     DWORD WINAPI XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT_BATTERY_INFORMATION* pBatteryInformation) {
-        SDL_Log("XInputGetBatteryInformation(%u, %u, %p)", dwUserIndex, devType, pBatteryInformation);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p)", dwUserIndex, devType, pBatteryInformation);
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pBatteryInformation == nullptr) {
-            SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, devType, pBatteryInformation);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, devType, pBatteryInformation);
             return ERROR_INVALID_PARAMETER;
         }
 
         if (!(devType == BATTERY_DEVTYPE_GAMEPAD || devType == BATTERY_DEVTYPE_HEADSET)) {
-            SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, devType, pBatteryInformation);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, devType, pBatteryInformation);
             return ERROR_INVALID_PARAMETER;
         }
 
@@ -303,10 +303,10 @@ extern "C" {
             if (Flags().xinput_always_connected) {
                 ZeroMemory(pBatteryInformation, sizeof(XINPUT_BATTERY_INFORMATION));
                 pBatteryInformation->BatteryType = BATTERY_TYPE_UNKNOWN;
-                SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, devType, pBatteryInformation);
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_SUCCESS (stub)", dwUserIndex, devType, pBatteryInformation);
                 return ERROR_SUCCESS;
             }
-            SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, devType, pBatteryInformation);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_DEVICE_NOT_CONNECTED", dwUserIndex, devType, pBatteryInformation);
             return ERROR_DEVICE_NOT_CONNECTED;
         }
 
@@ -351,39 +351,39 @@ extern "C" {
             else if (percent > 69 && percent <= 100) pBatteryInformation->BatteryLevel = BATTERY_LEVEL_FULL;
         }
 
-        SDL_Log("XInputGetBatteryInformation(%u, %u, %p) > ERROR_SUCCESS", dwUserIndex, devType, pBatteryInformation);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_SUCCESS", dwUserIndex, devType, pBatteryInformation);
         return ERROR_SUCCESS;
     }
 
     DWORD WINAPI XInputGetKeystroke(DWORD dwUserIndex, DWORD dwReserved, PXINPUT_KEYSTROKE pKeystroke) {
-        SDL_Log("XInputGetKeystroke(%u, %u, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, dwReserved, pKeystroke);
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputGetKeystroke(%u, %u, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, dwReserved, pKeystroke);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 
     DWORD WINAPI XInputWaitForGuideButton(DWORD dwUserIndex, DWORD dwFlags, XINPUT_LISTEN_STATE* pState) {
-        SDL_Log("XInputWaitForGuideButton(%u, %u, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, dwFlags, pState);
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputWaitForGuideButton(%u, %u, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, dwFlags, pState);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 
     DWORD WINAPI XInputCancelGuideButtonWait(DWORD dwUserIndex) {
-        SDL_Log("XInputCancelGuideButtonWait(%u) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex);
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputCancelGuideButtonWait(%u) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 
     DWORD WINAPI XInputPowerOffController(DWORD dwUserIndex) {
-        SDL_Log("XInputPowerOffController(%u) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex);
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputPowerOffController(%u) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 
     DWORD WINAPI XInputGetBaseBusInformation(DWORD dwUserIndex, XINPUT_BASE_BUS_INFORMATION* pInfo) {
-        SDL_Log("XInputGetBaseBusInformation(%u, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pInfo);
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputGetBaseBusInformation(%u, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pInfo);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 
     // Deprecated
 
     void WINAPI XInputEnable(BOOL enable) {
-        SDL_Log("XInputEnable(%d)", enable);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputEnable(%d)", enable);
 
         SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputEnable() is deprecated!");
         // Windows 10 or later: Deprecated, as game controller input is automatically enabled/disabled by the system based on the application window focus
@@ -393,22 +393,22 @@ extern "C" {
     }
 
     DWORD WINAPI XInputGetAudioDeviceIds(DWORD dwUserIndex, LPWSTR pRenderDeviceId, UINT* pRenderCount, LPWSTR pCaptureDeviceId, UINT* pCaptureCount) {
-        SDL_Log("XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p)", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p)", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
 
         SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputGetAudioDeviceIds() is deprecated!");
         // Windows 10 or later: Deprecated (unofficial), suffers from major limitations and no longer functions reliably on recent versions of Windows
 
-        SDL_Log("XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetAudioDeviceIds(%u, %p, %p ,%p, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 
     DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid) {
-        SDL_Log("XInputGetDSoundAudioDeviceGuids(%u, %p, %p)", dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetDSoundAudioDeviceGuids(%u, %p, %p)", dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
 
         SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "XInputGetDSoundAudioDeviceGuids() is deprecated!");
         // Windows 8 or later: Deprecated, end of support by the operating system
 
-        SDL_Log("XInputGetDSoundAudioDeviceGuids(%u, %p, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetDSoundAudioDeviceGuids(%u, %p, %p) > ERROR_CALL_NOT_IMPLEMENTED", dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
         return ERROR_CALL_NOT_IMPLEMENTED;
     }
 

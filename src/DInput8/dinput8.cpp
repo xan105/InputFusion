@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
     HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter) {
-        SDL_Log("DirectInput8Create()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "DirectInput8Create()");
 
         if (hinst == nullptr || ppvOut == nullptr)
             return DIERR_INVALIDPARAM;

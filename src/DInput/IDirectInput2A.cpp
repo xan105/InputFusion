@@ -8,17 +8,17 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInput2A::IDirectInput2A() : m_refCount(1) {
-  SDL_Log("IDirectInput2A");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A");
   proxy = new(std::nothrow) IDirectInput8A();
 }
 
 IDirectInput2A::~IDirectInput2A() {
-  SDL_Log("~IDirectInput2A");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "~IDirectInput2A");
   if (proxy) { proxy->Release(); }
 }
 
 STDMETHODIMP IDirectInput2A::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInput2A::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -32,7 +32,7 @@ STDMETHODIMP IDirectInput2A::QueryInterface(REFIID riid, void** ppvObject) {
   }
   
   if (IsEqualGUID(riid, IID_IDirectInputJoyConfig)) { //Resident Evil (1996) GOG
-    SDL_Log("IDirectInput2A::QueryInterface() > IDirectInputJoyConfig");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::QueryInterface() > IDirectInputJoyConfig");
 
     IDirectInputJoyConfig* pDInputJoyConfig = new(std::nothrow) IDirectInputJoyConfig;
     if (pDInputJoyConfig == nullptr) return E_NOINTERFACE;
@@ -41,20 +41,20 @@ STDMETHODIMP IDirectInput2A::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInput2A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInput2A::AddRef() {
-  SDL_Log("IDirectInput2A::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInput2A::Release() {
-  SDL_Log("IDirectInput2A::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -64,7 +64,7 @@ STDMETHODIMP_(ULONG) IDirectInput2A::Release() {
 }
 
 STDMETHODIMP IDirectInput2A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE2A *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInput2A::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
   
   IDirectInputDevice2A* pDInputDevice = new(std::nothrow) IDirectInputDevice2A;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
@@ -77,7 +77,7 @@ STDMETHODIMP IDirectInput2A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE2A *
 }
 
 STDMETHODIMP IDirectInput2A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags){
-  SDL_Log("IDirectInput2A::EnumDevices()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::EnumDevices()");
   
   if (proxy){
       return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
@@ -87,7 +87,7 @@ STDMETHODIMP IDirectInput2A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 }
 
 STDMETHODIMP IDirectInput2A::GetDeviceStatus(REFGUID rguidInstance){
-  SDL_Log("IDirectInput2A::GetDeviceStatus()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::GetDeviceStatus()");
   
   if (proxy){
       return proxy->GetDeviceStatus(rguidInstance);
@@ -97,7 +97,7 @@ STDMETHODIMP IDirectInput2A::GetDeviceStatus(REFGUID rguidInstance){
 }
 
 STDMETHODIMP IDirectInput2A::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
-  SDL_Log("IDirectInput2A::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::RunControlPanel()");
   
   if (proxy){
       return proxy->RunControlPanel(hwndOwner, dwFlags);
@@ -107,7 +107,7 @@ STDMETHODIMP IDirectInput2A::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
 }
 
 STDMETHODIMP IDirectInput2A::Initialize(HINSTANCE hinst, DWORD dwVersion){
-  SDL_Log("IDirectInput2A::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::Initialize()");
   
   if (proxy){
       return proxy->Initialize(hinst, dwVersion);
@@ -117,7 +117,7 @@ STDMETHODIMP IDirectInput2A::Initialize(HINSTANCE hinst, DWORD dwVersion){
 }
 
 STDMETHODIMP IDirectInput2A::FindDevice(REFGUID rguidClass, LPCSTR ptszName, LPGUID pguidInstance){
-  SDL_Log("IDirectInput2A::FindDevice()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput2A::FindDevice()");
   
   if (proxy){
       return proxy->FindDevice(rguidClass, ptszName, pguidInstance);

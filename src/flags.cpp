@@ -40,7 +40,9 @@ const Flags_t& Flags() {
             flag.dinput8_detour             = ini.GetBoolValue(L"API",      L"DINPUT8",                     false);
             flag.dinput_detour              = ini.GetBoolValue(L"API",      L"DINPUT",                      false);
             flag.winmm_detour               = ini.GetBoolValue(L"API",      L"WINMM",                       false);
-            SDL_Log("Parsed flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Parsed flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
+        } else {
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to parse flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
         }
 
         SetFlagFromEnv(flag.ledbatterylvl,              L"GAMEPAD_LED",                         L"BATTERYLVL");
@@ -55,20 +57,20 @@ const Flags_t& Flags() {
         SetFlagFromEnv(flag.dinput_detour,              L"GAMEPAD_API_DINPUT",                  L"HOOK");
         SetFlagFromEnv(flag.winmm_detour,               L"GAMEPAD_API_WINMM",                   L"HOOK");
 
-        SDL_Log("Parsed flags from env. var.");
-
-        SDL_Log("Flags:\n"
-            "- ledbatterylvl: %d\n"
-            "- norumble: %d\n"
-            "- winmm_layout_xbox: %d\n"
-            "- xinput_always_connected: %d\n"
-            "- xinput_realID: %d\n"
-            "- dinput_nodevices: %d\n"
-            "- gameinput_detour: %d\n"
-            "- xinput_detour: %d\n"
-            "- dinput8_detour: %d\n"
-            "- dinput_detour: %d\n"
-            "- winmm_detour: %d\n",
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Parsed flags from env. var.");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "Flags:\n"
+            "- ledbatterylvl: \t\t%d\n"
+            "- norumble: \t\t\t%d\n"
+            "- winmm_layout_xbox: \t\t%d\n"
+            "- xinput_always_connected: \t%d\n"
+            "- xinput_realID: \t\t%d\n"
+            "- dinput_nodevices: \t\t%d\n"
+            "- gameinput_detour: \t\t%d\n"
+            "- xinput_detour: \t\t%d\n"
+            "- dinput8_detour: \t\t%d\n"
+            "- dinput_detour: \t\t%d\n"
+            "- winmm_detour: \t\t%d\n",
             flag.ledbatterylvl,
             flag.norumble,
             flag.winmm_layout_xbox,

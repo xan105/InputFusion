@@ -22,7 +22,7 @@ namespace {
 
     void CALLBACK joystick_capture(HWND hwnd, UINT wMsg, UINT_PTR wTimer, DWORD dwTime) {
         //NB: No events are send for the pov and the axes other than X, Y, Z but they are available through joyGetPosEx()
-        SDL_Log("joystick_capture(%p, %u, %u, %u)", hwnd, wMsg, (unsigned)wTimer, dwTime);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joystick_capture(%p, %u, %u, %u)", hwnd, wMsg, (unsigned)wTimer, dwTime);
 
         for (int i = 0; i < MAXJOY; i++)
         {
@@ -351,33 +351,33 @@ extern "C" {
 #endif
 
     MMRESULT WINAPI joyConfigChanged(DWORD dwFlags) {
-        SDL_Log("joyConfigChanged(%u)", dwFlags);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyConfigChanged(%u)", dwFlags);
 
         if (dwFlags != 0) {
-            SDL_Log("joyConfigChanged(%u) > JOYERR_PARMS", dwFlags);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyConfigChanged(%u) > JOYERR_PARMS", dwFlags);
             return JOYERR_PARMS;
         }
         EnumWindows(EnumWindowsProc, 0);
-        SDL_Log("joyConfigChanged(%u) > JOYERR_NOERROR", dwFlags);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyConfigChanged(%u) > JOYERR_NOERROR", dwFlags);
         return JOYERR_NOERROR;
     }
 
     MMRESULT WINAPI joyGetDevCapsA(UINT_PTR uJoyID, LPJOYCAPSA pjc, UINT cbjc) {
-        SDL_Log("joyGetDevCapsA(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsA(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
 
         if (uJoyID > MAXJOY) {
-            SDL_Log("joyGetDevCapsA(%u, %p, %u) > JOYERR_PARMS", (unsigned)uJoyID, pjc, cbjc);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsA(%u, %p, %u) > JOYERR_PARMS", (unsigned)uJoyID, pjc, cbjc);
             return JOYERR_PARMS;
         }
         if (pjc == nullptr || cbjc != sizeof(JOYCAPSA)) {
-            SDL_Log("joyGetDevCapsA(%u, %p, %u) > MMSYSERR_INVALPARAM", (unsigned)uJoyID, pjc, cbjc);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsA(%u, %p, %u) > MMSYSERR_INVALPARAM", (unsigned)uJoyID, pjc, cbjc);
             return MMSYSERR_INVALPARAM;
         }
 
         ZeroMemory(pjc, cbjc);
         strcpy_s(pjc->szRegKey, _countof(pjc->szRegKey), "DINPUT.DLL");
         if (uJoyID == ~(UINT_PTR)0) { // if is -1
-            SDL_Log("joyGetDevCapsA(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsA(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
             return JOYERR_NOERROR; 
         }
 
@@ -413,21 +413,21 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyGetDevCapsW(UINT_PTR uJoyID, LPJOYCAPSW pjc, UINT cbjc) {
-        SDL_Log("joyGetDevCapsW(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsW(%u, %p, %u)", (unsigned)uJoyID, pjc, cbjc);
 
         if (uJoyID > MAXJOY) {
-            SDL_Log("joyGetDevCapsW(%u, %p, %u) > JOYERR_PARMS", (unsigned)uJoyID, pjc, cbjc);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsW(%u, %p, %u) > JOYERR_PARMS", (unsigned)uJoyID, pjc, cbjc);
             return JOYERR_PARMS;
         } 
         if (pjc == nullptr || cbjc != sizeof(JOYCAPSW)) {
-            SDL_Log("joyGetDevCapsW(%u, %p, %u) > MMSYSERR_INVALPARAM", (unsigned)uJoyID, pjc, cbjc);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsW(%u, %p, %u) > MMSYSERR_INVALPARAM", (unsigned)uJoyID, pjc, cbjc);
             return MMSYSERR_INVALPARAM;
         }
 
         ZeroMemory(pjc, cbjc);
         wcscpy_s(pjc->szRegKey, _countof(pjc->szRegKey), L"DINPUT.DLL");
         if (uJoyID == ~(UINT_PTR)0) { // if is -1
-            SDL_Log("joyGetDevCapsW(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsW(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
             return JOYERR_NOERROR; 
         }
 
@@ -464,24 +464,24 @@ extern "C" {
             RETRO::SetCapabilities(pjc);
         }
 
-        SDL_Log("joyGetDevCapsW(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetDevCapsW(%u, %p, %u) > JOYERR_NOERROR", (unsigned)uJoyID, pjc, cbjc);
         return JOYERR_NOERROR;
     }
 
     UINT WINAPI joyGetNumDevs(void) {
-        SDL_Log("joyGetNumDevs()");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetNumDevs()");
         return MAXJOY - 1;
     }
 
     MMRESULT WINAPI joyGetPos(UINT uJoyID, LPJOYINFO pji) {
-        SDL_Log("joyGetPos(%u, %p)", uJoyID, pji);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetPos(%u, %p)", uJoyID, pji);
 
         if (uJoyID >= MAXJOY) {
-            SDL_Log("joyGetPos(%u, %p) > JOYERR_PARMS", uJoyID, pji);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyGetPos(%u, %p) > JOYERR_PARMS", uJoyID, pji);
             return JOYERR_PARMS;
         }   
         if (pji == nullptr) {
-            SDL_Log("joyGetPos(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, pji);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetPos(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, pji);
             return MMSYSERR_INVALPARAM;
         }
 
@@ -502,14 +502,14 @@ extern "C" {
     }
 
     MMRESULT WINAPI joyGetPosEx(UINT uJoyID, LPJOYINFOEX pjiEx) {
-        SDL_Log("joyGetPosEx(%u, %p)", uJoyID, pjiEx);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetPosEx(%u, %p)", uJoyID, pjiEx);
 
         if (uJoyID >= MAXJOY) {
-            SDL_Log("joyGetPosEx(%u, %p) > JOYERR_PARMS", uJoyID, pjiEx);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyGetPosEx(%u, %p) > JOYERR_PARMS", uJoyID, pjiEx);
             return JOYERR_PARMS;
         } 
         if (pjiEx == nullptr || pjiEx->dwSize != sizeof(JOYINFOEX)) {
-            SDL_Log("joyGetPosEx(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, pjiEx);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetPosEx(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, pjiEx);
             return MMSYSERR_INVALPARAM;
         }
 
@@ -517,7 +517,7 @@ extern "C" {
 
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(uJoyID);
         if (gamepad == nullptr) {
-            SDL_Log("joyGetPosEx(%u, %p) > JOYERR_UNPLUGGED", uJoyID, pjiEx);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetPosEx(%u, %p) > JOYERR_UNPLUGGED", uJoyID, pjiEx);
             return JOYERR_UNPLUGGED;
         }
 
@@ -530,47 +530,47 @@ extern "C" {
             RETRO::TranslateInput(gamepad, pjiEx);
         }
 
-        SDL_Log("joyGetPosEx(%u, %p) > JOYERR_NOERROR", uJoyID, pjiEx);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetPosEx(%u, %p) > JOYERR_NOERROR", uJoyID, pjiEx);
         return JOYERR_NOERROR;
     }
 
     MMRESULT WINAPI joyGetThreshold(UINT uJoyID, LPUINT puThreshold) {
-        SDL_Log("joyGetThreshold(%u, %p)", uJoyID, puThreshold);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetThreshold(%u, %p)", uJoyID, puThreshold);
 
         if (uJoyID >= MAXJOY) {
-            SDL_Log("joyGetThreshold(%u, %p) > JOYERR_PARMS", uJoyID, puThreshold);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyGetThreshold(%u, %p) > JOYERR_PARMS", uJoyID, puThreshold);
             return JOYERR_PARMS;
         }    
         if (puThreshold == nullptr) {
-            SDL_Log("joyGetThreshold(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, puThreshold);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetThreshold(%u, %p) > MMSYSERR_INVALPARAM", uJoyID, puThreshold);
             return MMSYSERR_INVALPARAM;
         }
 
         *puThreshold = Joysticks[uJoyID].threshold;
 
-        SDL_Log("joyGetThreshold(%u, %p) > JOYERR_NOERROR", uJoyID, puThreshold);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyGetThreshold(%u, %p) > JOYERR_NOERROR", uJoyID, puThreshold);
         return JOYERR_NOERROR;
     }
 
     MMRESULT WINAPI joySetThreshold(UINT uJoyID, UINT uThreshold) {
-        SDL_Log("joySetThreshold(%u, %u)", uJoyID, uThreshold);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joySetThreshold(%u, %u)", uJoyID, uThreshold);
 
         if (uJoyID >= MAXJOY) {
-            SDL_Log("joySetThreshold(%u, %u) > JOYERR_PARMS", uJoyID, uThreshold);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joySetThreshold(%u, %u) > JOYERR_PARMS", uJoyID, uThreshold);
             return JOYERR_PARMS;
         }
 
         Joysticks[uJoyID].threshold = uThreshold;
 
-        SDL_Log("joySetThreshold(%u, %u) > JOYERR_NOERROR", uJoyID, uThreshold);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joySetThreshold(%u, %u) > JOYERR_NOERROR", uJoyID, uThreshold);
         return JOYERR_NOERROR;
     }
 
     MMRESULT WINAPI joyReleaseCapture(UINT uJoyID) {
-        SDL_Log("joyReleaseCapture(%u)", uJoyID);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyReleaseCapture(%u)", uJoyID);
 
         if (uJoyID >= MAXJOY) {
-            SDL_Log("joyReleaseCapture(%u) > JOYERR_PARMS", uJoyID);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joyReleaseCapture(%u) > JOYERR_PARMS", uJoyID);
             return JOYERR_PARMS;
         }
 
@@ -582,32 +582,32 @@ extern "C" {
             Joysticks[uJoyID].changed = 0;
         }
 
-        SDL_Log("joyReleaseCapture(%u) > JOYERR_NOERROR", uJoyID);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joyReleaseCapture(%u) > JOYERR_NOERROR", uJoyID);
         return JOYERR_NOERROR;
     }
 
     MMRESULT WINAPI joySetCapture(HWND hwnd, UINT uJoyID, UINT uPeriod, BOOL fChanged) {
-        SDL_Log("joySetCapture(%p, %u, %u, %d)", hwnd, uJoyID, uPeriod, fChanged);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d)", hwnd, uJoyID, uPeriod, fChanged);
 
         if (uJoyID >= MAXJOY) {
-            SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_PARMS", hwnd, uJoyID, uPeriod, fChanged);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d) > JOYERR_PARMS", hwnd, uJoyID, uPeriod, fChanged);
             return JOYERR_PARMS;
         } 
         if (hwnd == nullptr) {
-            SDL_Log("joySetCapture(%p, %u, %u, %d) > MMSYSERR_INVALPARAM", hwnd, uJoyID, uPeriod, fChanged);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d) > MMSYSERR_INVALPARAM", hwnd, uJoyID, uPeriod, fChanged);
             return MMSYSERR_INVALPARAM;
         }
         if (Joysticks[uJoyID].capture || !IsWindow(hwnd)) {
-            SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_NOCANDO", hwnd, uJoyID, uPeriod, fChanged);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d) > JOYERR_NOCANDO", hwnd, uJoyID, uPeriod, fChanged);
             return JOYERR_NOCANDO;
         }
 
         if (uPeriod < JOY_PERIOD_MIN) {
-            SDL_Log("joySetCapture(%p, %u, %u -> %u, %d)", hwnd, uJoyID, uPeriod, JOY_PERIOD_MIN, fChanged);
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u -> %u, %d)", hwnd, uJoyID, uPeriod, JOY_PERIOD_MIN, fChanged);
             uPeriod = JOY_PERIOD_MIN;
         }
         else if (uPeriod > JOY_PERIOD_MAX) {
-            SDL_Log("joySetCapture(%p, %u, %u -> %u, %d)", hwnd, uJoyID, uPeriod, JOY_PERIOD_MAX, fChanged);
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u -> %u, %d)", hwnd, uJoyID, uPeriod, JOY_PERIOD_MAX, fChanged);
             uPeriod = JOY_PERIOD_MAX;
         }
 
@@ -615,20 +615,20 @@ extern "C" {
 
         SDL_Gamepad* gamepad = SDL_GetGamepadFromPlayerIndex(uJoyID);
         if (gamepad == nullptr) {
-            SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_UNPLUGGED", hwnd, uJoyID, uPeriod, fChanged);
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d) > JOYERR_UNPLUGGED", hwnd, uJoyID, uPeriod, fChanged);
             return JOYERR_UNPLUGGED;
         }
 
         Joysticks[uJoyID].timer = SetTimer(hwnd, 0, uPeriod, joystick_capture);
         if (Joysticks[uJoyID].timer == 0) {
-            SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_NOCANDO", hwnd, uJoyID, uPeriod, fChanged);
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d) > JOYERR_NOCANDO", hwnd, uJoyID, uPeriod, fChanged);
             return JOYERR_NOCANDO;
         }
 
         Joysticks[uJoyID].capture = hwnd;
         Joysticks[uJoyID].changed = fChanged;
 
-        SDL_Log("joySetCapture(%p, %u, %u, %d) > JOYERR_NOERROR", hwnd, uJoyID, uPeriod, fChanged);
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "joySetCapture(%p, %u, %u, %d) > JOYERR_NOERROR", hwnd, uJoyID, uPeriod, fChanged);
         return JOYERR_NOERROR;
     }
 

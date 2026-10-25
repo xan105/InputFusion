@@ -27,7 +27,7 @@ namespace {
     ExitProcess_t Win32_ExitProcess = nullptr;
 
     void WINAPI InputFusion_ExitProcess(UINT uExitCode) {
-        SDL_Log("ExitProcess(%u)", uExitCode);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "ExitProcess(%u)", uExitCode);
 
         InputFusion_SDL_Event_Loop = false;
         if (InputFusion_SDL_Quit_Wait) {
@@ -50,7 +50,7 @@ namespace {
         if (hMod == nullptr) {
             return false;
         }
-        SDL_Log("LoadLibraryW: KERNEL32.dll");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "LoadLibraryW: KERNEL32.dll");
 
         Win32_ExitProcess = (ExitProcess_t)GetProcAddress(hMod, "ExitProcess");
         if (Win32_ExitProcess == nullptr) {
@@ -66,7 +66,7 @@ namespace {
             return false;
         }
         std::wstring szPath = util::GetModuleFileNameWString(hMod);
-        SDL_Log("LoadLibraryW: gameinput.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LoadLibraryW: gameinput.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
 
         GameInputCreate_t Win32_GameInputCreate = (GameInputCreate_t)GetProcAddress(hMod, "GameInputCreate");
         if (Win32_GameInputCreate == nullptr) {
@@ -89,7 +89,7 @@ namespace {
                 return false;
             }
             std::wstring szPath = util::GetModuleFileNameWString(hMod);
-            SDL_Log("LoadLibraryW: %s [\"%s\"]", util::WStringToUtf8(version).c_str(), util::WStringToUtf8(szPath).c_str());
+            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LoadLibraryW: %s [\"%s\"]", util::WStringToUtf8(version).c_str(), util::WStringToUtf8(szPath).c_str());
 
             XInputEnable_t Win32_XInputEnable = (XInputEnable_t)GetProcAddress(hMod, "XInputEnable");
             if (Win32_XInputEnable != nullptr &&
@@ -199,7 +199,7 @@ namespace {
             return false;
         }
         std::wstring szPath = util::GetModuleFileNameWString(hMod);
-        SDL_Log("LoadLibraryW: dinput8.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LoadLibraryW: dinput8.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
 
         DirectInput8Create_t Win32_DirectInput8Create = (DirectInput8Create_t)GetProcAddress(hMod, "DirectInput8Create");
         if (Win32_DirectInput8Create == nullptr) {
@@ -215,7 +215,7 @@ namespace {
             return false;
         }
         std::wstring szPath = util::GetModuleFileNameWString(hMod);
-        SDL_Log("LoadLibraryW: dinput.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LoadLibraryW: dinput.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
 
         DirectInputCreateA_t Win32_DirectInputCreateA = (DirectInputCreateA_t)GetProcAddress(hMod, "DirectInputCreateA");
         if (Win32_DirectInputCreateA != nullptr &&
@@ -247,7 +247,7 @@ namespace {
             return false;
         }
         std::wstring szPath = util::GetModuleFileNameWString(hMod);
-        SDL_Log("LoadLibraryW: winmm.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LoadLibraryW: winmm.dll [\"%s\"]", util::WStringToUtf8(szPath).c_str());
 
         joyConfigChanged_t Win32_joyConfigChanged = (joyConfigChanged_t)GetProcAddress(hMod, "joyConfigChanged");
         if (Win32_joyConfigChanged != nullptr &&
@@ -325,35 +325,35 @@ namespace {
 
 void InputFusion_Detours_SetHooks() {
     if (InputFusion_Detours_Hook_ExitProcess()) {
-        SDL_Log("Detour set for exit handler");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Detour set for exit handler");
     }
     
     if (Flags().gameinput_detour && InputFusion_Detours_Hook_GameInput()) {
-        SDL_Log("Detour set for GameInput");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for GameInput");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
-            SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled GameInput within SDL to prevent conflict!");
         }
     }
     
     if (Flags().xinput_detour && InputFusion_Detours_Hook_XInput()) {
-        SDL_Log("Detour set for XInput");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for XInput");
         if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
-            SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled XInput within SDL to prevent conflict!");
         }
     }
 
     if (Flags().dinput8_detour && InputFusion_Detours_Hook_DInput8()) {
-        SDL_Log("Detour set for DInput8");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for DInput8");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
-            SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled DirectInput within SDL to prevent conflict!");
         }
     }
 
     if (Flags().dinput_detour && InputFusion_Detours_Hook_DInput()) {
-        SDL_Log("Detour set for DInput 1-7");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for DInput 1-7");
     }
     
     if (Flags().winmm_detour && InputFusion_Detours_Hook_Winmm()) {
-        SDL_Log("Detour set for WinMM");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for WinMM");
     }
 }

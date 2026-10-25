@@ -8,17 +8,17 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInput7W::IDirectInput7W() : m_refCount(1) {
-  SDL_Log("IDirectInput7W");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W");
   proxy = new(std::nothrow) IDirectInput8W();
 }
 
 IDirectInput7W::~IDirectInput7W() {
-  SDL_Log("~IDirectInput7W");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "~IDirectInput7W");
   if (proxy) { proxy->Release(); }
 }
 
 STDMETHODIMP IDirectInput7W::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInput7W::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -32,7 +32,7 @@ STDMETHODIMP IDirectInput7W::QueryInterface(REFIID riid, void** ppvObject) {
   }
   
   if (IsEqualGUID(riid, IID_IDirectInputJoyConfig)) { //Resident Evil (1996) GOG
-    SDL_Log("IDirectInput7W::QueryInterface() > IDirectInputJoyConfig");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::QueryInterface() > IDirectInputJoyConfig");
 
     IDirectInputJoyConfig* pDInputJoyConfig = new(std::nothrow) IDirectInputJoyConfig;
     if (pDInputJoyConfig == nullptr) return E_NOINTERFACE;
@@ -41,20 +41,20 @@ STDMETHODIMP IDirectInput7W::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInput7W::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInput7W::AddRef() {
-  SDL_Log("IDirectInput7W::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInput7W::Release() {
-  SDL_Log("IDirectInput7W::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -64,7 +64,7 @@ STDMETHODIMP_(ULONG) IDirectInput7W::Release() {
 }
 
 STDMETHODIMP IDirectInput7W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE7W *lplpDirectInputDevice, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInput7W::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
   
   IDirectInputDevice7W* pDInputDevice = new(std::nothrow) IDirectInputDevice7W;
   if (pDInputDevice == nullptr) return DIERR_OUTOFMEMORY;
@@ -77,7 +77,7 @@ STDMETHODIMP IDirectInput7W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE7W *
 }
 
 STDMETHODIMP IDirectInput7W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags){
-  SDL_Log("IDirectInput7W::EnumDevices()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::EnumDevices()");
   
   if (proxy){
       return proxy->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);
@@ -87,7 +87,7 @@ STDMETHODIMP IDirectInput7W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 }
 
 STDMETHODIMP IDirectInput7W::GetDeviceStatus(REFGUID rguidInstance){
-  SDL_Log("IDirectInput7W::GetDeviceStatus()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::GetDeviceStatus()");
   
   if (proxy){
       return proxy->GetDeviceStatus(rguidInstance);
@@ -97,7 +97,7 @@ STDMETHODIMP IDirectInput7W::GetDeviceStatus(REFGUID rguidInstance){
 }
 
 STDMETHODIMP IDirectInput7W::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
-  SDL_Log("IDirectInput7W::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::RunControlPanel()");
   
   if (proxy){
       return proxy->RunControlPanel(hwndOwner, dwFlags);
@@ -107,7 +107,7 @@ STDMETHODIMP IDirectInput7W::RunControlPanel(HWND hwndOwner, DWORD dwFlags){
 }
 
 STDMETHODIMP IDirectInput7W::Initialize(HINSTANCE hinst, DWORD dwVersion){
-  SDL_Log("IDirectInput7W::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::Initialize()");
   
   if (proxy){
       return proxy->Initialize(hinst, dwVersion);
@@ -117,7 +117,7 @@ STDMETHODIMP IDirectInput7W::Initialize(HINSTANCE hinst, DWORD dwVersion){
 }
 
 STDMETHODIMP IDirectInput7W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LPGUID pguidInstance){
-  SDL_Log("IDirectInput7W::FindDevice()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::FindDevice()");
   
   if (proxy){
       return proxy->FindDevice(rguidClass, ptszName, pguidInstance);
@@ -127,10 +127,10 @@ STDMETHODIMP IDirectInput7W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LP
 }
 
 STDMETHODIMP IDirectInput7W::CreateDeviceEx(REFGUID rguid, REFIID riid, LPVOID * ppvObj, LPUNKNOWN pUnkOuter){
-  SDL_Log("IDirectInput7W::CreateDeviceEx()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::CreateDeviceEx()");
   
   if (proxy){
-    SDL_Log("IDirectInput7W::CreateDeviceEx() -> IDirectInput8W::CreateDevice()");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput7W::CreateDeviceEx() -> IDirectInput8W::CreateDevice()");
     return proxy->CreateDevice(rguid, (LPDIRECTINPUTDEVICE8W *)ppvObj, pUnkOuter);
   }
   

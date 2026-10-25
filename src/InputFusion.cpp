@@ -44,7 +44,9 @@ void InputFusion_SDL_SetHints() {
         SDL_Hints.CONTROLLER_MAPPING = ini.GetValue(L"SDL", L"CONTROLLER_MAPPING", L"");
         SDL_Hints.CONTROLLER_MAPPING_FILE = ini.GetValue(L"SDL", L"CONTROLLER_MAPPING_FILE", L"");
 
-        SDL_Log("Parsed SDL Hints from [\"%s\"]", util::WStringToUtf8(file).c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Parsed SDL Hints from [\"%s\"]", util::WStringToUtf8(file).c_str());
+    } else {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to read SDL Hints from [\"%s\"]", util::WStringToUtf8(file).c_str());
     }
 
     SDL_SetHint(SDL_HINT_JOYSTICK_DIRECTINPUT, SDL_Hints.DINPUT8 ? "1" : "0");
@@ -73,27 +75,27 @@ void InputFusion_SDL_SetHints() {
 }
 
 bool InputFusion_SDL_Init() {
-    SDL_Log("InputFusion version %s", VER_FILEVERSION_STR);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "InputFusion version %s", VER_FILEVERSION_STR);
 
     #if defined(GAMEINPUT_EXPORTS)
-        SDL_Log("InputFusion is running as GameInput dll");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "InputFusion is running as GameInput dll");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
-            SDL_Log("-> Disabled GameInput within SDL to prevent conflict!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled GameInput within SDL to prevent conflict!");
         }
     #elif defined(XINPUT_EXPORTS)
-        SDL_Log("InputFusion is running as XInput dll");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "InputFusion is running as XInput dll");
         if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
-            SDL_Log("-> Disabled XInput within SDL to prevent conflict!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled XInput within SDL to prevent conflict!");
         }
     #elif defined(DINPUT8_EXPORTS)
-        SDL_Log("InputFusion is running as DInput8 dll");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "InputFusion is running as DInput8 dll");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
-            SDL_Log("-> Disabled DirectInput within SDL to prevent conflict!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled DirectInput within SDL to prevent conflict!");
         }
     #elif defined(DINPUT_EXPORTS)
-        SDL_Log("InputFusion is running as DInput dll");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "InputFusion is running as DInput dll");
     #elif defined(WINMM_EXPORTS)
-        SDL_Log("InputFusion is running as WinMM dll");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "InputFusion is running as WinMM dll");
     #endif
 
     SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, VER_PRODUCTNAME_STR);
@@ -110,21 +112,23 @@ bool InputFusion_SDL_Init() {
         }
         return false;
     }
-    SDL_Log("SDL_INIT_GAMEPAD");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SDL_INIT_GAMEPAD");
 
     const int version = SDL_GetVersion();
-    SDL_Log("SDL version %d.%d.%d",
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, 
+        "SDL version %d.%d.%d",
         SDL_VERSIONNUM_MAJOR(version),
         SDL_VERSIONNUM_MINOR(version),
         SDL_VERSIONNUM_MICRO(version));
 
-    SDL_Log("SDL controller handling:\n"
-        "- DirectInput: %s\n"
-        "- XInput: %s\n"
-        "- WGI: %s\n"
-        "- GameInput: %s\n"
-        "- HID: %s\n"
-        "- RAWINPUT: %s",
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT,
+        "SDL controller handling:\n"
+        "- DirectInput: \t%s\n"
+        "- XInput: \t%s\n"
+        "- WGI: \t\t%s\n"
+        "- GameInput: \t%s\n"
+        "- HID: \t\t%s\n"
+        "- RAWINPUT: \t%s",
         //"- DSU: %s"
         SDL_GetHint(SDL_HINT_JOYSTICK_DIRECTINPUT),
         SDL_GetHint(SDL_HINT_XINPUT_ENABLED),
@@ -141,7 +145,7 @@ bool InputFusion_SDL_Init() {
 }
 
 void InputFusion_SDL_Quit() {
-    SDL_Log("SDL_Quit");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SDL_Quit");
     SDL_Quit();
     if (InputFusion_SDL_Quit_Wait) {
         SetEvent(InputFusion_SDL_Quit_Wait);
@@ -165,11 +169,11 @@ void InputFusion_SDL_CloseGamepads() {
         if (SDL_GetGamepadType(gamepad) == SDL_GAMEPAD_TYPE_PS4) {
             SDL_SetGamepadLED(gamepad, 10, 20, 20); //Not the exact default color (no player) but close enough
         }
-        SDL_Log("Closing gamepad: %s", SDL_GetGamepadName(gamepad));
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Closing gamepad: %s", SDL_GetGamepadName(gamepad));
         SDL_CloseGamepad(gamepad);
     }
     SDL_free(gamepads);
-    SDL_Log("Closed gamepads");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Closed gamepads");
 }
 
 void InputFusion_SDL_EventLoop() {
@@ -178,12 +182,12 @@ void InputFusion_SDL_EventLoop() {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
             case SDL_EVENT_GAMEPAD_ADDED: {
-                SDL_Log("SDL_EVENT_GAMEPAD_ADDED");
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SDL_EVENT_GAMEPAD_ADDED");
                 SDL_JoystickID id = event.gdevice.which;
                 SDL_Gamepad* gamepad = SDL_OpenGamepad(id);
                 if (gamepad != nullptr) {
                     std::string name = SDL_GetGamepadName(gamepad);
-                    SDL_Log("Open gamepad: %s", name.c_str());
+                    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Open gamepad: %s", name.c_str());
 
                     if (name.find("Xbox") != std::string::npos) { //https://github.com/libsdl-org/SDL/issues/12071#issuecomment-2682639565
                         SDL_GUID guid = SDL_GetGamepadGUIDForID(id);
@@ -193,23 +197,23 @@ void InputFusion_SDL_EventLoop() {
                         if (guidStr.size() >= 4) {
                             std::string suffix = guidStr.substr(guidStr.size() - 4);
                             if (suffix == "7200") {
-                                SDL_Log("%s is using RAW Input", name.c_str());
+                                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "%s is using RAW Input", name.c_str());
                             }
                             else if (suffix == "7701") {
-                                SDL_Log("%s is using WGI", name.c_str());
+                                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "%s is using WGI", name.c_str());
                             }
                             else if (suffix == "6700") {
-                                SDL_Log("%s is using GameInput", name.c_str());
+                                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "%s is using GameInput", name.c_str());
                             }
                             else if (guidStr.find("xinput") != std::string::npos) {
-                                SDL_Log("%s is using XInput", name.c_str());
+                                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "%s is using XInput", name.c_str());
                             }
                         }
 
                     }
 
                     char* mapping = SDL_GetGamepadMapping(gamepad);
-                    SDL_Log("Gamepad Mapping: \"%s\"", mapping);
+                    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Gamepad Mapping: \"%s\"", mapping);
                     SDL_free(mapping);
 
                     // Workaround for https://github.com/libsdl-org/SDL/issues/16261
@@ -224,17 +228,17 @@ void InputFusion_SDL_EventLoop() {
                 break;
             }
             case SDL_EVENT_GAMEPAD_REMOVED: {
-                SDL_Log("SDL_EVENT_GAMEPAD_REMOVED");
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SDL_EVENT_GAMEPAD_REMOVED");
                 SDL_JoystickID id = event.gdevice.which;
                 SDL_Gamepad* gamepad = SDL_GetGamepadFromID(id);
                 if (gamepad != nullptr) {
-                    SDL_Log("Closing gamepad: %s", SDL_GetGamepadName(gamepad));
+                    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Closing gamepad: %s", SDL_GetGamepadName(gamepad));
                     SDL_CloseGamepad(gamepad);
                 }
                 break;
             }
             case SDL_EVENT_JOYSTICK_BATTERY_UPDATED: {
-                SDL_Log("SDL_EVENT_JOYSTICK_BATTERY_UPDATED");
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SDL_EVENT_JOYSTICK_BATTERY_UPDATED");
                 if (!Flags().ledbatterylvl) break;
 
                 SDL_GamepadType type = SDL_GetGamepadTypeForID(event.jbattery.which);
@@ -246,25 +250,25 @@ void InputFusion_SDL_EventLoop() {
 
                         if (event.jbattery.percent <= 25) {
                             red = 255; green = 0; blue = 0;
-                            SDL_Log("LED to red");
+                            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LED to red");
                         }
                         else if (event.jbattery.percent <= 50) {
                             red = 255; green = 165; blue = 0;
-                            SDL_Log("LED to orange");
+                            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LED to orange");
                         }
                         else if (event.jbattery.percent <= 75) {
                             red = 255; green = 255; blue = 0;
-                            SDL_Log("LED to yellow");
+                            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LED to yellow");
                         }
                         else if (event.jbattery.percent <= 100) {
                             red = 0; green = 255; blue = 0;
-                            SDL_Log("LED to green");
+                            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "LED to green");
                         }
 
                         SDL_Gamepad* gamepad = SDL_GetGamepadFromID(event.jbattery.which);
                         if (gamepad != nullptr) {
                             SDL_SetGamepadLED(gamepad, red, green, blue);
-                            SDL_Log("SDL_SetGamepadLED");
+                            SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SDL_SetGamepadLED");
                         }
 
                     }
@@ -272,7 +276,7 @@ void InputFusion_SDL_EventLoop() {
                 break;
             }
             case SDL_EVENT_QUIT: {
-                SDL_Log("SDL_EVENT_QUIT");
+                SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "SDL_EVENT_QUIT");
                 InputFusion_SDL_Event_Loop = false;
                 break;
             }
@@ -283,22 +287,60 @@ void InputFusion_SDL_EventLoop() {
 }
 
 void InputFusion_SDL_Logger(void* userdata, int category, SDL_LogPriority priority, const char* message) {
-    constexpr const char* fmt = "%s\n";
+    const char* reset = "\033[0m";
+    const char* prefix = "[INFO]";
+    const char* prefix_color = "\033[90m";
+    const char* tag = "";
+    const char* tag_color = "\033[0m";
+
+    switch (priority) {
+        case SDL_LOG_PRIORITY_WARN: {
+            prefix = "[WARN]";
+            prefix_color = "\033[33m";
+            break;
+        }
+        case SDL_LOG_PRIORITY_ERROR:
+        case SDL_LOG_PRIORITY_CRITICAL: {
+            prefix = "[ERROR]";
+            prefix_color = "\033[31m";
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    
+    switch (category) {
+        case SDL_LOG_CATEGORY_APPLICATION: {
+            tag = "<APP>";
+            tag_color = "\033[95m";
+            break;
+        }
+        case SDL_LOG_CATEGORY_INPUT: {
+            tag = "<INPUT>";
+            tag_color = "\033[36m";
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+
     SDL_IOStream* io = (SDL_IOStream*)userdata;
     if (io) {
-        SDL_IOprintf(io, fmt, message);
+        SDL_IOprintf(io, "%s %s %s\n", prefix, tag, message);
         SDL_FlushIO(io);
     }
-    printf(fmt, message);
+    printf("%s%s %s%s%s %s\n", prefix_color, prefix, tag_color, tag, reset, message);
 }
 
 void InputFusion_SDL_Wait_ready(DWORD timeout) {
     if (!(SDL_WasInit(SDL_INIT_GAMEPAD) & SDL_INIT_GAMEPAD)) {
         if (InputFusion_SDL_Init_Wait) {
-            SDL_Log("SDL is not ready! WAITING...");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "SDL is not ready! WAITING...");
             WaitForSingleObject(InputFusion_SDL_Init_Wait, timeout);
             SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-            SDL_Log("...RESUMING!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "...RESUMING!");
         }
     }
 }

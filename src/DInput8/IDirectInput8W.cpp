@@ -9,11 +9,11 @@ found in the LICENSE file in the root directory of this source tree.
 #include "../util.h"
 
 IDirectInput8W::IDirectInput8W() : m_refCount(1) {
-  SDL_Log("IDirectInput8W");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W");
 }
 
 STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
-  SDL_Log("IDirectInput8W::QueryInterface()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::QueryInterface()");
 
   if (ppvObject == nullptr)
     return E_POINTER;
@@ -27,7 +27,7 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
   }
 
   if (IsEqualGUID(riid, IID_IDirectInputJoyConfig8)){
-    SDL_Log("IDirectInput8W::QueryInterface() > IDirectInputJoyConfig8");
+    SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::QueryInterface() > IDirectInputJoyConfig8");
 
     IDirectInputJoyConfig8* pDInputJoyConfig = new(std::nothrow) IDirectInputJoyConfig8;
     if (pDInputJoyConfig == nullptr) return E_NOINTERFACE;
@@ -36,20 +36,20 @@ STDMETHODIMP IDirectInput8W::QueryInterface(REFIID riid, void** ppvObject) {
     return S_OK;
   }
 
-  SDL_Log("IDirectInput8W::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::QueryInterface() > Unknow REFIID: %s", util::GUIDToString(riid).c_str());
 
   *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) IDirectInput8W::AddRef() {
-  SDL_Log("IDirectInput8W::AddRef()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::AddRef()");
 
   return InterlockedIncrement(reinterpret_cast<long*>(&m_refCount));
 }
 
 STDMETHODIMP_(ULONG) IDirectInput8W::Release() {
-  SDL_Log("IDirectInput8W::Release()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::Release()");
 
   ULONG refCount = InterlockedDecrement(reinterpret_cast<long*>(&m_refCount));
   if (refCount == 0) {
@@ -59,12 +59,12 @@ STDMETHODIMP_(ULONG) IDirectInput8W::Release() {
 }
 
 STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* lplpDirectInputDevice, LPUNKNOWN pUnkOuter) {
-  SDL_Log("IDirectInput8W::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::CreateDevice() <%s>", util::GUIDToString(rguid).c_str());
   
   if (rguid == GUID_NULL) return DIERR_NOINTERFACE;
   
   if (rguid == GUID_SysKeyboard || rguid == GUID_SysMouse) {
-      SDL_Log("FIXME: KBM SUPPORT");
+      SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "FIXME: KBM SUPPORT");
       return DIERR_NOINTERFACE;
   }
 
@@ -79,7 +79,7 @@ STDMETHODIMP IDirectInput8W::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W* 
 }
 
 STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKW lpCallback, LPVOID pvRef, DWORD dwFlags) {
-  SDL_Log("IDirectInput8W::EnumDevices()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::EnumDevices()");
 
   if (Flags().dinput_nodevices) return DI_OK;
   
@@ -112,7 +112,7 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
           lpddi.wUsagePage = 0x01;
           lpddi.wUsage = 0x05;
           
-          SDL_Log("IDirectInput8W::EnumDevices() > Created %s", SDL_iconv_wchar_utf8(XBOX360_INSTANCE_NAMEW));
+          SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::EnumDevices() > Created %s", SDL_iconv_wchar_utf8(XBOX360_INSTANCE_NAMEW));
 
           if (lpCallback(&lpddi, pvRef) == DIENUM_STOP){ break; }
   }
@@ -126,26 +126,26 @@ STDMETHODIMP IDirectInput8W::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBAC
 }
 
 STDMETHODIMP IDirectInput8W::GetDeviceStatus(REFGUID rguidInstance) {
-  SDL_Log("IDirectInput8W::GetDeviceStatus()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::GetDeviceStatus()");
   return DI_OK;
 }
 
 
 STDMETHODIMP IDirectInput8W::RunControlPanel(HWND hwndOwner, DWORD dwFlags) {
-  SDL_Log("IDirectInput8W::RunControlPanel()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::RunControlPanel()");
 
   if (dwFlags != 0) return DIERR_INVALIDPARAM;
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::Initialize(HINSTANCE hinst, DWORD dwVersion) {
-  SDL_Log("IDirectInput8W::Initialize()");
-  SDL_Log("DInput version: 0x%04X", dwVersion);
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::Initialize()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "DInput version: 0x%04X", dwVersion);
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LPGUID pguidInstance) {
-  SDL_Log("IDirectInput8W::FindDevice() <%s>", util::GUIDToString(rguidClass).c_str());
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::FindDevice() <%s>", util::GUIDToString(rguidClass).c_str());
 
   if (pguidInstance == nullptr) return E_POINTER;
   if (rguidClass == GUID_Joystick)
@@ -165,12 +165,12 @@ STDMETHODIMP IDirectInput8W::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LP
 }
 
 STDMETHODIMP IDirectInput8W::EnumDevicesBySemantics(LPCWSTR ptszUserName, LPDIACTIONFORMATW lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBW lpCallback, LPVOID pvRef, DWORD dwFlags) {
-  SDL_Log("IDirectInput8W::EnumDevicesBySemantics()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::EnumDevicesBySemantics()");
   return DI_OK;
 }
 
 STDMETHODIMP IDirectInput8W::ConfigureDevices(LPDICONFIGUREDEVICESCALLBACK lpdiCallback, LPDICONFIGUREDEVICESPARAMSW lpdiCDParams, DWORD dwFlags, LPVOID pvRefData) {
-  SDL_Log("IDirectInput8W::ConfigureDevices()");
+  SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "IDirectInput8W::ConfigureDevices()");
   //IDirectInput8::ConfigureDevices is deprecated. This method always fails on Windows Vista and later versions of Windows.
   return E_NOTIMPL;
 }

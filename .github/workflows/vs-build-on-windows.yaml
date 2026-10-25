@@ -66,17 +66,17 @@ jobs:
           New-Item -ItemType Directory -Path "$tmp\InputFusion" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\InputFusion\x64" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\InputFusion\x86" | Out-Null
-          Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion64.dll" "$tmp\InputFusion\x64" -Force
-          Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion64.dll" "$tmp\InputFusion\x64\InputFusion64.asi" -Force
-          Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion.dll" "$tmp\InputFusion\x64\InputFusion64.dll" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Release\InputFusion.dll" "$tmp\InputFusion\x64\InputFusion64.asi" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86\InputFusion.dll" -Force
           Copy-Item ".\build\InputFusion\output\Win32\Release\InputFusion.dll" "$tmp\InputFusion\x86\InputFusion.asi" -Force
           
           New-Item -ItemType Directory -Path "$tmp\Debug\InputFusion" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\Debug\InputFusion\x64" | Out-Null
           New-Item -ItemType Directory -Path "$tmp\Debug\InputFusion\x86" | Out-Null
-          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion64.dll" "$tmp\Debug\InputFusion\x64" -Force
-          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion64.dll" "$tmp\Debug\InputFusion\x64\InputFusion64.asi" -Force
-          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\Debug\InputFusion\x86" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\Debug\InputFusion\x64\InputFusion64.dll" -Force
+          Copy-Item ".\build\InputFusion\output\x64\Debug\InputFusion.dll" "$tmp\Debug\InputFusion\x64\InputFusion64.asi" -Force
+          Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\Debug\InputFusion\x86\InputFusion.dll" -Force
           Copy-Item ".\build\InputFusion\output\Win32\Debug\InputFusion.dll" "$tmp\Debug\InputFusion\x86\InputFusion.asi" -Force
 
           # GameInput

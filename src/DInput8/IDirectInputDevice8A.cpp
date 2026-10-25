@@ -39,14 +39,14 @@ namespace {
 IDirectInputDevice8A::IDirectInputDevice8A() : m_refCount(1) {
   SDL_Log("IDirectInputDevice8A");
   this->playerIndex = -1;
-  this->AXIS_LEFTX_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
-  this->AXIS_LEFTX_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
-  this->AXIS_LEFTY_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
-  this->AXIS_LEFTY_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
-  this->AXIS_RIGHTX_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
-  this->AXIS_RIGHTX_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
-  this->AXIS_RIGHTY_MIN = (LONG)SDL_JOYSTICK_AXIS_MIN;
-  this->AXIS_RIGHTY_MAX = (LONG)SDL_JOYSTICK_AXIS_MAX;
+  this->AXIS_LEFTX_MIN = (LONG)(SDL_JOYSTICK_AXIS_MIN + 0x8000);
+  this->AXIS_LEFTX_MAX = (LONG)(SDL_JOYSTICK_AXIS_MAX + 0x8000);
+  this->AXIS_LEFTY_MIN = (LONG)(SDL_JOYSTICK_AXIS_MIN + 0x8000);
+  this->AXIS_LEFTY_MAX = (LONG)(SDL_JOYSTICK_AXIS_MAX + 0x8000);
+  this->AXIS_RIGHTX_MIN = (LONG)(SDL_JOYSTICK_AXIS_MIN + 0x8000);
+  this->AXIS_RIGHTX_MAX = (LONG)(SDL_JOYSTICK_AXIS_MAX + 0x8000);
+  this->AXIS_RIGHTY_MIN = (LONG)(SDL_JOYSTICK_AXIS_MIN + 0x8000);
+  this->AXIS_RIGHTY_MAX = (LONG)(SDL_JOYSTICK_AXIS_MAX + 0x8000);
 }
 
 STDMETHODIMP IDirectInputDevice8A::QueryInterface(REFIID riid, void** ppvObject) {
@@ -301,19 +301,22 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
     return DI_OK;
   }
   
-  SDL_Log("IDirectInputDevice8A::GetDeviceState() > Size: %u | expected %zu or %zu", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
+  SDL_Log("IDirectInputDevice8W::GetDeviceState() > Size: %u | expected %zu or %zu for known format", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
   
-  if (cbData != sizeof(DIJOYSTATE) && cbData != sizeof(DIJOYSTATE2))  {
-    SDL_Log("IDirectInputDevice8A::GetDeviceState() > Unknown data format!");
-    return DIERR_INVALIDPARAM;
-  }
   if (cbData == sizeof(DIJOYSTATE)) {
-    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE");
+      SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE");
   }
   else if (cbData == sizeof(DIJOYSTATE2)) {
-    SDL_Log("IDirectInputDevice8A::GetDeviceState() > DIJOYSTATE2");
+      SDL_Log("IDirectInputDevice8W::GetDeviceState() > DIJOYSTATE2");
   }
-  
+  else if (cbData == this->dataFormatSize) {
+      SDL_Log("IDirectInputDevice8W::GetDeviceState() > Using custom data saved in SetDataFormat()");
+  }
+  else {
+      SDL_Log("IDirectInputDevice8W::GetDeviceState() > Unknown data format!");
+      return DIERR_INVALIDPARAM;
+  }
+
   if (this->playerIndex < 0) return DIERR_NOTINITIALIZED;
 
   InputFusion_SDL_Wait_ready();
@@ -327,114 +330,150 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData) 
   ZeroMemory(lpvData, cbData);
 
   for (const auto& [sdl_button, index] : BUTTONS) {
-    if (SDL_GetGamepadButton(gamepad, sdl_button)) {
-      if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->rgbButtons[index] = 0x80;
+      if (SDL_GetGamepadButton(gamepad, sdl_button)) {
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->rgbButtons[index] = 0x80;
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->rgbButtons[index] = 0x80;
+          }
+          else if (cbData == this->dataFormatSize) {
+              if (index < this->dataFormatOffsets.button.size()) {
+                  const DWORD offset = this->dataFormatOffsets.button[index];
+                  if (offset < cbData) {
+                      ((BYTE*)lpvData)[offset] = 0x80;
+                  }
+              }
+          }
       }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->rgbButtons[index] = 0x80;
-      }
-    }
   }
 
-  DWORD pov = 0xFFFF; //0xFFFF; //Centered (no direction pressed) 
+  DWORD pov = 0xFFFF; //Centered (no direction pressed)
   bool up = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
   bool down = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
   bool left = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
   bool right = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
 
   if (up && down || left && right) {
-    pov = 0xFFFF; // Opposing directions are cancelled out
+      pov = 0xFFFF; // Opposing directions are cancelled out
   }
   else if (up && left) {
-    pov = 0x0007;
+      pov = 0x0007;
   }
   else if (up && right) {
-    pov = 0x0001;
+      pov = 0x0001;
   }
   else if (down && left) {
-    pov = 0x0005;
+      pov = 0x0005;
   }
   else if (down && right) {
-    pov = 0x0003;
+      pov = 0x0003;
   }
   else if (up) {
-    pov = 0x0000;
+      pov = 0x0000;
   }
   else if (down) {
-    pov = 0x0004;
+      pov = 0x0004;
   }
   else if (left) {
-    pov = 0x0006;
+      pov = 0x0006;
   }
   else if (right) {
-    pov = 0x0002;
+      pov = 0x0002;
   }
 
   if (cbData == sizeof(DIJOYSTATE)) {
-    ((DIJOYSTATE*)lpvData)->rgdwPOV[0] = pov;
+      ((DIJOYSTATE*)lpvData)->rgdwPOV[0] = pov;
   }
   else if (cbData == sizeof(DIJOYSTATE2)) {
-    ((DIJOYSTATE2*)lpvData)->rgdwPOV[0] = pov;
+      ((DIJOYSTATE2*)lpvData)->rgdwPOV[0] = pov;
+  }
+  else if (cbData == this->dataFormatSize) {
+      for (DWORD offset : this->dataFormatOffsets.pov)
+      {
+          if (offset <= cbData && sizeof(DWORD) <= cbData - offset) {
+              memcpy(static_cast<BYTE*>(lpvData) + offset, &pov, sizeof(pov));
+          }
+      }
   }
 
-  for (const auto& sdl_axis : AXIS) {
-    int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
-    float normalized = value / (float)(value < 0 ? -SDL_JOYSTICK_AXIS_MIN : SDL_JOYSTICK_AXIS_MAX);
-
-    if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
-      LONG linear = static_cast<LONG>(this->AXIS_LEFTX_MIN + (normalized + 1.0f) * (this->AXIS_LEFTX_MAX - this->AXIS_LEFTX_MIN) / 2.0f);
-      if (cbData == sizeof(DIJOYSTATE)) {
-          ((DIJOYSTATE*)lpvData)->lX = linear;
+  for (const auto& sdl_axis : AXIS)
+  {
+      int value = SDL_GetGamepadAxis(gamepad, sdl_axis);
+      float normalized = value / (float)(value < 0 ? -SDL_JOYSTICK_AXIS_MIN : SDL_JOYSTICK_AXIS_MAX);
+      if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTX) {
+          LONG linear = static_cast<LONG>(this->AXIS_LEFTX_MIN + (normalized + 1.0f) * (this->AXIS_LEFTX_MAX - this->AXIS_LEFTX_MIN) / 2.0f);
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->lX = linear;
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->lX = linear;
+          }
+          else if (cbData == this->dataFormatSize) {
+              if (0 < this->dataFormatOffsets.axis.size()) {
+                  memcpy(static_cast<BYTE*>(lpvData) + this->dataFormatOffsets.axis[0], &linear, sizeof(linear));
+              } 
+          }
       }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-          ((DIJOYSTATE2*)lpvData)->lX = linear;
+      else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTY) {
+          LONG linear = static_cast<LONG>(this->AXIS_LEFTY_MIN + (normalized + 1.0f) * (this->AXIS_LEFTY_MAX - this->AXIS_LEFTY_MIN) / 2.0f);
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->lY = linear;
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->lY = linear;
+          }
+          else if (cbData == this->dataFormatSize) {
+              if (1 < this->dataFormatOffsets.axis.size()) {
+                  memcpy(static_cast<BYTE*>(lpvData) + this->dataFormatOffsets.axis[1], &linear, sizeof(linear));
+              }
+          }
       }
-    }
-    else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFTY) {
-      LONG linear = static_cast<LONG>(this->AXIS_LEFTY_MIN + (normalized + 1.0f) * (this->AXIS_LEFTY_MAX - this->AXIS_LEFTY_MIN) / 2.0f);
-      if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lY = linear;
+      else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTX) {
+          LONG linear = static_cast<LONG>(this->AXIS_RIGHTX_MIN + (normalized + 1.0f) * (this->AXIS_RIGHTX_MAX - this->AXIS_RIGHTX_MIN) / 2.0f);
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->lRx = linear;
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->lRx = linear;
+          }
+          else if (cbData == this->dataFormatSize) {
+              if (2 < this->dataFormatOffsets.axis.size()) {
+                  memcpy(static_cast<BYTE*>(lpvData) + this->dataFormatOffsets.axis[2], &linear, sizeof(linear));
+              }
+          }
       }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lY = linear;
+      else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTY) {
+          LONG linear = static_cast<LONG>(this->AXIS_RIGHTY_MIN + (normalized + 1.0f) * (this->AXIS_RIGHTY_MAX - this->AXIS_RIGHTY_MIN) / 2.0f);
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->lRy = linear;
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->lRy = linear;
+          }
+          else if (cbData == this->dataFormatSize) {
+              if (3 < this->dataFormatOffsets.axis.size()) {
+                  memcpy(static_cast<BYTE*>(lpvData) + this->dataFormatOffsets.axis[3], &linear, sizeof(linear));
+              }
+          }
       }
-    }
-    else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTX) {
-      LONG linear = static_cast<LONG>(this->AXIS_RIGHTX_MIN + (normalized + 1.0f) * (this->AXIS_RIGHTX_MAX - this->AXIS_RIGHTX_MIN) / 2.0f);
-      if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lRx = linear;
+      // Combine left trigger and right trigger as one axis for DInput Xbox controllers
+      else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER) {
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->lZ = std::clamp(-value, -32768, 0);
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->lZ = std::clamp(-value, -32768, 0);
+          }
       }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lRx = linear;
+      else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
+          if (cbData == sizeof(DIJOYSTATE)) {
+              ((DIJOYSTATE*)lpvData)->lZ = std::clamp(value, 0, 32767);
+          }
+          else if (cbData == sizeof(DIJOYSTATE2)) {
+              ((DIJOYSTATE2*)lpvData)->lZ = std::clamp(value, 0, 32767);
+          }
       }
-    }
-    else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHTY) {
-      LONG linear = static_cast<LONG>(this->AXIS_RIGHTY_MIN + (normalized + 1.0f) * (this->AXIS_RIGHTY_MAX - this->AXIS_RIGHTY_MIN) / 2.0f);
-      if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lRy = linear;
-      }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lRy = linear;
-      }
-    }
-    // Combine left trigger and right trigger as one axis for DInput Xbox controllers
-    else if (sdl_axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER) {
-      if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lZ = std::clamp(-value, -32768, 0);
-      }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lZ = std::clamp(-value, -32768, 0);
-      }
-    }
-    else if (sdl_axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
-      if (cbData == sizeof(DIJOYSTATE)) {
-        ((DIJOYSTATE*)lpvData)->lZ = std::clamp(value, 0, 32767);
-      }
-      else if (cbData == sizeof(DIJOYSTATE2)) {
-        ((DIJOYSTATE2*)lpvData)->lZ = std::clamp(value, 0, 32767);
-      }
-    }
   }
   
   SDL_Log("IDirectInputDevice8A::GetDeviceState() > OK");
@@ -449,10 +488,67 @@ STDMETHODIMP IDirectInputDevice8A::GetDeviceData(DWORD cbObjectData, LPDIDEVICEO
 STDMETHODIMP IDirectInputDevice8A::SetDataFormat(LPCDIDATAFORMAT lpdf) {
   SDL_Log("IDirectInputDevice8A::SetDataFormat()");
 
-  //if (IsEqualGUID(*lpdf->rgodf->pguid, c_dfDIJoystick)
+  if (!lpdf)
+      return DIERR_INVALIDPARAM;
 
-  if (lpdf == nullptr) return E_POINTER;
-  //if (this->playerIndex < 0) return DIERR_NOTINITIALIZED; //dino crisis 1 needs kbm first
+  if (lpdf->dwSize < sizeof(DIDATAFORMAT) ||
+      lpdf->dwObjSize < sizeof(DIOBJECTDATAFORMAT) ||
+      lpdf->dwDataSize == 0 ||
+      (lpdf->dwNumObjs != 0 && !lpdf->rgodf))
+  {
+      return DIERR_INVALIDPARAM;
+  }
+
+  if (lpdf->dwDataSize == 256 || // KBM (Resident Evil 3)
+      lpdf->dwDataSize == sizeof(DIJOYSTATE) || // Dino Crisi 1
+      lpdf->dwDataSize == sizeof(DIJOYSTATE2)) {
+      SDL_Log("IDirectInputDevice8A::SetDataFormat() > Known format being set (size: %lu) | TODO", lpdf->dwDataSize);
+      return DI_OK; // Only dealing with custom format for now (Resident Evil 1)
+  }
+
+  std::vector<DIOBJECTDATAFORMAT> objects;
+  objects.reserve(lpdf->dwNumObjs);
+  dataFormatOffset_t offsets = {};
+
+  for (DWORD i = 0; i < lpdf->dwNumObjs; ++i)
+  {
+      const auto& obj = lpdf->rgodf[i];
+
+      // Every object must at least point inside the state buffer.
+      if (obj.dwOfs >= lpdf->dwDataSize)
+          return DIERR_INVALIDPARAM;
+
+      objects.push_back({
+          obj.pguid,
+          obj.dwOfs,
+          obj.dwType,
+          obj.dwFlags
+          });
+
+      DWORD type = DIDFT_GETTYPE(obj.dwType);
+      if (type == DIDFT_BUTTON)
+      {
+          offsets.button.push_back(obj.dwOfs);
+      }
+      else if (type == DIDFT_POV)
+      {
+          offsets.pov.push_back(obj.dwOfs);
+      }
+      else if ((obj.dwType & DIDFT_OPTIONAL) != 0)
+      {
+          offsets.axis.push_back(obj.dwOfs);
+      }
+  }
+
+  this->dataFormatSize = lpdf->dwDataSize;
+  this->dataFormatObjects = std::move(objects);
+  this->dataFormatOffsets = std::move(offsets);
+
+  SDL_Log(
+      "SetDataFormat: saved %lu bytes, %lu objects",
+      static_cast<unsigned long>(this->dataFormatSize),
+      static_cast<unsigned long>(this->dataFormatObjects.size()));
+
   return DI_OK;
 }
 

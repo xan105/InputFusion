@@ -11,6 +11,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include <unknwn.h> 
 #include <string>
 #include <atomic>
+#include <vector>
 #include <initguid.h> //DEFINE_GUID
 
 #define DIRECTINPUT_USER_MAX_COUNT      1 //A lot of games completely crash when they are more than one controller 😩 (FIXME)
@@ -37,15 +38,15 @@ DEFINE_GUID(GUID_Button,  0xA36D02F0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54
 DEFINE_GUID(GUID_POV,     0xA36D02F2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 
 // Special GUIDs (Fake pointer)
-#define DIPROP_BUFFERSIZE	      1
-#define DIPROP_AXISMODE		      2
-#define DIPROP_GRANULARITY	    3
-#define DIPROP_RANGE		        4
-#define DIPROP_DEADZONE		      5
-#define DIPROP_SATURATION	      6
-#define DIPROP_FFGAIN		        7
-#define DIPROP_FFLOAD		        8
-#define DIPROP_AUTOCENTER	      9
+#define DIPROP_BUFFERSIZE	     1
+#define DIPROP_AXISMODE		     2
+#define DIPROP_GRANULARITY	     3
+#define DIPROP_RANGE		     4
+#define DIPROP_DEADZONE		     5
+#define DIPROP_SATURATION	     6
+#define DIPROP_FFGAIN		     7
+#define DIPROP_FFLOAD		     8
+#define DIPROP_AUTOCENTER	     9
 #define DIPROP_CALIBRATIONMODE	10
 #define DIPROP_CALIBRATION	    11
 #define DIPROP_GUIDANDPATH	    12
@@ -64,10 +65,10 @@ DEFINE_GUID(GUID_POV,     0xA36D02F2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54
 
 #define DIPROPAXISMODE_ABS	            0
 #define DIPROPAXISMODE_REL	            1
-#define DIPROPAUTOCENTER_OFF	          0
+#define DIPROPAUTOCENTER_OFF	        0
 #define DIPROPAUTOCENTER_ON	            1
-#define DIPROPCALIBRATIONMODE_COOKED	  0
-#define DIPROPCALIBRATIONMODE_RAW	      1
+#define DIPROPCALIBRATIONMODE_COOKED	0
+#define DIPROPCALIBRATIONMODE_RAW	    1
 
 #define DIPH_DEVICE     0
 #define DIPH_BYOFFSET   1
@@ -128,10 +129,14 @@ DEFINE_GUID(GUID_POV,     0xA36D02F2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54
 #define JOY_POV_NUMDIRS                 4
 
 #define DIDFT_MAKEINSTANCE(n)           ((WORD)(n) << 8)
+#define DIDFT_GETTYPE(n)                LOBYTE(n)
 #define DIDFT_ALL                       0x00000000
+#define DIDFT_ABSAXIS                   0x00000002
 #define DIDFT_AXIS                      0x00000003
 #define DIDFT_BUTTON                    0x0000000C
 #define DIDFT_POV                       0x00000010
+#define DIDFT_OPTIONAL                  0x80000000
+#define DIDFT_ANYINSTANCE               0x80FFFF0C
 
 #define XBOX360_VID	                    0x045E
 #define XBOX360_PID	                    0x028E
@@ -643,6 +648,16 @@ private:
     LONG AXIS_RIGHTY_MIN;
     LONG AXIS_RIGHTY_MAX;
 
+    struct dataFormatOffset_t {
+        std::vector<DWORD> button;
+        std::vector<DWORD> pov;
+        std::vector<DWORD> axis;
+    };
+
+    DWORD dataFormatSize = 0;
+    std::vector<DIOBJECTDATAFORMAT> dataFormatObjects;
+    dataFormatOffset_t dataFormatOffsets;
+
 public:
     IDirectInputDevice8A();
     virtual STDMETHODIMP QueryInterface(REFIID riid, void** ppvObject) override;
@@ -692,6 +707,16 @@ private:
     LONG AXIS_RIGHTX_MAX;
     LONG AXIS_RIGHTY_MIN;
     LONG AXIS_RIGHTY_MAX;
+
+    struct dataFormatOffset_t {
+        std::vector<DWORD> button;
+        std::vector<DWORD> pov;
+        std::vector<DWORD> axis;
+    };
+
+    DWORD dataFormatSize = 0;
+    std::vector<DIOBJECTDATAFORMAT> dataFormatObjects;
+    dataFormatOffset_t dataFormatOffsets;
     
 public:
 

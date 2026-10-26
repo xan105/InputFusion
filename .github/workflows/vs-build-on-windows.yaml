@@ -60,7 +60,7 @@ jobs:
           New-Item -ItemType Directory -Path $tmp | Out-Null
         
           New-Item -ItemType Directory -Path "$tmp\Debug" | Out-Null
-          Set-Content -Path "$tmp\Debug\README.md" -Value "Debug builds require Visual Studio (C++) and provide `InputFusion.log` plus a console window for debugging."
+          Set-Content -Path "$tmp\Debug\README.md" -Value "Debug builds require Visual Studio (C++) and provide an \"InputFusion.log\" file plus a console window for debugging."
         
           # InputFusion
           New-Item -ItemType Directory -Path "$tmp\InputFusion" | Out-Null

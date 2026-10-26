@@ -326,7 +326,7 @@ Build
   - [Microsoft Detours library](https://github.com/microsoft/Detours)
   - [SDL3 Library](https://github.com/libsdl-org/SDL) recompiled as a static lib.
 
-Solution: `./vc/InputFusion.sln`
+**Solution**: `./vc/InputFusion.sln`
 
 The 6 projects inside the solution control the build output:
   - InputFusion -> `InputFusion.dll` (DLL injection)
@@ -336,7 +336,7 @@ The 6 projects inside the solution control the build output:
   - DInput      -> `dinput.dll` (DLL sideloading / injection)
   - WinMM       -> `winmm.dll` (DLL sideloading / injection)
   
-Output: `./build/${project}/output/${platform}/${config}`
+**Output**: `./build/${project}/output/${platform}/${config}`
 
 ## Github Actions
 

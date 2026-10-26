@@ -128,29 +128,29 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <TargetName>dinput8</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -168,7 +168,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -191,7 +191,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -210,7 +210,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -233,7 +233,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput8\dinput8.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>

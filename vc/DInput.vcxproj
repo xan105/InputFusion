@@ -74,29 +74,29 @@
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>dinput</TargetName>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\Win32\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>dinput</TargetName>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\Win32\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>dinput</TargetName>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\build\$(ShortProjectName)\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(ShortProjectName)\artifacts\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>dinput</TargetName>
-    <IncludePath>..\vendor\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\vendor\SDL3\VisualC\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\vendor\SDL3\include;..\vendor\LuaJIT\luajit\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\vendor\SDL3\VisualC\$(Platform)\$(Configuration);..\vendor\LuaJIT\build\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -110,7 +110,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
       <EnableUAC>false</EnableUAC>
     </Link>
@@ -131,7 +131,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
       <EnableUAC>false</EnableUAC>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -149,7 +149,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
       <EnableUAC>false</EnableUAC>
     </Link>
@@ -170,7 +170,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL3.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;lua51.lib;winmm.lib;setupapi.lib;version.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\src\DInput\dinput.def</ModuleDefinitionFile>
       <EnableUAC>false</EnableUAC>
       <GenerateDebugInformation>false</GenerateDebugInformation>

@@ -58,7 +58,7 @@ move /Y luajit_relver.txt ..\..\build\x64\Debug
 move /Y minilua.exp ..\..\build\x64\Debug
 move /Y minilua.lib ..\..\build\x64\Debug
 REM release build
-call msvcbuild.bat debug static
+call msvcbuild.bat static
 if not exist ..\..\build\x64\Release (
     mkdir ..\..\build\x64\Release
 )

@@ -65,8 +65,8 @@ extern "C" {
         static std::atomic<DWORD> dwPacketNumber[XUSER_MAX_COUNT] = {};
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pState == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pState);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetStateEx(%u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, pState);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         InputFusion_SDL_Wait_ready();
@@ -128,8 +128,8 @@ extern "C" {
         SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetState(%u, %p)", dwUserIndex, pVibration);
 
         if (pVibration == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputSetState(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pVibration);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputSetState(%u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, pVibration);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         XINPUT_VIBRATION_EX vibrationEx = {};
@@ -149,8 +149,8 @@ extern "C" {
         SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p)", dwUserIndex, pVibration);
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pVibration == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, pVibration);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputSetStateEx(%u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, pVibration);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         InputFusion_SDL_Wait_ready();
@@ -179,8 +179,8 @@ extern "C" {
         SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilities(%u, %u, %p)", dwUserIndex, dwFlags, pCapabilities);
 
         if (pCapabilities == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilities(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, dwFlags, pCapabilities);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilities(%u, %u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, dwFlags, pCapabilities);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         XINPUT_CAPABILITIES_EX capabilitiesEx = {};
@@ -199,8 +199,8 @@ extern "C" {
         SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p)", dwUserIndex, dwFlags, pCapabilities);
 
         if (dwUserIndex >= XUSER_MAX_COUNT || dwFlags > XINPUT_FLAG_GAMEPAD || pCapabilities == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, dwFlags, pCapabilities);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetCapabilitiesEx(_, %u, %u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, dwFlags, pCapabilities);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         InputFusion_SDL_Wait_ready();
@@ -287,13 +287,13 @@ extern "C" {
         SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p)", dwUserIndex, devType, pBatteryInformation);
 
         if (dwUserIndex >= XUSER_MAX_COUNT || pBatteryInformation == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, devType, pBatteryInformation);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, devType, pBatteryInformation);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         if (!(devType == BATTERY_DEVTYPE_GAMEPAD || devType == BATTERY_DEVTYPE_HEADSET)) {
-            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_INVALID_PARAMETER", dwUserIndex, devType, pBatteryInformation);
-            return ERROR_INVALID_PARAMETER;
+            SDL_LogError(SDL_LOG_CATEGORY_INPUT, "XInputGetBatteryInformation(%u, %u, %p) > ERROR_BAD_ARGUMENTS", dwUserIndex, devType, pBatteryInformation);
+            return ERROR_BAD_ARGUMENTS;
         }
 
         InputFusion_SDL_Wait_ready();

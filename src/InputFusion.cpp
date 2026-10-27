@@ -153,11 +153,11 @@ bool InputFusion_SDL_Init() {
 }
 
 void InputFusion_SDL_Quit(SDL_IOStream* logFile) {
+    SDL_Quit();
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SDL_Quit");
     if (logFile) {
         SDL_CloseIO(logFile);
     }
-    SDL_Quit();
     if (InputFusion_SDL_Quit_Wait) {
         SetEvent(InputFusion_SDL_Quit_Wait);
     }

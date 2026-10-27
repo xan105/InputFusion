@@ -108,6 +108,9 @@
     <ClInclude Include="..\src\Lua\global\console.h">
       <Filter>Header Files\Lua\global</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -222,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Lua\global\console.cpp">
       <Filter>Source Files\Lua\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\log.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

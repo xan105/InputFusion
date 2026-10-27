@@ -14,11 +14,10 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 */
 
 #include "console.h"
-#include <SDL3/SDL.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "../lua.h"
+#include "../../log.h"
 
 namespace {
 

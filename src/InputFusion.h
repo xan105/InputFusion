@@ -16,7 +16,7 @@ extern std::atomic<bool> InputFusion_SDL_Event_Loop;
 
 void InputFusion_SDL_SetHints();
 bool InputFusion_SDL_Init();
-void InputFusion_SDL_Quit();
+void InputFusion_SDL_Quit(SDL_IOStream* logFile);
 void InputFusion_SDL_CloseGamepads();
 void InputFusion_SDL_EventLoop();
 void InputFusion_SDL_Logger(void* userdata, int category, SDL_LogPriority priority, const char* message);

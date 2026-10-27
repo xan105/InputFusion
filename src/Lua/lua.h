@@ -16,11 +16,5 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 #pragma once
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
-#include <SDL3/SDL.h>
 
-typedef enum LOG_CATEGORY {
-    LOG_CATEGORY_LUA = SDL_LOG_CATEGORY_CUSTOM
-} LOG_CATEGORY;
-
-void InputFusion_Lua_Init();
-void InputFusion_Lua_Quit();
+void InputFusion_Lua_Run();

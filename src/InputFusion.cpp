@@ -8,7 +8,6 @@ found in the LICENSE file in the root directory of this source tree.
 #include "flags.h"
 #include "util.h"
 #include "version.h"
-#include "lua/lua.h"
 #include "../vendor/SimpleINI/SimpleIni.h"
 
 HANDLE InputFusion_SDL_Init_Wait = nullptr;
@@ -153,15 +152,18 @@ bool InputFusion_SDL_Init() {
     return true;
 }
 
-void InputFusion_SDL_Quit() {
+void InputFusion_SDL_Quit(SDL_IOStream* logFile) {
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SDL_Quit");
-    SDL_Quit();
-    if (InputFusion_SDL_Quit_Wait) {
-        SetEvent(InputFusion_SDL_Quit_Wait);
+    if (logFile) {
+        SDL_CloseIO(logFile);
     }
+    SDL_Quit();
     if (InputFusion_SDL_Init_Wait) {
         CloseHandle(InputFusion_SDL_Init_Wait);
         InputFusion_SDL_Init_Wait = nullptr;
+    }
+    if (InputFusion_SDL_Quit_Wait) {
+        SetEvent(InputFusion_SDL_Quit_Wait);
     }
 }
 
@@ -293,59 +295,6 @@ void InputFusion_SDL_EventLoop() {
         }
         SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY); // Prevent this loop from consuming too much CPU
     }
-}
-
-void InputFusion_SDL_Logger(void* userdata, int category, SDL_LogPriority priority, const char* message) {
-    const char* reset = "\033[0m";
-    const char* prefix = "[INFO]";
-    const char* prefix_color = "\033[90m";
-    const char* tag = "";
-    const char* tag_color = "\033[0m";
-
-    switch (priority) {
-        case SDL_LOG_PRIORITY_WARN: {
-            prefix = "[WARN]";
-            prefix_color = "\033[33m";
-            break;
-        }
-        case SDL_LOG_PRIORITY_ERROR:
-        case SDL_LOG_PRIORITY_CRITICAL: {
-            prefix = "[ERROR]";
-            prefix_color = "\033[31m";
-            break;
-        }
-        default: {
-            break;
-        }
-    }
-    
-    switch (category) {
-        case SDL_LOG_CATEGORY_APPLICATION: {
-            tag = "<APP>";
-            tag_color = "\033[95m";
-            break;
-        }
-        case SDL_LOG_CATEGORY_INPUT: {
-            tag = "<INPUT>";
-            tag_color = "\033[96m";
-            break;
-        }
-        case LOG_CATEGORY_LUA: {
-            tag = "<LUA>";
-            tag_color = "\033[94m";
-            break;
-        }
-        default: {
-            break;
-        }
-    }
-
-    SDL_IOStream* io = (SDL_IOStream*)userdata;
-    if (io) {
-        SDL_IOprintf(io, "%s %s %s\n", prefix, tag, message);
-        SDL_FlushIO(io);
-    }
-    printf("%s%s %s%s%s %s\n", prefix_color, prefix, tag_color, tag, reset, message);
 }
 
 void InputFusion_SDL_Wait_ready(DWORD timeout) {

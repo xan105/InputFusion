@@ -26,6 +26,7 @@
     <ClInclude Include="..\src\flags.h" />
     <ClInclude Include="..\src\GameInput\gameinput.h" />
     <ClInclude Include="..\src\InputFusion.h" />
+    <ClInclude Include="..\src\log.h" />
     <ClInclude Include="..\src\Lua\global\console.h" />
     <ClInclude Include="..\src\Lua\lua.h" />
     <ClInclude Include="..\src\Lua\type\failure.h" />
@@ -69,6 +70,7 @@
     <ClCompile Include="..\src\GameInput\IGameInputForceFeedbackEffect.cpp" />
     <ClCompile Include="..\src\GameInput\IGameInputReading.cpp" />
     <ClCompile Include="..\src\InputFusion.cpp" />
+    <ClCompile Include="..\src\log.cpp" />
     <ClCompile Include="..\src\Lua\global\console.cpp" />
     <ClCompile Include="..\src\Lua\lua.cpp" />
     <ClCompile Include="..\src\Lua\type\failure.cpp" />
@@ -200,7 +202,7 @@
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>

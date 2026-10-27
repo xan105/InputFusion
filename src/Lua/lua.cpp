@@ -20,14 +20,13 @@ extern "C" {
 #include <lauxlib.h>
 #include <lualib.h>
 }
+#include "../log.h"
 #include "../flags.h"
 #include "../util.h"
 #include "type/failure.h"
 #include "global/console.h"
 
 namespace {
-    lua_State* L = nullptr;
-
     void load_std_libs(lua_State* L) {
         lua_pushcfunction(L, luaopen_package);
         lua_call(L, 0, 0);
@@ -53,7 +52,7 @@ namespace {
     }
 }
 
-void InputFusion_Lua_Init(){
+void InputFusion_Lua_Run(){
     if (Flags().lua_file.empty()) return;
     SDL_LogInfo(LOG_CATEGORY_LUA, "Loading LuaJIT");
 
@@ -62,7 +61,7 @@ void InputFusion_Lua_Init(){
         lua_file = util::GetModuleDirectory() + lua_file;
     }
 
-    L = luaL_newstate();
+    lua_State* L = luaL_newstate();
     load_std_libs(L);
 
     // Custom type
@@ -70,22 +69,14 @@ void InputFusion_Lua_Init(){
     // Extend Globals
     registerConsole(L);
 
-
-
     SDL_LogInfo(LOG_CATEGORY_LUA, "Starting Lua file [\"%s\"]", util::WStringToUtf8(lua_file).c_str());
     if (luaL_dofile(L, util::WStringToUtf8(lua_file).c_str()) != LUA_OK) {
         std::string error = lua_tostring(L, -1);
+        lua_pop(L, 1);
+        lua_close(L);
         SDL_LogError(LOG_CATEGORY_LUA, "%s", error.c_str());
         MessageBoxA(NULL, error.c_str(), "Lua Error", MB_ICONERROR | MB_OK);
-        lua_pop(L, 1);
-        InputFusion_Lua_Quit();
-        return;
+        ExitProcess(1);
     }
-}
-
-void InputFusion_Lua_Quit() {
-    SDL_LogInfo(LOG_CATEGORY_LUA, "lua_close");
-    if (L != nullptr) {
-        lua_close(L);
-    }
+    lua_close(L);
 }

@@ -7,6 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #pragma once
 #define WIN32_LEAN_AND_MEAN 
 #include <Windows.h>
+#include <string>
 
 struct Flags_t {
     bool ledbatterylvl              = false;
@@ -20,6 +21,7 @@ struct Flags_t {
     bool dinput8_detour             = false;
     bool dinput_detour              = false;
     bool winmm_detour               = false;
+    std::wstring lua_file           = L"";
 };
 
 namespace {

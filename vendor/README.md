@@ -1,3 +1,4 @@
+
 - [Microsoft detours](https://github.com/microsoft/Detours)
 - [SDL3](https://github.com/libsdl-org/SDL)
 - [SimpleINI](https://github.com/brofield/simpleini)
@@ -70,8 +71,8 @@ NB: Using the helper script `LuaJIT/pull.cmd` does it for you.
 ## Visual Studio
 
 VC++ Directories
-  - Include: `..\vendor\luajit\luajit\src`
-  - Lib dir: `..\vendor\luajit\build\$(Platform)\$(Configuration)`
+  - Include: `..\vendor\LuaJIT\luajit\src`
+  - Lib dir: `..\vendor\LuaJIT\build\$(Platform)\$(Configuration)`
   
 Linker
   - lua51.lib
@@ -81,7 +82,7 @@ SimpleINI
 
 ## Visual Studio
 
-`C++ > Preprocessor definitions`: Add `NOMINMAX` to resolve the conflicting macro
+`C++ > Preprocessor definitions`: Add `NOMINMAX` to resolve the conflicting macro.
 
 Microsoft detours
 =================

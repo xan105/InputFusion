@@ -24,6 +24,7 @@ const Flags_t& Flags() {
 
         CSimpleIniW ini;
         ini.SetUnicode();
+        ini.SetQuotes(true);
 
         std::wstring config_file = util::GetEnvVar(L"INPUTFUSION_CONFIG_FILE");
         if (config_file.empty()) config_file = util::GetModuleDirectory() + L"InputFusion.ini";
@@ -40,6 +41,8 @@ const Flags_t& Flags() {
             flag.dinput8_detour             = ini.GetBoolValue(L"API",      L"DINPUT8",                     false);
             flag.dinput_detour              = ini.GetBoolValue(L"API",      L"DINPUT",                      false);
             flag.winmm_detour               = ini.GetBoolValue(L"API",      L"WINMM",                       false);
+
+            flag.lua_file                   = ini.GetValue(L"Lua", L"file", L"");
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Parsed flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
         } else {
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to parse flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
@@ -57,6 +60,11 @@ const Flags_t& Flags() {
         SetFlagFromEnv(flag.dinput_detour,              L"GAMEPAD_API_DINPUT",                  L"HOOK");
         SetFlagFromEnv(flag.winmm_detour,               L"GAMEPAD_API_WINMM",                   L"HOOK");
 
+        const std::wstring lua_file = util::GetEnvVar(L"INPUTFUSION_LUA_FILE");
+        if (!lua_file.empty()) {
+            flag.lua_file = lua_file;
+        }
+
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Parsed flags from env. var.");
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
             "Flags:\n"
@@ -70,7 +78,8 @@ const Flags_t& Flags() {
             "- xinput_detour: \t\t%d\n"
             "- dinput8_detour: \t\t%d\n"
             "- dinput_detour: \t\t%d\n"
-            "- winmm_detour: \t\t%d\n",
+            "- winmm_detour: \t\t%d\n"
+            "- lua_file: %s\n",
             flag.ledbatterylvl,
             flag.norumble,
             flag.winmm_layout_xbox,
@@ -81,7 +90,8 @@ const Flags_t& Flags() {
             flag.xinput_detour,
             flag.dinput8_detour,
             flag.dinput_detour,
-            flag.winmm_detour
+            flag.winmm_detour,
+            util::WStringToUtf8(flag.lua_file).c_str()
         );
 
         return flag;

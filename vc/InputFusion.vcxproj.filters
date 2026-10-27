@@ -43,6 +43,24 @@
     <Filter Include="Source Files\GameInput">
       <UniqueIdentifier>{c88ca67d-f677-4060-8202-a67ccf1a52d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Lua">
+      <UniqueIdentifier>{baaf9639-7b14-4de9-84ec-8aac229cad9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lua">
+      <UniqueIdentifier>{3f84fe94-f819-4727-954f-b67d681b3756}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lua\type">
+      <UniqueIdentifier>{68533d89-576c-418d-bd44-67fde9346f79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lua\type">
+      <UniqueIdentifier>{ba9295bf-e36e-4267-bdc2-b230908b48e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lua\global">
+      <UniqueIdentifier>{e86f6300-c183-4300-ae4a-7b93494eb536}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lua\global">
+      <UniqueIdentifier>{907bdcde-b762-43a2-aba7-3107c6f53096}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h">
@@ -80,6 +98,15 @@
     </ClInclude>
     <ClInclude Include="..\src\InputFusion.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lua\lua.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lua\type\failure.h">
+      <Filter>Header Files\Lua\type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lua\global\console.h">
+      <Filter>Header Files\Lua\global</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +213,15 @@
     </ClCompile>
     <ClCompile Include="..\src\InputFusion.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\lua.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\type\failure.cpp">
+      <Filter>Source Files\Lua\type</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\global\console.cpp">
+      <Filter>Source Files\Lua\global</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

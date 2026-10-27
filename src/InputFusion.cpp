@@ -8,6 +8,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "flags.h"
 #include "util.h"
 #include "version.h"
+#include "lua/lua.h"
 #include "../vendor/SimpleINI/SimpleIni.h"
 
 HANDLE InputFusion_SDL_Init_Wait = nullptr;
@@ -20,6 +21,7 @@ void InputFusion_SDL_SetHints() {
 
     CSimpleIniW ini;
     ini.SetUnicode();
+    ini.SetQuotes(true);
 
     std::wstring file = util::GetModuleDirectory() + L"InputFusion.ini";
 
@@ -98,6 +100,13 @@ bool InputFusion_SDL_Init() {
         SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "InputFusion is running as WinMM dll");
     #endif
 
+    if (SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG) != nullptr) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "Gamepad mapping override hint!");
+    }
+    if (SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE) != nullptr) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "Extra gamecontroller db entries hint!");
+    }
+        
     SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, VER_PRODUCTNAME_STR);
     SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, VER_FILEVERSION_STR);
     SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, VER_COMPANYNAME_STR);
@@ -318,7 +327,12 @@ void InputFusion_SDL_Logger(void* userdata, int category, SDL_LogPriority priori
         }
         case SDL_LOG_CATEGORY_INPUT: {
             tag = "<INPUT>";
-            tag_color = "\033[36m";
+            tag_color = "\033[96m";
+            break;
+        }
+        case LOG_CATEGORY_LUA: {
+            tag = "<LUA>";
+            tag_color = "\033[94m";
             break;
         }
         default: {

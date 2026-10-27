@@ -26,6 +26,9 @@
     <ClInclude Include="..\src\flags.h" />
     <ClInclude Include="..\src\GameInput\gameinput.h" />
     <ClInclude Include="..\src\InputFusion.h" />
+    <ClInclude Include="..\src\Lua\global\console.h" />
+    <ClInclude Include="..\src\Lua\lua.h" />
+    <ClInclude Include="..\src\Lua\type\failure.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\version.h" />
@@ -66,6 +69,9 @@
     <ClCompile Include="..\src\GameInput\IGameInputForceFeedbackEffect.cpp" />
     <ClCompile Include="..\src\GameInput\IGameInputReading.cpp" />
     <ClCompile Include="..\src\InputFusion.cpp" />
+    <ClCompile Include="..\src\Lua\global\console.cpp" />
+    <ClCompile Include="..\src\Lua\lua.cpp" />
+    <ClCompile Include="..\src\Lua\type\failure.cpp" />
     <ClCompile Include="..\src\util.cpp" />
     <ClCompile Include="..\src\WinMM\winmm.cpp" />
     <ClCompile Include="..\src\XInput\xinput.cpp" />

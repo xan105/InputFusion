@@ -8,6 +8,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include <SDL3/SDL.h>
 #include "InputFusion.h"
 #include "detours.h"
+#include "lua/lua.h"
 #include "util.h"
 
 extern HANDLE InputFusion_SDL_Init_Wait;
@@ -16,21 +17,26 @@ extern HANDLE InputFusion_SDL_Quit_Wait;
 DWORD WINAPI Main(LPVOID lpReserved) {
     #ifdef _DEBUG
         util::EnableConsole();
+
         std::wstring file = util::GetModuleDirectory() + L"InputFusion.log";
         SDL_IOStream *logFile = SDL_IOFromFile(util::WStringToUtf8(file).c_str(), "w");
         SDL_SetLogOutputFunction(InputFusion_SDL_Logger, logFile);
+        
+        SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_DEBUG);
         SDL_SetLogPriority(SDL_LOG_CATEGORY_INPUT, SDL_LOG_PRIORITY_DEBUG);
+        SDL_SetLogPriority(LOG_CATEGORY_LUA, SDL_LOG_PRIORITY_DEBUG);
     #else
-        SDL_SetLogPriorities(SDL_LOG_PRIORITY_ERROR);
+        SDL_SetLogPriorities(SDL_LOG_PRIORITY_INVALID);
     #endif
 
     InputFusion_SDL_SetHints();
     InputFusion_Detours_SetHooks();
-
+    InputFusion_Lua_Init();
     if (InputFusion_SDL_Init()) {
         InputFusion_SDL_EventLoop();
         InputFusion_SDL_CloseGamepads();
     }
+    InputFusion_Lua_Quit();
     InputFusion_SDL_Quit();
     
     #ifdef _DEBUG

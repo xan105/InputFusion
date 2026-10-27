@@ -158,12 +158,12 @@ void InputFusion_SDL_Quit(SDL_IOStream* logFile) {
         SDL_CloseIO(logFile);
     }
     SDL_Quit();
+    if (InputFusion_SDL_Quit_Wait) {
+        SetEvent(InputFusion_SDL_Quit_Wait);
+    }
     if (InputFusion_SDL_Init_Wait) {
         CloseHandle(InputFusion_SDL_Init_Wait);
         InputFusion_SDL_Init_Wait = nullptr;
-    }
-    if (InputFusion_SDL_Quit_Wait) {
-        SetEvent(InputFusion_SDL_Quit_Wait);
     }
 }
 

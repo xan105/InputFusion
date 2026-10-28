@@ -76,10 +76,14 @@ namespace {
             out << bold << "nil" << reset;
             break;
         case LUA_TUSERDATA: {
-            if (isBigIntUserdata(L, idx) && 
-                luaL_callmeta(L, idx, "__tostring")) 
-            {
-                out << yellow << lua_tostring(L, -1) << reset;
+            if (isUserdataType(L, idx, "Int64")&& 
+                luaL_callmeta(L, idx, "__tostring")) {
+                out << yellow << "<int64>" << lua_tostring(L, -1) << reset;
+                lua_pop(L, 1);
+            }
+            else if (isUserdataType(L, idx, "Uint64")&& 
+                luaL_callmeta(L, idx, "__tostring")) {
+                out << yellow << "<uint64>" << lua_tostring(L, -1) << reset;
                 lua_pop(L, 1);
             }
             else {
@@ -142,27 +146,18 @@ namespace {
         return print(L, LOG_LEVEL_ERROR);
     }
 
-    bool isBigIntUserdata(lua_State* L, int idx) {
+    bool isUserdataType(lua_State* L, int idx, const char* name) {
         if (!lua_isuserdata(L, idx))
             return false;
-
+            
         if (lua_getmetatable(L, idx) == 0)
             return false;
-
-        luaL_getmetatable(L, "Int64");
-        bool isInt64 = lua_rawequal(L, -1, -2);
-        lua_pop(L, 1);
-
-        if (isInt64) {
-            lua_pop(L, 1);
-            return true;
-        }
-
-        luaL_getmetatable(L, "Uint64");
-        bool isUint64 = lua_rawequal(L, -1, -2);
+            
+        luaL_getmetatable(L, name);
+        bool equal = lua_rawequal(L, -1, -2);
         lua_pop(L, 2);
 
-        return isUint64;
+        return equal;
     }
 }
 

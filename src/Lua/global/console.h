@@ -25,18 +25,18 @@ extern "C" {
 
 namespace {
 
-	typedef enum LOG_LEVEL {
-		LOG_LEVEL_INFO = 0,
-		LOG_LEVEL_WARN,
-		LOG_LEVEL_ERROR
-	} LOG_LEVEL;
+    typedef enum LOG_LEVEL {
+        LOG_LEVEL_INFO = 0,
+        LOG_LEVEL_WARN,
+        LOG_LEVEL_ERROR
+    } LOG_LEVEL;
 
-	std::string format(lua_State* L, int idx, int depth);
-	int print(lua_State* L, LOG_LEVEL level);
-	int console_log(lua_State* L);
-	int console_warn(lua_State* L);
-	int console_error(lua_State* L);
-	bool isBigIntUserdata(lua_State* L, int idx);
+    std::string format(lua_State* L, int idx, int depth);
+    int print(lua_State* L, LOG_LEVEL level);
+    int console_log(lua_State* L);
+    int console_warn(lua_State* L);
+    int console_error(lua_State* L);
+    bool isUserdataType(lua_State* L, int idx, const char* name);
 }
 
 void registerConsole(lua_State* L);

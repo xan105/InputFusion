@@ -126,6 +126,9 @@
     <ClInclude Include="..\src\Lua\module\memory.h">
       <Filter>Header Files\Lua\module</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Lua\type\bigint.h">
+      <Filter>Header Files\Lua\type</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\InputFusion.rc">
@@ -252,6 +255,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Lua\module\memory.cpp">
       <Filter>Source Files\Lua\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\type\bigint.cpp">
+      <Filter>Source Files\Lua\type</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

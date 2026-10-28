@@ -36,6 +36,7 @@ namespace {
 	int console_log(lua_State* L);
 	int console_warn(lua_State* L);
 	int console_error(lua_State* L);
+	bool isBigIntUserdata(lua_State* L, int idx);
 }
 
 void registerConsole(lua_State* L);

@@ -75,8 +75,19 @@ namespace {
         case LUA_TNIL:
             out << bold << "nil" << reset;
             break;
+        case LUA_TUSERDATA: {
+            if (isBigIntUserdata(L, idx) && 
+                luaL_callmeta(L, idx, "__tostring")) 
+            {
+                out << yellow << lua_tostring(L, -1) << reset;
+                lua_pop(L, 1);
+            }
+            else {
+                out << cyan << "userdata" << reset;
+            }
+            break;
+        }
         case LUA_TFUNCTION:
-        case LUA_TUSERDATA:
         case LUA_TLIGHTUSERDATA:
             out << cyan << lua_typename(L, type) << reset;
             break;
@@ -129,6 +140,29 @@ namespace {
     }
     int console_error(lua_State* L) {
         return print(L, LOG_LEVEL_ERROR);
+    }
+
+    bool isBigIntUserdata(lua_State* L, int idx) {
+        if (!lua_isuserdata(L, idx))
+            return false;
+
+        if (lua_getmetatable(L, idx) == 0)
+            return false;
+
+        luaL_getmetatable(L, "Int64");
+        bool isInt64 = lua_rawequal(L, -1, -2);
+        lua_pop(L, 1);
+
+        if (isInt64) {
+            lua_pop(L, 1);
+            return true;
+        }
+
+        luaL_getmetatable(L, "Uint64");
+        bool isUint64 = lua_rawequal(L, -1, -2);
+        lua_pop(L, 2);
+
+        return isUint64;
     }
 }
 

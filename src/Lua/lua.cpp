@@ -19,6 +19,7 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 #include "../flags.h"
 #include "../util.h"
 #include "type/failure.h"
+#include "type/bigint.h"
 #include "global/console.h"
 #include "global/sleep.h"
 #include "global/array.h"
@@ -75,10 +76,14 @@ void InputFusion_Lua_Run(){
 
     // Custom type
     registerFailureType(L);
+    registerINT64(L);
+    registerUINT64(L);
+
     // Extend Globals
     registerConsole(L);
     registerSleep(L);
     registerArray(L);
+
     // Custom LUA module
     // preloadModule(L, "process", luaopen_process);
     preloadModule(L, "memory", luaopen_memory);

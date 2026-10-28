@@ -32,6 +32,7 @@
     <ClInclude Include="..\src\Lua\global\sleep.h" />
     <ClInclude Include="..\src\Lua\lua.h" />
     <ClInclude Include="..\src\Lua\module\memory.h" />
+    <ClInclude Include="..\src\Lua\type\bigint.h" />
     <ClInclude Include="..\src\Lua\type\failure.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\util.h" />
@@ -79,6 +80,7 @@
     <ClCompile Include="..\src\Lua\global\sleep.cpp" />
     <ClCompile Include="..\src\Lua\lua.cpp" />
     <ClCompile Include="..\src\Lua\module\memory.cpp" />
+    <ClCompile Include="..\src\Lua\type\bigint.cpp" />
     <ClCompile Include="..\src\Lua\type\failure.cpp" />
     <ClCompile Include="..\src\util.cpp" />
     <ClCompile Include="..\src\WinMM\winmm.cpp" />

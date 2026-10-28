@@ -132,8 +132,12 @@ namespace {
             char* end = nullptr;
             errno = 0;
 
+            const char* p = s;
+            if (*p == '+' || *p == '-') ++p;
+            const int base = p[0] == '0' && (p[1] == 'x' || p[1] == 'X') ? 16 : 10;
+
             if constexpr (std::is_signed<T>::value) {
-                long long v = std::strtoll(s, &end, 10);
+                long long v = std::strtoll(s, &end, base);
                 if (errno == ERANGE || end == s || *end != '\0')
                     return luaL_error(L, "Invalid Int64 decimal string");
                 value = static_cast<T>(v);
@@ -141,7 +145,7 @@ namespace {
                 if (*s == '-')
                     return luaL_error(L, "Uint64 cannot be negative");
 
-                unsigned long long v = std::strtoull(s, &end, 10);
+                unsigned long long v = std::strtoull(s, &end, base);
                 if (errno == ERANGE || end == s || *end != '\0')
                     return luaL_error(L, "Invalid Uint64 decimal string");
                 value = static_cast<T>(v);

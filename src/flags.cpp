@@ -79,7 +79,7 @@ const Flags_t& Flags() {
             "- dinput8_detour: \t\t%d\n"
             "- dinput_detour: \t\t%d\n"
             "- winmm_detour: \t\t%d\n"
-            "- lua_file: %s\n",
+            "- lua_file: [\"%s\"]\n",
             flag.ledbatterylvl,
             flag.norumble,
             flag.winmm_layout_xbox,

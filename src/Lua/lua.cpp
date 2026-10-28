@@ -15,16 +15,14 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 
 #include "lua.h"
 #include <filesystem>
-extern "C" {
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-}
 #include "../log.h"
 #include "../flags.h"
 #include "../util.h"
 #include "type/failure.h"
 #include "global/console.h"
+#include "global/sleep.h"
+#include "global/array.h"
+#include "module/memory.h"
 
 namespace {
     void load_std_libs(lua_State* L) {
@@ -47,8 +45,19 @@ namespace {
         lua_pushcfunction(L, luaopen_bit);
         lua_call(L, 0, 0);
 
+        lua_pushcfunction(L, luaopen_ffi);
+        lua_call(L, 0, 0);
+
         lua_pushcfunction(L, luaopen_jit);
         lua_call(L, 0, 0);
+    }
+
+    void preloadModule(lua_State* L, const char* name, lua_CFunction func) {
+        lua_getglobal(L, "package");       // Get package table
+        lua_getfield(L, -1, "preload");    // Get package.preload table
+        lua_pushcfunction(L, func);        // Push the module initializer function
+        lua_setfield(L, -2, name);         // package.preload[module_name] = module_func
+        lua_pop(L, 2);                     // Pop package and preload tables
     }
 }
 
@@ -68,7 +77,14 @@ void InputFusion_Lua_Run(){
     registerFailureType(L);
     // Extend Globals
     registerConsole(L);
+    registerSleep(L);
+    registerArray(L);
+    // Custom LUA module
+    // preloadModule(L, "process", luaopen_process);
+    preloadModule(L, "memory", luaopen_memory);
+    //preloadModule(L, "SDL/gamepad", luaopen_sdl_gamepad);
 
+    // Load and run main lua file
     SDL_LogInfo(LOG_CATEGORY_LUA, "Starting Lua file [\"%s\"]", util::WStringToUtf8(lua_file).c_str());
     if (luaL_dofile(L, util::WStringToUtf8(lua_file).c_str()) != LUA_OK) {
         std::string error = lua_tostring(L, -1);

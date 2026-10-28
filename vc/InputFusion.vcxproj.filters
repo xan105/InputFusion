@@ -61,6 +61,12 @@
     <Filter Include="Source Files\Lua\global">
       <UniqueIdentifier>{907bdcde-b762-43a2-aba7-3107c6f53096}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Lua\module">
+      <UniqueIdentifier>{fd9ca157-7914-43be-948e-4777fe74d8f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lua\module">
+      <UniqueIdentifier>{f28b3afc-e240-475d-bd06-f64879176fde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h">
@@ -110,6 +116,15 @@
     </ClInclude>
     <ClInclude Include="..\src\log.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lua\global\sleep.h">
+      <Filter>Header Files\Lua\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lua\global\array.h">
+      <Filter>Header Files\Lua\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lua\module\memory.h">
+      <Filter>Header Files\Lua\module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -228,6 +243,15 @@
     </ClCompile>
     <ClCompile Include="..\src\log.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\global\sleep.cpp">
+      <Filter>Source Files\Lua\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\global\array.cpp">
+      <Filter>Source Files\Lua\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lua\module\memory.cpp">
+      <Filter>Source Files\Lua\module</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

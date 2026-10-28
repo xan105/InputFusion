@@ -14,53 +14,51 @@ namespace util {
     {
         if (!AllocConsole()) return;
 
-        // Show the console window
-        HWND consoleWindow = GetConsoleWindow();
+        // Open the active console screen buffer explicitly
+        HANDLE hOut = CreateFileW(
+            L"CONOUT$",
+            GENERIC_READ | GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL
+        );
 
-        if (consoleWindow)
-        {
-            LONG style = GetWindowLong(consoleWindow, GWL_EXSTYLE);
-            SetWindowLong(consoleWindow, GWL_EXSTYLE, style & ~WS_EX_LAYERED);
-            ShowWindow(consoleWindow, SW_SHOW);
-            SetWindowPos(consoleWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-        }
+        if (hOut == INVALID_HANDLE_VALUE) return;
 
-        // Redirect standard streams
-        FILE* dummy;
+        // Explicitly configure the console output handle
+        DWORD mode = 0;
+        if (!GetConsoleMode(hOut, &mode)) return;
+
+        mode |= ENABLE_PROCESSED_OUTPUT;
+        mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        mode |= DISABLE_NEWLINE_AUTO_RETURN;
+
+        SetConsoleMode(hOut, mode);
+
+        // Redirect CRT streams to the console
+        FILE* dummy = NULL;
         freopen_s(&dummy, "CONOUT$", "w", stdout);
-        freopen_s(&dummy, "CONIN$", "r", stdin);
         freopen_s(&dummy, "CONOUT$", "w", stderr);
+        freopen_s(&dummy, "CONIN$", "r", stdin);
 
-        // Enable UTF-8 for console i/o
         SetConsoleOutputCP(CP_UTF8);
         SetConsoleCP(CP_UTF8);
 
-        // Enable ANSI / VT escape sequences
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (hOut != INVALID_HANDLE_VALUE && hOut != nullptr)
+        // Configure the process standard handles too
+        SetStdHandle(STD_OUTPUT_HANDLE, hOut);
+        SetStdHandle(STD_ERROR_HANDLE, hOut);
+
+        HWND hwnd = GetConsoleWindow();
+        if (hwnd)
         {
-            DWORD mode = 0;
-
-            if (GetConsoleMode(hOut, &mode))
-            {
-                mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-                mode |= DISABLE_NEWLINE_AUTO_RETURN;
-
-                SetConsoleMode(hOut, mode);
-            }
-        }
-
-        // Enable VT processing for stderr
-        HANDLE hErr = GetStdHandle(STD_ERROR_HANDLE);
-        if (hErr != INVALID_HANDLE_VALUE && hErr != nullptr)
-        {
-            DWORD mode = 0;
-
-            if (GetConsoleMode(hErr, &mode))
-            {
-                mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-                SetConsoleMode(hErr, mode);
-            }
+            ShowWindow(hwnd, SW_SHOW);
+            SetWindowPos(
+                hwnd, HWND_TOPMOST,
+                0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE
+            );
         }
     }
     
@@ -74,6 +72,23 @@ namespace util {
         else {
             return L"";
         }
+    }
+
+    std::wstring GetLastErrorMessage() {
+        DWORD code = GetLastError();
+        LPWSTR buffer = nullptr;
+        size_t size = FormatMessageW(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            code,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPWSTR)&buffer,
+            0,
+            NULL
+        );
+        std::wstring message(buffer, size);
+        LocalFree(buffer);
+        return L"Error " + std::to_wstring(code) + L": " + message;
     }
 
     const std::wstring& GetModuleDirectory() {
@@ -109,6 +124,15 @@ namespace util {
         return dir;
     }
 
+    std::wstring GetModuleFileNameWString(HMODULE hMod) {
+        WCHAR szPath[MAX_PATH] = {};
+        DWORD length = GetModuleFileNameW(hMod, szPath, MAX_PATH);
+        if (length == 0 || length >= MAX_PATH) {
+            return {};
+        }
+        return std::wstring(szPath, length);
+    }
+
     // Converts a GUID to a std::string
     std::string GUIDToString(REFIID riid) {
         std::ostringstream oss;
@@ -125,15 +149,6 @@ namespace util {
             oss << std::setw(2) << static_cast<int>(riid.Data4[i]);
 
         return oss.str();
-    }
-
-    std::wstring GetModuleFileNameWString(HMODULE hMod) {
-        WCHAR szPath[MAX_PATH] = {};
-        DWORD length = GetModuleFileNameW(hMod, szPath, MAX_PATH);
-        if (length == 0 || length >= MAX_PATH) {
-            return {};
-        }
-        return std::wstring(szPath, length);
     }
 
     std::string WStringToUtf8(const std::wstring& wstr)
@@ -174,6 +189,41 @@ namespace util {
             size,
             nullptr,
             nullptr) != size)
+        {
+            return {};
+        }
+
+        return result;
+    }
+
+    std::wstring StringToUtf16(const std::string& str)
+    {
+        if (str.empty()) {
+            return {};
+        }
+
+        const int size = MultiByteToWideChar(
+            CP_UTF8, 
+            MB_ERR_INVALID_CHARS,
+            str.data(), 
+            static_cast<int>(str.size()),
+            nullptr, 
+            0
+        );
+
+        if (size == 0) {
+            return {};
+        }
+
+        std::wstring result(static_cast<size_t>(size), L'\0');
+
+        if (MultiByteToWideChar(
+            CP_UTF8, 
+            MB_ERR_INVALID_CHARS,
+            str.data(), 
+            static_cast<int>(str.size()),
+            result.data(), 
+            size) != size)
         {
             return {};
         }

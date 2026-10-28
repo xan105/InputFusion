@@ -16,5 +16,15 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 #pragma once
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
+
+namespace {
+    void load_std_libs(lua_State* L);
+    void preloadModule(lua_State* L, const char* name, lua_CFunction func);
+}
 
 void InputFusion_Lua_Run();

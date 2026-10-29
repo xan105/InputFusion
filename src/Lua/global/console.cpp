@@ -86,6 +86,9 @@ namespace {
                 out << yellow << "<uint64>" << lua_tostring(L, -1) << reset;
                 lua_pop(L, 1);
             }
+            else if (luaL_callmeta(L, idx, "__tostring")) {
+                out << green << "\"" << lua_tostring(L, idx) << "\"" << reset;
+            }
             else {
                 out << cyan << "userdata" << reset;
             }

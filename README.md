@@ -84,10 +84,11 @@ _NB: If necessary, you can opt-in to also hook/detour API calls to force the gam
 
 > [!IMPORTANT]
 > Before executing and injecting into your target process, you must specify which API you intend to hook/detour.
-> This is achieved by setting the corresponding environment variable for the desired API.
+> This is achieved by setting for the desired API the corresponding environment variable or option in the config file.
+> If you do not then the process will only initialize SDL without performing any meaningful actions.
 >
-> If you do not configure the environment variable before injection, the process will only initialize SDL without performing any meaningful actions.
-> For details please refer to the `Env Var` section below.
+> For more details please refer to the `Env Var & Config file` section below.
+> E.g. for XInput you should set `GAMEPAD_API_XINPUT=HOOK` or in the config file `[API] > XINPUT=true`
 
 You need a DLL injector to inject `InputFusion` into the target process.
 

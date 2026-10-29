@@ -1,4 +1,4 @@
-> ⚠️ I may introduce breaking changes between minor version despite my best efforts not to. As the tool mature so will the API.
+> ⚠️ I may introduce breaking changes between minor version despite my best efforts not to. As the project mature so will the API.
 
 The scripting engine is powered by [LuaJIT](https://luajit.org/) (Lua 5.1 with some extensions).
 
@@ -23,10 +23,13 @@ Some standard libraries are not enabled by design!<br />
   + console: prettier print
   + Array: Lua table search
   + Failure: Structured error
+  + Uint64/Int64: Handling 64-bit Integers
+    > Lua uses double precision floating point for numbers. One cannot store 64 bit integers with full precision.
+    > This object (i.e., Lua userdata) has metamethods for all of the math and comparison operators, so you can handle it like any number variable.
   
 - 📦 [Modules](#-modules):
-  + [process](#-process) : get info about the current process.
-  + [memory](#-memory)
+  + [process](#-process): get info about the current process.
+  + [memory](#-memory): read/write process memory.
 
 ## 🌐 Globals
 
@@ -86,9 +89,12 @@ Example:
 
 ```lua
 local err = Failure("ERR_NOT_FOUND", "The requested item was not found")
-print(err.code)    -- "ERR_NOT_FOUND"
-print(err.message) -- "The requested item was not found"
-print(err)         -- "[ERR_NOT_FOUND]: The requested item was not found"
+print(err.code)       -- "ERR_NOT_FOUND"
+print(err.message)    -- "The requested item was not found"
+print(tostring(err))  -- "The requested item was not found"
+                      -- This call explicitly the metamethod __tostring of the object
+print(err)            -- "The requested item was not found"
+                      -- Same as above but the metamethod __tostring was called implicitly
 
 local value, err = Foo()
 if err and err.code == "ERR_UNKNOWN" then

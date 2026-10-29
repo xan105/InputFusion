@@ -83,7 +83,7 @@ LUALIB_API int luaopen_process(lua_State* L) {
     lua_setfield(L, -2, "pid");
 
     lua_pushstring(L, util::WStringToUtf8(util::GetCurrentProcessName()).c_str());
-    lua_setfield(L, -2, "name");
+    lua_setfield(L, -2, "bin");
 
     lua_pushstring(L, util::WStringToUtf8(util::GetModuleDirectory()).c_str());
     lua_setfield(L, -2, "dir");

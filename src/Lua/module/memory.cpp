@@ -19,6 +19,7 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 #include <cctype>
 #include <stdexcept>
 #include <type_traits>
+#include "../type/bigint.h"
 #include "../type/failure.h"
 #include "../../util.h"
 
@@ -181,7 +182,7 @@ namespace {
     }
 
     int MemoryReadAs(lua_State* L) {
-        uintptr_t address = static_cast<uintptr_t>(luaL_checkinteger(L, 1));
+        uintptr_t address = static_cast<uintptr_t>(luaL_checkuint64(L, 1));
         std::string typeStr = luaL_checkstring(L, 2);
         size_t length = static_cast<size_t>(luaL_optinteger(L, 3, 256));
 
@@ -218,11 +219,11 @@ namespace {
             }
             #ifdef _WIN64
             else if (typeStr == "i64") {
-                lua_pushinteger(L, SafeRead<int64_t>(address));
+                lua_pushuint64(L, SafeRead<int64_t>(address));
                 lua_pushnil(L);
             }
             else if (typeStr == "u64") {
-                lua_pushinteger(L, SafeRead<uint64_t>(address));
+                lua_pushuint64(L, SafeRead<uint64_t>(address));
                 lua_pushnil(L);
             }
             #endif
@@ -235,7 +236,7 @@ namespace {
                 lua_pushnil(L);
             }
             else if (typeStr == "ptr") {
-                lua_pushinteger(L, SafeRead<uintptr_t>(address));
+                lua_pushuint64(L, SafeRead<uintptr_t>(address));
                 lua_pushnil(L);
             }
             else if (typeStr == "str") {
@@ -251,15 +252,16 @@ namespace {
                 lua_pushFailure(L, "ERR_INVALID_ARGUMENT", message.c_str());
             }
         }
-
-        lua_pushnil(L);
-        lua_pushFailure(L, "ERR_WIN32_API", "Access violation");
+        else {
+            lua_pushnil(L);
+            lua_pushFailure(L, "ERR_WIN32_API", "Access violation");
+        }
 
         return 2;
     }
     
     int MemoryWrite(lua_State* L) {
-        uintptr_t address = static_cast<uintptr_t>(luaL_checkinteger(L, 1));
+        uintptr_t address = static_cast<uintptr_t>(luaL_checkuint64(L, 1));
         std::string valueStr = luaL_checkstring(L, 2);
         std::vector<BYTE> value;
         try {
@@ -311,7 +313,7 @@ namespace {
             pattern = Memory::ParseHexStringTo<int>(patternStr);
         }
         catch (const std::exception& error) {
-            lua_pushinteger(L, 0);
+            lua_pushuint64(L, 0);
             lua_pushFailure(L, "ERR_INVALID_ARGUMENT", error.what());
             return 2;
         }
@@ -326,7 +328,7 @@ namespace {
             }
         }
         catch (const std::exception& error) {
-            lua_pushinteger(L, 0);
+            lua_pushuint64(L, 0);
             lua_pushFailure(L, "ERR_WIN32_API", error.what());
             return 2;
         }
@@ -340,11 +342,11 @@ namespace {
 
                 if (matchMode == "last") {
                     if (matches.empty()) {
-                        lua_pushinteger(L, 0);
+                        lua_pushuint64(L, 0);
                         lua_pushFailure(L, "ERR_WIN32_API", "No Pattern found");
                         return 2;
                     }
-                    lua_pushinteger(L, matches.back());
+                    lua_pushuint64(L, matches.back());
                     lua_pushnil(L);
                     return 2;
                 }
@@ -356,7 +358,7 @@ namespace {
                 }
                 int i = 1;
                 for (auto address : matches) {
-                    lua_pushinteger(L, address);
+                    lua_pushuint64(L, address);
                     lua_rawseti(L, -2, i++);
                 }
                 lua_pushnil(L);
@@ -365,18 +367,18 @@ namespace {
             else {
                 uintptr_t address = Memory::FindPattern<uintptr_t>(baseAddress, moduleInfo.SizeOfImage, pattern);
                 if (!address) {
-                    lua_pushinteger(L, 0);
+                    lua_pushuint64(L, 0);
                     lua_pushFailure(L, "ERR_WIN32_API", "No Pattern found");
                     return 2;
                 }
-                lua_pushinteger(L, address);
+                lua_pushuint64(L, address);
                 lua_pushnil(L);
                 return 2;
             }
         }
         catch (const std::exception& error)
         {
-            lua_pushinteger(L, 0);
+            lua_pushuint64(L, 0);
             lua_pushFailure(L, "ERR_WIN32_API", error.what());
             return 2;
         }
@@ -390,13 +392,13 @@ namespace {
             moduleInfo = Memory::GetModuleInfo(util::StringToUtf16(moduleName));
         }
         catch (const std::exception& error) {
-            lua_pushinteger(L, 0);
+            lua_pushuint64(L, 0);
             lua_pushFailure(L, "ERR_WIN32_API", error.what());
             return 2;
         }
 
         uintptr_t baseAddress = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
-        lua_pushinteger(L, baseAddress);
+        lua_pushuint64(L, baseAddress);
         lua_pushnil(L);
         return 2;
     }

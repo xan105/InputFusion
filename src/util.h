@@ -13,9 +13,11 @@ namespace util {
     void EnableConsole();
     std::wstring GetEnvVar(LPCWSTR name);
     std::wstring GetLastErrorMessage();
-    const std::wstring& GetModuleDirectory();
-    std::string GUIDToString(REFIID riid);
     std::wstring GetModuleFileNameWString(HMODULE hMod);
+    const std::wstring& GetModuleDirectory();
+    const std::wstring& GetCurrentProcessName();
+    const std::wstring& GetCurrentWorkingDir();
+    std::string GUIDToString(REFIID riid);
     std::string WStringToUtf8(const std::wstring& wstr);
     std::wstring StringToUtf16(const std::string& str);
 }

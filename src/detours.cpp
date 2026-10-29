@@ -324,36 +324,38 @@ namespace {
 }
 
 void InputFusion_Detours_SetHooks() {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Process is \"%s\"", util::WStringToUtf8(util::GetCurrentProcessName()).c_str());
+
     if (InputFusion_Detours_Hook_ExitProcess()) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Detour set for exit handler");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Set Detour for Exit handler");
     }
     
     if (Flags().gameinput_detour && InputFusion_Detours_Hook_GameInput()) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for GameInput");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Set Detour for GameInput");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_GAMEINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_GAMEINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled GameInput within SDL to prevent conflict!");
         }
     }
     
     if (Flags().xinput_detour && InputFusion_Detours_Hook_XInput()) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for XInput");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Set Detour for XInput");
         if (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, false) && SDL_SetHintWithPriority(SDL_HINT_XINPUT_ENABLED, "0", SDL_HINT_OVERRIDE)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled XInput within SDL to prevent conflict!");
         }
     }
 
     if (Flags().dinput8_detour && InputFusion_Detours_Hook_DInput8()) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for DInput8");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Set Detour for DInput8");
         if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_DIRECTINPUT, false) && SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_DIRECTINPUT, "0", SDL_HINT_OVERRIDE)) {
             SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "-> Disabled DirectInput within SDL to prevent conflict!");
         }
     }
 
     if (Flags().dinput_detour && InputFusion_Detours_Hook_DInput()) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for DInput 1-7");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Set Detour for DInput 1-7");
     }
     
     if (Flags().winmm_detour && InputFusion_Detours_Hook_Winmm()) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Detour set for WinMM");
+        SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Set Detour for WinMM");
     }
 }

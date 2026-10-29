@@ -32,6 +32,7 @@
     <ClInclude Include="..\src\Lua\global\sleep.h" />
     <ClInclude Include="..\src\Lua\lua.h" />
     <ClInclude Include="..\src\Lua\module\memory.h" />
+    <ClInclude Include="..\src\Lua\module\process.h" />
     <ClInclude Include="..\src\Lua\type\bigint.h" />
     <ClInclude Include="..\src\Lua\type\failure.h" />
     <ClInclude Include="..\src\resource.h" />
@@ -80,6 +81,7 @@
     <ClCompile Include="..\src\Lua\global\sleep.cpp" />
     <ClCompile Include="..\src\Lua\lua.cpp" />
     <ClCompile Include="..\src\Lua\module\memory.cpp" />
+    <ClCompile Include="..\src\Lua\module\process.cpp" />
     <ClCompile Include="..\src\Lua\type\bigint.cpp" />
     <ClCompile Include="..\src\Lua\type\failure.cpp" />
     <ClCompile Include="..\src\util.cpp" />
@@ -170,7 +172,7 @@
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -190,7 +192,7 @@
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -229,7 +231,7 @@
       <PreprocessorDefinitions>NOMINMAX;NDEBUG;INPUTFUSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>

@@ -91,29 +91,30 @@ namespace util {
         return L"Error " + std::to_wstring(code) + L": " + message;
     }
 
+    std::wstring GetModuleFileNameWString(HMODULE hMod) {
+        WCHAR buffer[MAX_PATH] = {};
+        DWORD length = GetModuleFileNameW(hMod, buffer, MAX_PATH);
+        if (length == 0 || length >= MAX_PATH) {
+            return {};
+        }
+        return std::wstring(buffer, length);
+    }
+
     const std::wstring& GetModuleDirectory() {
         static const std::wstring dir = []() -> std::wstring {
-            HMODULE hModule = nullptr;
+            HMODULE hMod = nullptr;
 
             if (!GetModuleHandleExW(
                 GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                 GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                 reinterpret_cast<LPCWSTR>(&GetModuleDirectory),
-                &hModule))
+                &hMod))
             {
-                return L"";
+                return {};
             }
 
-            WCHAR buffer[MAX_PATH] = {};
-            DWORD length = GetModuleFileNameW(hModule, buffer, MAX_PATH);
-
-            if (length == 0 || length >= MAX_PATH) {
-                return L"";
-            }
-
-            std::wstring path(buffer, length);
+            std::wstring path = GetModuleFileNameWString(hMod);
             const auto pos = path.find_last_of(L"\\/");
-
             if (pos != std::wstring::npos) {
                 path.resize(pos + 1); // Keep trailing slash
             }
@@ -124,13 +125,38 @@ namespace util {
         return dir;
     }
 
-    std::wstring GetModuleFileNameWString(HMODULE hMod) {
-        WCHAR szPath[MAX_PATH] = {};
-        DWORD length = GetModuleFileNameW(hMod, szPath, MAX_PATH);
-        if (length == 0 || length >= MAX_PATH) {
-            return {};
-        }
-        return std::wstring(szPath, length);
+    const std::wstring& GetCurrentProcessName() {
+        static const std::wstring name = []() -> std::wstring {
+
+            std::wstring path = GetModuleFileNameWString(nullptr);
+            const auto pos = path.find_last_of(L"\\");
+            if (pos != std::wstring::npos) {
+                path = path.substr(pos + 1);
+            }
+
+            return path;
+            }();
+
+        return name;
+    }
+
+    const std::wstring& GetCurrentWorkingDir() {
+        static const std::wstring dir = []() -> std::wstring {
+            WCHAR buffer[MAX_PATH] = {};
+
+            DWORD length = GetCurrentDirectoryW(MAX_PATH, buffer);
+            if (length == 0 || length >= MAX_PATH) {
+                return {};
+            }
+
+            std::wstring path(buffer, length);
+            if (path.back() != L'\\') {
+                path += L'\\'; // Add trailing slash
+            }
+            return path;
+            }();
+
+        return dir;
     }
 
     // Converts a GUID to a std::string

@@ -24,6 +24,7 @@ Mirror: https://download.xan105.com/InputFusion/Source%20code.zip
 #include "global/sleep.h"
 #include "global/array.h"
 #include "module/memory.h"
+#include "module/process.h"
 
 namespace {
     void load_std_libs(lua_State* L) {
@@ -85,7 +86,7 @@ void InputFusion_Lua_Run(){
     registerArray(L);
 
     // Custom LUA module
-    // preloadModule(L, "process", luaopen_process);
+    preloadModule(L, "process", luaopen_process);
     preloadModule(L, "memory", luaopen_memory);
     //preloadModule(L, "SDL/gamepad", luaopen_sdl_gamepad);
 

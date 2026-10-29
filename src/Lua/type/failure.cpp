@@ -27,7 +27,8 @@ namespace {
     int constructor(lua_State* L) {
         const char* code = luaL_optstring(L, 1, "ERR_UNKNOWN");
         const char* message = luaL_optstring(L, 2, "An unknown error occurred");
-        return lua_pushFailure(L, code, message);
+        lua_pushFailure(L, code, message);
+        return 1;
     }
 
     int index(lua_State* L) {
@@ -62,14 +63,12 @@ namespace {
 
 }
 
-int lua_pushFailure(lua_State* L, const char* code, const char* message) {
+void lua_pushFailure(lua_State* L, const char* code, const char* message) {
     Failure* f = (Failure*)lua_newuserdata(L, sizeof(Failure));
     new(f) Failure{code, message};
 
     luaL_getmetatable(L, "Failure");
     lua_setmetatable(L, -2);
-
-    return 1;
 }
 
 void registerFailureType(lua_State* L) {

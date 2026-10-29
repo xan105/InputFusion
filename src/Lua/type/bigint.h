@@ -85,8 +85,8 @@ namespace {
     void register_type(lua_State* L, const char* mt, lua_CFunction ctor);
 }
 
-int lua_pushint64(lua_State* L, int64_t value);
-int lua_pushuint64(lua_State* L, uint64_t value);
+void lua_pushint64(lua_State* L, int64_t value);
+void lua_pushuint64(lua_State* L, uint64_t value);
 int64_t luaL_checkint64(lua_State* L, int arg);
 uint64_t luaL_checkuint64(lua_State* L, int arg);
 void registerINT64(lua_State* L);

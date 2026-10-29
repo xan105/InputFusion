@@ -339,26 +339,22 @@ namespace {
     }
 }
 
-int lua_pushint64(lua_State* L, int64_t value)
+void lua_pushint64(lua_State* L, int64_t value)
 {
     auto* box = static_cast<Box<I64>*>(lua_newuserdata(L, sizeof(Box<I64>)));
     box->value = value;
 
     luaL_getmetatable(L, INT_MT);
     lua_setmetatable(L, -2);
-    
-    return 1;
 }
 
-int lua_pushuint64(lua_State* L, uint64_t value)
+void lua_pushuint64(lua_State* L, uint64_t value)
 {
     auto* box = static_cast<Box<U64>*>(lua_newuserdata(L, sizeof(Box<U64>)));
     box->value = value;
 
     luaL_getmetatable(L, UINT_MT);
     lua_setmetatable(L, -2);
-    
-    return 1;
 }
 
 int64_t luaL_checkint64(lua_State* L, int arg) {

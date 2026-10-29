@@ -29,5 +29,5 @@ namespace {
     static int gc(lua_State* L);
 }
 
-int lua_pushFailure(lua_State* L, const char* code, const char* message);
+void lua_pushFailure(lua_State* L, const char* code, const char* message);
 void registerFailureType(lua_State* L);

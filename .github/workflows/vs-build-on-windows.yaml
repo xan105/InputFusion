@@ -159,6 +159,8 @@ jobs:
           # Misc
           Copy-Item ".\InputFusion.ini" $tmp -Force
           Copy-Item ".\README.md" $tmp -Force
+          Copy-Item ".\ENV.md" $tmp -Force
+          Copy-Item ".\LUA_API.md" $tmp -Force
           Copy-Item ".\LICENSE" $tmp -Force
 
           & "C:\Program Files\7-Zip\7z.exe" a $archivePath "$tmp\*"

@@ -10,7 +10,7 @@ The goal is to allow old and new games to support any gamepad controller support
 If you are a game developper and you'd like your game to support a variety of gamepad controllers without rewriting your game, this project might be of interest to you.
 
 <p align="center">
-  <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/debug.png">
+  <img src="screenshot/debug.png">
   <em>XInput API calls ("Debug mode")</em>
 </p>
 

@@ -11,7 +11,7 @@ If you are a game developper and you'd like your game to support a variety of ga
 
 <p align="center">
   <img src="screenshot/debug.png">
-  <em>XInput API calls ("Debug mode")</em>
+  <em>InputFusion running in "Debug mode"</em>
 </p>
 
 Gamepad APIs support
@@ -34,8 +34,8 @@ Gamepad APIs support
   Not sure yet how best to handle this. Meanwhile when using a Steam Emulator that translates Steam Input to XInput you can leverage InputFusion to then translate XInput to SDL.
   
   <p align="center">
-  <img src="https://github.com/xan105/InputFusion/raw/main/screenshot/SteamInput_to_XInput.png">
-  <em>Steam Input -> XInput -> SDL ("Debug mode")</em>
+  <img src="screenshot/SteamInput_to_XInput.png">
+  <em>Steam Input -> XInput -> SDL</em>
   </p>
   
 </details>

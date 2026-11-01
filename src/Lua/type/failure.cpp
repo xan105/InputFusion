@@ -71,7 +71,7 @@ void lua_pushFailure(lua_State* L, const char* code, const char* message) {
     lua_setmetatable(L, -2);
 }
 
-void registerFailureType(lua_State* L) {
+void registerFailure(lua_State* L) {
     luaL_newmetatable(L, "Failure");
 
     lua_pushcfunction(L, index);

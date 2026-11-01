@@ -303,7 +303,7 @@ void InputFusion_SDL_Wait_ready(DWORD timeout) {
             SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "SDL is not ready! WAITING...");
             WaitForSingleObject(InputFusion_SDL_Init_Wait, timeout);
             SDL_Delay(INPUTFUSION_SDL_EVENT_LOOP_DELAY);
-            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "...RESUMING!");
+            SDL_LogWarn(SDL_LOG_CATEGORY_INPUT, "...RESUMING! SDL is now ready.");
         }
     }
 }

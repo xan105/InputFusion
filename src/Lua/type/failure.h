@@ -30,4 +30,4 @@ namespace {
 }
 
 void lua_pushFailure(lua_State* L, const char* code, const char* message);
-void registerFailureType(lua_State* L);
+void registerFailure(lua_State* L);

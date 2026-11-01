@@ -76,7 +76,7 @@ void InputFusion_Lua_Run(){
     load_std_libs(L);
 
     // Custom type
-    registerFailureType(L);
+    registerFailure(L);
     registerINT64(L);
     registerUINT64(L);
 
@@ -88,7 +88,8 @@ void InputFusion_Lua_Run(){
     // Custom LUA module
     preloadModule(L, "process", luaopen_process);
     preloadModule(L, "memory", luaopen_memory);
-    //preloadModule(L, "SDL/gamepad", luaopen_sdl_gamepad);
+    //preloadModule(L, "gamepad", luaopen_gamepad);
+    //preloadModule(L, "gamepad/dualsense", luaopen_dualsense);
 
     // Load and run main lua file
     SDL_LogInfo(LOG_CATEGORY_LUA, "Starting Lua file [\"%s\"]", util::WStringToUtf8(lua_file).c_str());

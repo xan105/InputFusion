@@ -219,7 +219,7 @@ namespace {
             }
             #ifdef _WIN64
             else if (typeStr == "i64") {
-                lua_pushuint64(L, SafeRead<int64_t>(address));
+                lua_pushint64(L, SafeRead<int64_t>(address));
                 lua_pushnil(L);
             }
             else if (typeStr == "u64") {

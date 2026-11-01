@@ -42,7 +42,7 @@ const Flags_t& Flags() {
             flag.dinput_detour              = ini.GetBoolValue(L"API",      L"DINPUT",                      false);
             flag.winmm_detour               = ini.GetBoolValue(L"API",      L"WINMM",                       false);
 
-            flag.lua_file                   = ini.GetValue(L"Lua", L"file", L"");
+            flag.lua_file                   = ini.GetValue(L"Lua", L"FILE", L"");
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Parsed flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
         } else {
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to parse flags from [\"%s\"]", util::WStringToUtf8(config_file).c_str());
